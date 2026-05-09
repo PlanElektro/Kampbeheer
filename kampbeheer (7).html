@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚓ Kampbeheer 2026 — Sea Scouts Nieuwpoort</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:14px;}
+#app{max-width:1100px;margin:0 auto;padding:16px;}
+#hdr{display:flex;align-items:center;gap:10px;padding:12px 0 10px;border-bottom:1px solid #e0e0e0;margin-bottom:16px;flex-wrap:wrap;}
+#hdr h1{font-size:18px;font-weight:600;}
+#tabs{display:flex;border-bottom:1px solid #e0e0e0;margin-bottom:18px;overflow-x:auto;}
+.tb{padding:9px 15px;font-size:13px;color:#666;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.tb:hover{color:#1a1a1a;background:#f0f0f0;}.tb.act{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500;}
+.panel{display:none;}.panel.act{display:block;}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;margin-bottom:16px;overflow:hidden;}
+.ch{padding:11px 16px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;background:#fafafa;flex-wrap:wrap;gap:8px;}
+.ch h3{font-size:13px;font-weight:600;}.cb{padding:16px;}.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:#666;border-bottom:1px solid #e5e5e5;background:#fafafa;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;}
+td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:#fafafa;}
+.tfoot td{font-weight:600;background:#f5f5f5;border-top:1px solid #e5e5e5;border-bottom:none;}tr.tfoot:hover td{background:#f5f5f5;}
+td input[type=text],td input[type=number],td input[type=date],td select{border:1px solid #ddd;border-radius:5px;padding:4px 8px;font-size:12px;font-family:inherit;color:#1a1a1a;background:#fff;}
+td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.4px;}
+.fg input,.fg select,.fg textarea{border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;}
+.fg textarea{min-height:48px;resize:vertical;}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.met{background:#fafafa;border:1px solid #e5e5e5;border-radius:7px;padding:12px 14px;}
+.ml{font-size:11px;color:#888;margin-bottom:4px;}.mv{font-size:20px;font-weight:600;}
+.met-ok .mv{color:#16a34a;}.met-bad .mv{color:#dc2626;}.met-info .mv{color:#2563eb;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-family:inherit;font-weight:500;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#1a1a1a;}
+.btn:hover{background:#f5f5f5;}.btn-ok{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}.btn-ok:hover{background:#bbf7d0;}
+.btn-bad{color:#dc2626;border-color:#fecaca;}.btn-bad:hover{background:#fef2f2;}
+.db{border:1px solid #e5e5e5;border-radius:7px;margin-bottom:10px;overflow:hidden;}
+.dh{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:#fafafa;font-size:13px;font-weight:500;user-select:none;}
+.dh:hover{background:#f0f0f0;}.dbody{display:none;padding:14px;gap:12px;}.dbody.open{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+.ml2{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:5px;letter-spacing:.4px;}
+.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f5f5f5;padding-top:12px;}tr.bsec:hover td{background:#f5f5f5;}
+.tr{text-align:right;}.tw5{font-weight:600;}.muted{color:#888;}.ok{color:#16a34a;}.bad{color:#dc2626;}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:#f0f0f0;color:#666;}
+.pill-ref{background:#dbeafe;color:#1d4ed8;}
+.note{font-size:12px;color:#888;padding:10px 14px;background:#fffbeb;border-radius:7px;margin-bottom:14px;border:1px solid #fde68a;}
+.terr-box{background:#f5f5f5;border-radius:6px;padding:10px 14px;font-size:12px;color:#666;margin-top:10px;}.terr-box strong{color:#1a1a1a;}
+.ref-row td{font-size:12px;color:#888;background:#fafafa;}.ref-row:hover td{background:#f5f5f5;}
+#sync-bar{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;}
+.sync-dot.ok{background:#16a34a;}.sync-dot.err{background:#dc2626;}.sync-dot.busy{background:#f59e0b;animation:pulse 1s infinite;}
+#sync-txt{font-size:12px;color:#666;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.plan-sel{font-size:12px;border:1px solid #ddd;border-radius:5px;padding:4px 6px;max-width:170px;width:100%;}
+.ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:12px;}
+.ing-card{background:#fafafa;border:1px solid #e5e5e5;border-radius:7px;padding:12px;}
+.ing-nm{font-size:12px;color:#666;margin-bottom:3px;}.ing-am{font-size:22px;font-weight:700;line-height:1;}
+.ing-sol{font-size:11px;color:#854d0e;background:#fef9c3;padding:2px 6px;border-radius:4px;margin-top:5px;display:inline-block;}
+.ing-note{font-size:11px;color:#888;margin-top:3px;}
+.shop-sec{margin-bottom:20px;}
+.shop-sec h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e5e5;}
+.shop-row{display:flex;align-items:baseline;padding:7px 0;border-bottom:0.5px solid #f0f0f0;gap:10px;font-size:13px;}
+.shop-row:last-child{border-bottom:none;}.shop-nm{flex:1;}.shop-art{font-size:10px;color:#854d0e;background:#fef9c3;padding:1px 5px;border-radius:3px;margin-left:5px;white-space:nowrap;}
+.shop-amt{font-weight:700;white-space:nowrap;}.shop-pkg{font-size:11px;color:#666;margin-left:6px;}
+.portie-bar{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 16px;font-size:13px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.portie-bar strong{color:#1d4ed8;}
+.tip-box{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;}
+.slot-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444;margin:14px 0 6px;}
+.pb-card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;}
+.pb-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pb-naam{font-weight:600;font-size:13px;}.pb-cat{font-size:12px;}.pb-ts{font-size:11px;color:#888;margin-left:auto;}
+.pb-msg{font-size:13px;color:#333;line-height:1.5;white-space:pre-wrap;}
+.pb-del{font-size:11px;color:#dc2626;cursor:pointer;background:none;border:none;padding:0;font-family:inherit;margin-left:auto;}
+.pb-del:hover{text-decoration:underline;}
+.pb-empty{color:#888;font-size:13px;padding:20px 0;text-align:center;}
+
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <div><h1>⚓ Kampbeheer 2026</h1><div style="font-size:12px;color:#666;" id="hnm"></div></div>
+  <div id="sync-bar">
+    <span class="sync-dot" id="sync-dot"></span><span id="sync-txt">verbinden...</span>
+    <button class="btn" onclick="exportData()" style="margin-left:8px">↓ backup</button>
+    <button class="btn" onclick="document.getElementById('import-input').click()">↑ herstel</button>
+  </div>
+</div>
+<div id="tabs">
+  <button class="tb act" data-tab="setup">⚙ Setup</button>
+  <button class="tb" data-tab="av">👥 Aanwezigen</button>
+  <button class="tb" data-tab="keuken">🍳 Keuken</button>
+  <button class="tb" data-tab="menu">📋 Menu</button>
+  <button class="tb" data-tab="prikbord">📌 Prikbord</button>
+  <button class="tb" data-tab="aankopen">🛒 Aankopen</button>
+  <button class="tb" data-tab="vervoer">🚌 Vervoer</button>
+  <button class="tb" data-tab="budget">💰 Budget</button>
+</div>
+
+<div class="panel act" id="p-setup">
+  <div class="card"><div class="ch"><h3>Kampinfo</h3></div><div class="cb"><div class="fgrid">
+    <div class="fg"><label>Kampnaam</label><input type="text" id="s-nm" onchange="saveSU()"></div>
+    <div class="fg"><label>Startdatum</label><input type="date" id="s-st" onchange="saveSU()"></div>
+    <div class="fg"><label>Einddatum</label><input type="date" id="s-ei" onchange="saveSU()"></div>
+    <div class="fg"><label>Eetbudget p/p/dag (€)</label><input type="number" id="s-eb" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Activiteiten p/p/dag (€)</label><input type="number" id="s-ab" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Speelgeld p/p/nacht (€)</label><input type="number" id="s-sp" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Aantal leiding</label><input type="number" id="s-ld" onchange="saveSU()"></div>
+    <div class="fg"><label>Leidingbijdrage (€)</label><input type="number" id="s-lb" step="5" onchange="saveSU()"></div>
+  </div></div></div>
+  <div class="card"><div class="ch"><h3>Huur kampterrein</h3></div><div class="cb"><div class="fgrid">
+    <div class="fg"><label>Tarief p/p/dag (€)</label><input type="number" id="tr-r" step="0.1" onchange="saveSU()"></div>
+    <div class="fg"><label>Minimum per dag (€)</label><input type="number" id="tr-m" step="10" onchange="saveSU()"></div>
+    <div class="fg"><label>Borg / voorschot (€)</label><input type="number" id="tr-b" step="50" onchange="saveSU()"></div>
+    <div class="fg"><label>Subsidie (€)</label><input type="number" id="tr-s" step="50" onchange="saveSU()"></div>
+  </div><div class="terr-box" id="terr-preview"></div></div></div>
+  <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-ok" onclick="addTak()">+ Tak</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th></th></tr></thead>
+    <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table>
+  </div></div></div>
+  <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn btn-ok" onclick="addVK()">+ Kost</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+    <tbody id="vk-body"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="vk-b">—</td><td class="tr" id="vk-s">—</td><td class="tr tw5" id="vk-n">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Variabele kosten (raming)</h3><button class="btn btn-ok" onclick="addVarK()">+ Kost</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Raming (€)</th><th></th></tr></thead>
+    <tbody id="vark-body"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr tw5" id="vark-t">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-av">
+  <div class="card"><div class="ch"><h3>Aanwezigen per dag per tak</h3><div style="display:flex;gap:6px;"><button class="btn btn-ok" onclick="syncAVFromSetup(false)" title="Vul lege velden in op basis van ingeschreven leden">↻ Sync vanuit setup</button><button class="btn btn-bad" onclick="if(confirm('Alle aanwezigheidsdata overschrijven met ingeschreven aantallen uit setup?'))syncAVFromSetup(true)" title="Overschrijf alles met ingeschreven aantallen">↺ Reset naar setup</button></div></div><div class="cb"><div class="tw">
+    <table><thead><tr id="av-hd"></tr></thead><tbody id="av-bd"></tbody><tfoot><tr id="av-ft" class="tfoot"></tr></tfoot></table>
+  </div></div></div>
+</div>
+
+<div class="panel" id="p-keuken">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:0;">
+    <div class="card"><div class="ch"><h3>📅 Maaltijdplanning</h3><span style="font-size:11px;color:#888;">middag &amp; avond per dag</span></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Dag</th><th class="tr">Aanwezig</th><th>Middag</th><th>Avond</th></tr></thead><tbody id="k-plan-bd"></tbody></table>
+    </div></div></div>
+    <div class="card"><div class="ch"><h3>🧮 Hoeveelheden per dag</h3>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <select id="k-sel-dag" class="plan-sel" style="max-width:130px;" onchange="renderKD()"></select>
+        <select id="k-marge" class="plan-sel" style="max-width:100px;" onchange="renderKD()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+      </div>
+    </div><div class="cb" id="k-detail-cb"><p style="color:#888;font-size:13px;">Selecteer een dag.</p></div></div>
+  </div>
+  <div class="card" style="margin-top:14px;"><div class="ch"><h3>🛒 Totale bestellijst — heel kamp</h3>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="k-shop-marge" class="plan-sel" style="max-width:120px;" onchange="renderSL()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+      <button class="btn" onclick="renderSL()">↻ Herbereken</button>
+    </div>
+  </div><div class="cb" id="k-shop-cb"><p style="color:#888;font-size:13px;">Plan eerst maaltijden in.</p></div></div>
+</div>
+
+<div class="panel" id="p-menu">
+  <div class="card"><div class="ch"><h3>Notities per dag</h3></div><div class="cb" id="menu-bd"></div></div>
+</div>
+
+<div class="panel" id="p-prikbord">
+  <div class="card"><div class="ch"><h3>Nieuw bericht</h3></div><div class="cb">
+    <div class="fgrid">
+      <div class="fg"><label>Naam</label><input type="text" id="pb-naam" placeholder="Jouw naam"></div>
+      <div class="fg"><label>Categorie</label><select id="pb-cat"><option>📌 Opmerking</option><option>💡 Suggestie</option><option>✅ To-do</option><option>❓ Vraag</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Bericht</label><textarea id="pb-msg" placeholder="Schrijf hier je bericht..." style="min-height:70px;"></textarea></div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-ok" onclick="addBericht()">+ Plaatsen</button></div>
+  </div></div>
+  <div id="pb-berichten"></div>
+</div>
+
+<div class="panel" id="p-aankopen">
+  <div class="card"><div class="ch"><h3>Nieuwe aankoop registreren</h3></div><div class="cb">
+    <div class="fgrid">
+      <div class="fg"><label>Datum</label><input type="date" id="a-d"></div>
+      <div class="fg"><label>Winkel</label><input type="text" id="a-w" placeholder="bv. Colruyt"></div>
+      <div class="fg"><label>Locatie</label><input type="text" id="a-l" placeholder="bv. Pelt"></div>
+      <div class="fg"><label>Bedrag (€)</label><input type="number" id="a-b" step="0.01" min="0"></div>
+      <div class="fg"><label>Categorie</label><select id="a-c"><option>Eten &amp; drinken</option><option>Bakkerij</option><option>Apotheek</option><option>Materiaal</option><option>Diversen</option></select></div>
+      <div class="fg"><label>Betaald door</label><input type="text" id="a-p" placeholder="bv. Tobias"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notities</label><input type="text" id="a-n"></div>
+    </div>
+    <div style="margin-top:14px;"><button class="btn btn-ok" onclick="addAankoop()">+ Registreer aankoop</button></div>
+  </div></div>
+  <div class="metrics" id="a-met"></div>
+  <div class="card"><div class="ch"><h3>Aankopen huidig kamp</h3>
+    <select id="a-f" onchange="renderAankopen()" style="font-size:12px;border:1px solid #ddd;border-radius:5px;padding:4px 8px;"><option value="">Alle</option><option>Eten &amp; drinken</option><option>Bakkerij</option><option>Apotheek</option><option>Materiaal</option><option>Diversen</option></select>
+  </div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Datum</th><th>Winkel</th><th>Locatie</th><th>Categorie</th><th>Betaald door</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
+    <tbody id="a-bd"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="5"><strong>Gefilterd totaal</strong></td><td class="tr tw5" id="a-tot">—</td><td colspan="2"></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Referentie vorig kamp (2025)</h3><span class="pill pill-ref">enkel-lezen</span></div><div class="cb">
+    <div class="metrics" id="ref-met"></div>
+    <div class="tw"><table><thead><tr><th>Datum</th><th>Winkel</th><th>Locatie</th><th>Categorie</th><th class="tr">Bedrag incl. BTW (€)</th><th>Notities</th></tr></thead>
+    <tbody id="ref-bd"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="4"><strong>Totaal vorig kamp</strong></td><td class="tr tw5" id="ref-tot">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-vervoer">
+  <div class="card"><div class="ch"><h3>Personenvervoer</h3><button class="btn btn-ok" onclick="addPV()">+ Rij</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak / groep</th><th>Type</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
+    <tbody id="pv-bd"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal</strong></td><td class="tr tw5" id="pv-t">—</td><td colspan="2"></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Materiaalvervoer</h3><button class="btn btn-ok" onclick="addMV()">+ Rij</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+    <tbody id="mv-bd"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="mv-b">—</td><td class="tr" id="mv-s">—</td><td class="tr tw5" id="mv-n">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-budget">
+  <div class="metrics" id="b-met"></div>
+  <div class="note">⚠ Variabele kosten zijn ramingen. Als je werkelijke aankopen registreert voor dezelfde posten, zet de raming dan op €0.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+    <div class="card"><div class="ch"><h3>Inkomsten</h3></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Omschrijving</th><th>Detail</th><th class="tr">Bedrag (€)</th></tr></thead>
+      <tbody id="b-in"></tbody>
+      <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal inkomsten</strong></td><td class="tr tw5" id="b-int">—</td></tr></tfoot>
+    </table></div></div></div>
+    <div class="card"><div class="ch"><h3>Uitgaven</h3></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Categorie</th><th>Detail</th><th class="tr">Bedrag (€)</th></tr></thead>
+      <tbody id="b-out"></tbody>
+      <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal uitgaven</strong></td><td class="tr tw5" id="b-outt">—</td></tr></tfoot>
+    </table></div></div></div>
+  </div>
+  <div class="card"><div class="ch"><h3>Aankopen — huidig vs vorig kamp</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Categorie</th><th class="tr">Huidig kamp</th><th class="tr">Vorig kamp (2025)</th><th class="tr">Verschil</th></tr></thead>
+    <tbody id="b-cmp"></tbody><tfoot><tr class="tfoot" id="b-cmp-ft"></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Eetbudget — gepland vs werkelijk</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Huidig kamp</th><th class="tr">Vorig kamp (2025)</th></tr></thead>
+    <tbody id="b-eet"></tbody>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Werkelijk vs optimaal</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak</th><th class="tr">Totaal leden</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th class="tr">Werkelijk inkomen</th><th class="tr">Optimaal inkomen</th><th class="tr">Verschil</th></tr></thead>
+    <tbody id="b-opt"></tbody><tfoot><tr class="tfoot" id="b-opt-ft"></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Terreinhuur — detail per dag</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
+    <tbody id="b-terr"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+</div>
+<input type="file" id="import-input" accept=".json" style="display:none" onchange="importFile(this)">
+
+
+<script>
+const SB_URL='https://vjfvpzbeqpsxiqdwkuch.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZnZwemJlcXBzeGlxZHdrdWNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjQwNzEsImV4cCI6MjA5MTEwMDA3MX0.OShTHhxz9p-_LXHLZ0NBs8-FzvM9ojcSpakDdNJ5hPk';
+const SB_ID='kamp2026';
+const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+// Solucious artikelen uit leveringsbonnen 2025
+const SOL={
+  'vol-au-vent':{art:'112622',nm:'Vol-au-vent 2,25kg',merk:'Delicious Cuisine',vpv:2250,vu:'g'},
+  'frietjes':{art:'01308',nm:'Frieten 5kg',merk:'Lutosa',vpv:5000,vu:'g'},
+  'vleesballetjes':{art:'121851',nm:'Vleesballetjes voorgegaard 1kg',merk:'New ELV',vpv:1000,vu:'g'},
+  'gehakt':{art:'125569',nm:'Gehakt varken-kalf \xb12,5kg',merk:'',vpv:2500,vu:'g'},
+  'broccoli':{art:'106258',nm:'Broccoliroosjes 2,5kg',merk:'Econom',vpv:2500,vu:'g'},
+  'wortelen':{art:'29890',nm:'Wortelen 13kg (bak)',merk:'',vpv:13000,vu:'g'},
+  'aardappelen-vast':{art:'120130',nm:'Aardappelen vastkokend 13kg',merk:"Deli D'or",vpv:13000,vu:'g'},
+  'aardappelen-bloem':{art:'120142',nm:'Aardappelen bloemig 13kg',merk:"Deli D'or",vpv:13000,vu:'g'},
+  'spek':{art:'119207',nm:'Spek gerookt blokjes 1kg',merk:'Econom',vpv:1000,vu:'g'},
+  'kaas-gemalen':{art:'114488',nm:'Emmamix gemalen 45+ 1kg',merk:'',vpv:1000,vu:'g'},
+  'room':{art:'114720',nm:'Room culinair 18% 1L',merk:'Econom',vpv:1000,vu:'ml'},
+  'melk':{art:'23537',nm:'Melk halfvol UHT 1L',merk:'Everyday',vpv:1000,vu:'ml'},
+  'appelmoes':{art:'73621',nm:'Appelmousseline 710g',merk:'Everyday',vpv:710,vu:'g'},
+  'wraps':{art:'123003',nm:'Wraps natuur (25cm) 15st/pak',merk:'Poco Loco',vpv:15,vu:'st'},
+  'knoflooksaus':{art:'35931',nm:'Knoflooksaus 1L',merk:'Vandemoortele',vpv:1000,vu:'ml'},
+  'samurai':{art:'114124',nm:'Samurai\u00ebsaus 1L',merk:'Culino',vpv:1000,vu:'ml'},
+  'mayonaise':{art:'30306',nm:'Mayonaise met eieren 500ml',merk:'Everyday',vpv:500,vu:'ml'},
+  'frituurolie':{art:'73777',nm:'Frituurolie 10L',merk:'Econom',vpv:10000,vu:'ml'},
+  'boter':{art:'21724',nm:'Boter bakken&braden vloeibaar 1L',merk:'Debic',vpv:1000,vu:'ml'},
+  'pitavlees':{art:'114181',nm:'Pitavlees van varken gekruid \xb11kg',merk:'',vpv:1000,vu:'g'},
+  'tomaten':{art:'29893',nm:'Tomaten extra 6kg (bak)',merk:'Everyday',vpv:6000,vu:'g'},
+  'komkommer':{art:'29382',nm:'Komkommer 1st (\xb1400g)',merk:'',vpv:400,vu:'g'},
+  'kip-curry-salade':{art:'126885',nm:'Kip-currysalade 1,5kg',merk:'Econom',vpv:1500,vu:'g'},
+};
+
+// Leeftijdsfactoren per tak-id
+const TAK_F={'JW':0.65,'W':0.65,'JV':0.80,'SG':1.00,'SE':1.00,'moly522axf8':1.05};
+function getTF(id){return TAK_F[id]||1.00;}
+
+// Maaltijden — pp = hoeveelheid per volwassen portie
+const MEALS=[
+  {id:'bbq',nm:'🔥 BBQ',
+   tip:'Reken 30% extra voor BBQ — mensen pakken altijd meer. Marineer kip 2u vooraf. Pitavlees varken (art.114181) werkt goed naast chipolata.',
+   ing:[
+     {n:'Chipolataworsten',u:'g',pp:180,note:'\xb13-4 stuks',sup:'slager'},
+     {n:'Pitavlees varken gekruid',u:'g',pp:110,sol:'pitavlees',sup:'sol'},
+     {n:'Kipfilet gemarineerd',u:'g',pp:120,note:'in reepjes',sup:'super'},
+     {n:'Brood (pistolets)',u:'st',pp:1.5,sup:'bakker'},
+     {n:'Mengslasalade',u:'g',pp:60,sup:'super'},
+     {n:'Tomaten',u:'g',pp:55,sol:'tomaten',sup:'sol'},
+     {n:'Komkommer',u:'g',pp:40,sol:'komkommer',sup:'sol'},
+     {n:'Knoflooksaus',u:'ml',pp:25,sol:'knoflooksaus',sup:'sol'},
+     {n:'Samura\u00ebsaus',u:'ml',pp:20,sol:'samurai',sup:'sol'},
+     {n:'Mayonaise',u:'ml',pp:15,sol:'mayonaise',sup:'sol'},
+   ]},
+  {id:'wraps',nm:'\U0001f32f Wraps',
+   tip:'Warm wraps 30 sec in droge pan. Zet ingredi\u00ebnten apart zodat iedereen zelf samenstelt. 1 pak = 15 wraps (Poco Loco art.123003) \u2248 6 personen.',
+   ing:[
+     {n:'Wraps natuur 25cm',u:'st',pp:2.5,sol:'wraps',sup:'sol'},
+     {n:'Kipfilet gegrild',u:'g',pp:130,note:'in reepjes',sup:'super'},
+     {n:'Emmamix / kaas gemalen',u:'g',pp:35,sol:'kaas-gemalen',sup:'sol'},
+     {n:'Paprika (mix)',u:'g',pp:60,sup:'super'},
+     {n:'IJsbergsla',u:'g',pp:40,sup:'super'},
+     {n:'Tomaten',u:'g',pp:50,sol:'tomaten',sup:'sol'},
+     {n:'Knoflooksaus',u:'ml',pp:30,sol:'knoflooksaus',sup:'sol'},
+     {n:'Samura\u00ebsaus',u:'ml',pp:20,sol:'samurai',sup:'sol'},
+   ]},
+  {id:'macaroni-bol',nm:'\U0001f35d Macaroni bolognese',
+   tip:'Kook pasta in ruim gezouten water. Gehakt varken-kalf (art.125569, \xb12,5kg/verpakking). Emmamix gemalen (art.114488, 1kg \u2248 30 porties kaas).',
+   ing:[
+     {n:'Macaroni droog',u:'g',pp:110,sup:'super'},
+     {n:'Gemengd gehakt',u:'g',pp:130,sol:'gehakt',sup:'sol'},
+     {n:'Tomatenpuree',u:'g',pp:25,sup:'super'},
+     {n:'Passata / tomatensaus',u:'ml',pp:150,sup:'super'},
+     {n:'Ui',u:'g',pp:35,sup:'super'},
+     {n:'Emmamix / kaas gemalen',u:'g',pp:35,sol:'kaas-gemalen',sup:'sol'},
+   ]},
+  {id:'volau',nm:'\U0001f950 Vol-au-vent met frietjes',
+   tip:'1 blik vol-au-vent (2,25kg, art.112622) \u2248 10 porties. Frietjes in oven (180\u00b0C, 25 min) voor grote groepen. 1 zak Lutosa (5kg, art.01308) \u2248 20 porties.',
+   ing:[
+     {n:'Vol-au-vent bereiding',u:'g',pp:280,sol:'vol-au-vent',sup:'sol',note:'kant-en-klaar'},
+     {n:'Frietjes',u:'g',pp:260,sol:'frietjes',sup:'sol'},
+     {n:'Frituurolie',u:'ml',pp:20,sol:'frituurolie',sup:'sol'},
+     {n:'Brood',u:'snee',pp:1,sup:'bakker'},
+   ]},
+  {id:'worst-app',nm:'\U0001f336 Worst, appelmoes & aardappelen',
+   tip:'Vastkokende aardappelen (art.120130, 13kg/bak). Appelmousseline (art.73621, 710g \u2248 7 porties). Chipolataworsten bij de slager \u2014 reken 3-4 per persoon.',
+   ing:[
+     {n:'Chipolataworsten',u:'g',pp:220,note:'\xb13-4 stuks',sup:'slager'},
+     {n:'Vastkokende aardappelen',u:'g',pp:280,sol:'aardappelen-vast',sup:'sol'},
+     {n:'Appelmousseline',u:'g',pp:120,sol:'appelmoes',sup:'sol'},
+     {n:'Boter',u:'ml',pp:10,sol:'boter',sup:'sol'},
+   ]},
+  {id:'fish',nm:'\U0001f41f Fishsticks met wortelpuree',
+   tip:'Wortelpuree: 1 bak wortelen (13kg, art.29890) \u2248 65 porties. Bloemige aardappelen toevoegen geeft vollere puree (art.120142). Fishsticks bij super.',
+   ing:[
+     {n:'Fishsticks',u:'g',pp:200,note:'\xb14-5 stuks',sup:'super'},
+     {n:'Wortelen',u:'g',pp:220,sol:'wortelen',sup:'sol'},
+     {n:'Aardappelen bloemig (toevoeging)',u:'g',pp:100,sol:'aardappelen-bloem',sup:'sol'},
+     {n:'Melk',u:'ml',pp:60,sol:'melk',sup:'sol'},
+     {n:'Boter',u:'ml',pp:20,sol:'boter',sup:'sol'},
+     {n:'Tartaarsaus',u:'ml',pp:40,sup:'super'},
+   ]},
+  {id:'kip-curry',nm:'\U0001f35b Kip met curry en rijst',
+   tip:'Kip-currysalade Solucious (art.126885, 1,5kg \u2248 10 porties) als basis + room culinair (art.114720). Rijst: 1 deel rijst op 1,5 deel water, 18 min. 1kg droge rijst \u2248 10 porties.',
+   ing:[
+     {n:'Kip-currysalade basis',u:'g',pp:80,sol:'kip-curry-salade',sup:'sol'},
+     {n:'Kipfilet extra',u:'g',pp:70,note:'optioneel',sup:'super'},
+     {n:'Rijst droog',u:'g',pp:90,sup:'super'},
+     {n:'Room culinair 18%',u:'ml',pp:60,sol:'room',sup:'sol'},
+     {n:'Curryketchup / -saus',u:'ml',pp:60,sup:'super'},
+     {n:'Paprika',u:'g',pp:50,sup:'super'},
+   ]},
+  {id:'ballen',nm:'\U0001f35d Balletjes in tomatensaus',
+   tip:'Voorgegaarde vleesballetjes (art.121851, 1kg \u2248 5 porties). Serveer met pasta of brood. Tomatenpuree + passata als saus.',
+   ing:[
+     {n:'Vleesballetjes voorgegaard',u:'g',pp:200,sol:'vleesballetjes',sup:'sol'},
+     {n:'Passata / tomatensaus',u:'ml',pp:180,sup:'super'},
+     {n:'Pasta of rijst droog',u:'g',pp:100,sup:'super'},
+     {n:'Ui',u:'g',pp:25,sup:'super'},
+     {n:'Emmamix / kaas gemalen',u:'g',pp:25,sol:'kaas-gemalen',sup:'sol'},
+   ]},
+  {id:'mac-bro',nm:'\U0001f966 Macaroni met broccoli',
+   tip:'Blancheer broccoli apart (3 min) zodat hij groen blijft. 1 pak broccoliroosjes (2,5kg, art.106258) \u2248 15 porties. Room culinair 1L (art.114720).',
+   ing:[
+     {n:'Macaroni droog',u:'g',pp:110,sup:'super'},
+     {n:'Broccoliroosjes',u:'g',pp:160,sol:'broccoli',sup:'sol'},
+     {n:'Room culinair 18%',u:'ml',pp:80,sol:'room',sup:'sol'},
+     {n:'Emmamix / kaas gemalen',u:'g',pp:40,sol:'kaas-gemalen',sup:'sol'},
+     {n:'Knoflook',u:'g',pp:4,sup:'super'},
+     {n:'Boter',u:'ml',pp:12,sol:'boter',sup:'sol'},
+   ]},
+  {id:'puree-fatale',nm:'\U0001f954 Puree Fatale',
+   tip:'Bloemige aardappelen (bak kal.4, art.120142). Spekblokjes (art.119207) eerst krokant bakken. Emmamix (art.114488) is de kaascomponent. Stamp iets grof voor karakter.',
+   ing:[
+     {n:'Aardappelen bloemig',u:'g',pp:320,sol:'aardappelen-bloem',sup:'sol'},
+     {n:'Spekblokjes gerookt',u:'g',pp:80,sol:'spek',sup:'sol'},
+     {n:'Emmamix / kaas gemalen',u:'g',pp:55,sol:'kaas-gemalen',sup:'sol'},
+     {n:'Room culinair 18%',u:'ml',pp:60,sol:'room',sup:'sol'},
+     {n:'Melk',u:'ml',pp:70,sol:'melk',sup:'sol'},
+     {n:'Boter',u:'ml',pp:25,sol:'boter',sup:'sol'},
+   ]},
+];
+const MM=Object.fromEntries(MEALS.map(m=>[m.id,m]));
+
+const REF=[
+  {d:'2025-07-13',w:'Vandenbroucke NPT',l:'Nieuwpoort',b:95,c:'Eten & drinken',n:'Vlees'},
+  {d:'2025-07-15',w:'Stock Pelt',l:'Pelt',b:158.5,c:'Eten & drinken',n:'Terugbetaling middagmaal'},
+  {d:'2025-07-14',w:'Solucious',l:'Halle',b:1801.94,c:'Eten & drinken',n:'Bon 3681276'},
+  {d:'2025-07-18',w:'Colruyt',l:'Pelt',b:309.52,c:'Eten & drinken',n:''},
+  {d:'2025-07-18',w:'Aldi',l:'Overpelt',b:110.94,c:'Eten & drinken',n:''},
+  {d:'2025-07-19',w:'Apotheek',l:'Achel',b:25.03,c:'Apotheek',n:''},
+  {d:'2025-07-19',w:'Colruyt',l:'Pelt',b:344.45,c:'Eten & drinken',n:''},
+  {d:'2025-07-20',w:'Frederiek',l:'',b:289.84,c:'Eten & drinken',n:'Ribben + worsten'},
+  {d:'2025-07-20',w:'Jumbo',l:'Lommel',b:76.26,c:'Eten & drinken',n:''},
+  {d:'2025-07-23',w:'Apotheek',l:'Achel',b:98.34,c:'Apotheek',n:''},
+  {d:'2025-07-23',w:'Frederiek',l:'',b:20.79,c:'Materiaal',n:'Diversen materiaal'},
+  {d:'2025-07-23',w:'Solucious',l:'Halle',b:455.21,c:'Eten & drinken',n:'Bon 3693101'},
+  {d:'2025-07-24',w:'Apotheek',l:'Achel',b:14.87,c:'Apotheek',n:''},
+  {d:'2025-07-24',w:'Colruyt',l:'Pelt',b:300.70,c:'Eten & drinken',n:''},
+  {d:'2025-07-24',w:'Collect & Go',l:'Pelt',b:321.91,c:'Eten & drinken',n:''},
+  {d:'2025-07-24',w:'Apotheek (Ellen)',l:'Achel',b:25.87,c:'Apotheek',n:'Elyes'},
+  {d:'2025-07-24',w:'Solucious',l:'Halle',b:409.20,c:'Eten & drinken',n:'Bon 3694027'},
+  {d:'2025-07-25',w:'Apotheek (Jef)',l:'Achel',b:34.75,c:'Apotheek',n:''},
+  {d:'2025-07-25',w:'Aldi',l:'Hamont',b:33.06,c:'Eten & drinken',n:''},
+  {d:'2025-07-25',w:'Cash opname',l:'',b:100,c:'Diversen',n:'Hike S&G'},
+  {d:'2025-07-26',w:'Colruyt',l:'Pelt',b:364.50,c:'Eten & drinken',n:''},
+  {d:'2025-07-26',w:'Aldi',l:'Hamont',b:14.29,c:'Eten & drinken',n:''},
+  {d:'2025-07-26',w:'Delhaize',l:'Hamont',b:75.67,c:'Eten & drinken',n:''},
+  {d:'2025-07-26',w:'Budget Slager',l:'Hamont',b:87.51,c:'Eten & drinken',n:''},
+  {d:'2025-07-27',w:'Bakkerij Schuermans',l:'Hamont',b:414,c:'Bakkerij',n:'Eindafrekening'},
+  {d:'2025-07-28',w:'Albert Heijn',l:'',b:48.28,c:'Eten & drinken',n:''},
+];
+const REF_EET=6394;
+
+const DEF={
+  setup:{nm:'Kamp 2026',st:'2026-07-14',ei:'2026-07-28',eb:10,ab:3,sp:3,ld:15,lb:50,
+    terrein:{r:1.5,min:150,borg:500,sub:1000},
+    takken:[
+      {id:'JW',nm:'Jongwelpen',tot:27,ins:10,aa:'2026-07-22',vt:'2026-07-28',kp:175},
+      {id:'W',nm:'Welpen',tot:21,ins:6,aa:'2026-07-21',vt:'2026-07-28',kp:185},
+      {id:'JV',nm:'Jongverkenners',tot:19,ins:12,aa:'2026-07-19',vt:'2026-07-28',kp:210},
+      {id:'SG',nm:'Scouts & Guides',tot:17,ins:5,aa:'2026-07-17',vt:'2026-07-28',kp:230},
+      {id:'SE',nm:'Seniors',tot:5,ins:5,aa:'2026-07-25',vt:'2026-07-28',kp:0,sg:false},
+      {id:'moly522axf8',nm:'Leiding',tot:18,ins:16,aa:'2026-07-14',vt:'2026-07-28',kp:50,sg:false},
+    ],
+    vk:[{id:1,om:'Huur tenten',b:201,s:0},{id:2,om:'Koelwagen',b:450,s:0},{id:3,om:"Toi Toi's",b:900,s:0}],
+    vark:[{id:1,om:'Water',r:150},{id:2,om:'Electriciteit',r:250},{id:3,om:'Gas',r:150},{id:4,om:'EHBO',r:150},{id:5,om:'Aankoop materiaal',r:250},{id:6,om:'Sjortouw',r:375},{id:7,om:'Schade gehuurde tenten',r:150}],
+  },
+  av:{},menu:{},aankopen:[],keuken:{},prikbord:[],
+  ver:{
+    pv:[{id:1,tak:'JW',tp:'Trein',b:50,nt:''},{id:2,tak:'W',tp:'Trein',b:50,nt:''},{id:3,tak:'JV',tp:'Trein',b:75,nt:''},{id:4,tak:'SG',tp:'Trein',b:75,nt:''},{id:5,tak:'Alle',tp:'Bus',b:1392,nt:''}],
+    mv:[{id:1,om:'Popieul 2 containers',b:1500,s:500},{id:2,om:'Materiaalvervoer sjorhout',b:0,s:0}],
+  },
+};
+let S=JSON.parse(JSON.stringify(DEF));
+let saveTimer=null;
+
+function setSS(c,t){document.getElementById('sync-dot').className='sync-dot '+(c||'');document.getElementById('sync-txt').textContent=t||'';}
+async function sbLoad(){
+  setSS('busy','laden...');
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer?id=eq.${SB_ID}&select=data`,{headers:HDR});
+    if(!r.ok)throw new Error(r.status);
+    const rows=await r.json();
+    if(rows&&rows.length&&rows[0].data){S=rows[0].data;if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];setSS('ok','gesynchroniseerd');}
+    else await sbWrite();
+  }catch(e){setSS('err','offline \u2014 lokaal');}
+  loadSU();syncAVFromSetup(false);
+}
+async function sbWrite(){
+  setSS('busy','opslaan...');
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer`,{method:'POST',headers:{...HDR,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:SB_ID,data:S,updated_at:new Date().toISOString()})});
+    if(!r.ok)throw new Error(r.status);
+    setSS('ok','opgeslagen \u2713');setTimeout(()=>setSS('ok','gesynchroniseerd'),2000);
+  }catch(e){setSS('err','sync mislukt');}
+}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+
+const DNL=['zo','ma','di','wo','do','vr','za'];
+function fmt(n){if(n==null||isNaN(n))return'\u2014';return'\u20ac\u00a0'+Number(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtQ(v,u){
+  if(u==='st'||u==='snee')return Math.ceil(v)+'';
+  if(v>=1000&&(u==='g'||u==='ml'))return(v/1000).toLocaleString('nl-BE',{minimumFractionDigits:1,maximumFractionDigits:2}).replace(/,?0+$/, '')+(u==='g'?' kg':' L');
+  return Math.ceil(v)+(u==='g'?' g':u==='ml'?' ml':' '+u);
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function getDays(){if(!S.setup.st||!S.setup.ei)return[];const d=[],e=new Date(S.setup.ei);let c=new Date(S.setup.st);while(c<=e){d.push(c.toISOString().slice(0,10));c=new Date(c);c.setDate(c.getDate()+1);}return d;}
+function fD(iso){const d=new Date(iso+'T12:00:00');return DNL[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);}
+function nights(a,b){if(!a||!b)return 0;return Math.max(0,(new Date(b)-new Date(a))/86400000);}
+function refCat(c){return REF.filter(r=>r.c===c).reduce((s,r)=>s+r.b,0);}
+function getPorties(d,marge){
+  const av=S.av[d]||{};let p=0;
+  S.setup.takken.forEach(t=>{p+=(av[t.id]||0)*getTF(t.id);});
+  return p*(1+(marge||0)/100);
+}
+function calcTerrein(){
+  const tr=S.setup.terrein||{};let tot=0;const rows=[];
+  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,eff,useMin});});
+  return{rows,dagtot:tot,netto:tot+(tr.borg||0)-(tr.sub||0),borg:tr.borg||0,sub:tr.sub||0};
+}
+function updateTerreinPreview(){
+  const r=S.setup.terrein||{},res=calcTerrein();const empty=res.rows.every(r=>r.tot===0);
+  document.getElementById('terr-preview').innerHTML=empty?`Formule: max(${fmt(r.r)} \xd7 aanwezigen, ${fmt(r.min)}) per dag + borg ${fmt(r.borg)} \u2212 subsidie ${fmt(r.sub)}`:`<strong>Berekende terreinprijs:</strong> ${res.rows.length} dagen = ${fmt(res.dagtot)} + borg ${fmt(res.borg)} \u2212 subsidie ${fmt(res.sub)} = <strong>${fmt(res.netto)}</strong>`;
+}
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.tb');if(!btn)return;const tab=btn.dataset.tab;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('act',b===btn));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('act',p.id==='p-'+tab));
+  if(tab==='av')renderAV();if(tab==='menu')renderMenu();if(tab==='keuken')renderKeuken();
+  if(tab==='prikbord')renderPrikbord();
+  if(tab==='aankopen'){renderAankopen();renderRef();}if(tab==='vervoer')renderVer();if(tab==='budget')renderBudget();
+});
+
+function loadSU(){
+  const s=S.setup;
+  document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
+  document.getElementById('s-eb').value=s.eb;document.getElementById('s-ab').value=s.ab;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
+  const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
+  document.getElementById('hnm').textContent=s.nm||'';rTk();rVK();rVarK();updateTerreinPreview();
+}
+function saveSU(){
+  const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
+  s.eb=+document.getElementById('s-eb').value;s.ab=+document.getElementById('s-ab').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
+  s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
+  document.getElementById('hnm').textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);save();
+}
+function rTk(){
+  const tb=document.getElementById('tk-body');tb.innerHTML='';let tT=0,iT=0;
+  S.setup.takken.forEach((t,i)=>{tT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${t.nm}" onchange="uTk(${i},'nm',this.value)"></td><td><input type="number" value="${t.tot||0}" onchange="uTk(${i},'tot',+this.value)"></td><td><input type="number" value="${t.ins||0}" onchange="uTk(${i},'ins',+this.value)"></td><td style="color:${clr};font-weight:600;font-size:12px;">${t.tot?dp+'%':'\u2014'}</td><td><input type="date" value="${t.aa}" style="width:130px" onchange="uTk(${i},'aa',this.value)"></td><td><input type="date" value="${t.vt}" style="width:130px" onchange="uTk(${i},'vt',this.value)"></td><td><input type="number" value="${t.kp}" step="5" style="width:75px" onchange="uTk(${i},'kp',+this.value)"></td><td style="text-align:center;"><input type="checkbox" ${t.sg!==false?'checked':''} onchange="uTk(${i},'sg',this.checked)" title="Ontvangt speelgeld"></td><td><button class="btn btn-bad" onclick="dTk(${i})">&#x2715;</button></td>`;
+    tb.appendChild(tr);});
+  const tp=tT?Math.round(iT/tT*100):0;
+  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${tT}</td><td class="tr">${iT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="4"></td>`;
+}
+function uTk(i,f,v){S.setup.takken[i][f]=v;syncAVFromSetup(false);rTk();save();}
+function addTak(){S.setup.takken.push({id:uid(),nm:'Nieuwe tak',tot:0,ins:0,aa:S.setup.st,vt:S.setup.ei,kp:0});rTk();save();}
+function dTk(i){if(!confirm('Tak verwijderen?'))return;S.setup.takken.splice(i,1);rTk();save();}
+function rVK(){
+  const tb=document.getElementById('vk-body');tb.innerHTML='';let b=0,s=0;
+  S.setup.vk.forEach((k,i)=>{b+=k.b||0;s+=k.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVK(${i},'om',this.value)" style="min-width:150px"></td><td class="tr"><input type="number" value="${k.b}" step="10" onchange="uVK(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${k.s}" step="10" onchange="uVK(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((k.b||0)-(k.s||0))}</td><td><button class="btn btn-bad" onclick="dVK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
+  document.getElementById('vk-b').textContent=fmt(b);document.getElementById('vk-s').textContent=fmt(s);document.getElementById('vk-n').textContent=fmt(b-s);
+}
+function uVK(i,f,v){S.setup.vk[i][f]=v;rVK();save();}function addVK(){S.setup.vk.push({id:uid(),om:'',b:0,s:0});rVK();save();}function dVK(i){S.setup.vk.splice(i,1);rVK();save();}
+function rVarK(){
+  const tb=document.getElementById('vark-body');tb.innerHTML='';let t=0;
+  S.setup.vark.forEach((k,i)=>{t+=k.r||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVarK(${i},'om',this.value)" style="min-width:180px"></td><td class="tr"><input type="number" value="${k.r}" step="10" onchange="uVarK(${i},'r',+this.value)"></td><td><button class="btn btn-bad" onclick="dVarK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
+  document.getElementById('vark-t').textContent=fmt(t);
+}
+function uVarK(i,f,v){S.setup.vark[i][f]=v;rVarK();save();}function addVarK(){S.setup.vark.push({id:uid(),om:'',r:0});rVarK();save();}function dVarK(i){S.setup.vark.splice(i,1);rVarK();save();}
+
+// Auto-sync aanwezigen vanuit setup
+// force=false: vult alleen lege cellen; force=true: overschrijft alles
+function syncAVFromSetup(force){
+  const days=getDays();
+  days.forEach(d=>{
+    if(!S.av[d])S.av[d]={};
+    S.setup.takken.forEach(t=>{
+      // Dag valt binnen aankomst-vertrek van deze tak?
+      const inRange=t.aa&&t.vt&&d>=t.aa&&d<=t.vt;
+      const isEmpty=!S.av[d][t.id]&&S.av[d][t.id]!==0||(S.av[d][t.id]===0&&!force);
+      // Zet waarde als: in range én (leeg of force)
+      if(inRange&&(force||S.av[d][t.id]==null||S.av[d][t.id]===undefined)){
+        S.av[d][t.id]=t.ins||0;
+      } else if(!inRange&&force){
+        // Buiten range: op 0 zetten bij force reset
+        S.av[d][t.id]=0;
+      }
+    });
+  });
+  save();
+  // Herrender als tab open is
+  if(document.getElementById('p-av').classList.contains('act'))renderAV();
+}
+function renderAV(){
+  const days=getDays(),tak=S.setup.takken;
+  document.getElementById('av-hd').innerHTML='<th>Dag</th>'+tak.map(t=>`<th>${t.nm}</th>`).join('')+'<th class="tr">Totaal</th>';
+  const bd=document.getElementById('av-bd');bd.innerHTML='';const tots={tt:0};tak.forEach(t=>tots[t.id]=0);
+  days.forEach(d=>{const av=S.av[d]||{};let dt=0;let cells=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td>`;
+    tak.forEach(t=>{const v=av[t.id]||0;dt+=v;tots[t.id]+=v;cells+=`<td><input type="number" min="0" value="${v}" style="width:55px" onchange="uAV('${d}','${t.id}',+this.value)"></td>`;});
+    tots.tt+=dt;cells+=`<td class="tr tw5">${dt}</td>`;const tr=document.createElement('tr');tr.innerHTML=cells;bd.appendChild(tr);});
+  document.getElementById('av-ft').innerHTML='<td><strong>Totaal</strong></td>'+tak.map(t=>`<td class="tr">${tots[t.id]}</td>`).join('')+`<td class="tr tw5">${tots.tt}</td>`;
+  updateTerreinPreview();
+}
+function uAV(d,f,v){if(!S.av[d])S.av[d]={};S.av[d][f]=v;save();renderAV();}
+
+// KEUKEN
+function renderKeuken(){
+  if(!S.keuken)S.keuken={};
+  const days=getDays();
+  const bd=document.getElementById('k-plan-bd');bd.innerHTML='';
+  const mOpts='<option value="">\u2014</option>'+MEALS.map(m=>`<option value="${m.id}">${m.nm}</option>`).join('');
+  days.forEach(d=>{
+    const k=S.keuken[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+    const tr=document.createElement('tr');
+    const mSel=`<select class="plan-sel" onchange="uK('${d}','mid',this.value)">${mOpts}</select>`;
+    const aSel=`<select class="plan-sel" onchange="uK('${d}','av',this.value)">${mOpts}</select>`;
+    tr.innerHTML=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td><td class="tr">${n||'\u2014'}</td><td>${mSel}</td><td>${aSel}</td>`;
+    bd.appendChild(tr);
+    tr.querySelectorAll('select')[0].value=k.mid||'';
+    tr.querySelectorAll('select')[1].value=k.av||'';
+  });
+  // dag selector
+  const ds=document.getElementById('k-sel-dag');ds.innerHTML='<option value="">Kies dag</option>';
+  days.forEach(d=>{const k=S.keuken[d]||{};if(k.mid||k.av)ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
+  renderKD();renderSL();
+}
+function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;save();renderKeuken();}
+
+function renderKD(){
+  const d=document.getElementById('k-sel-dag').value;
+  const marge=+document.getElementById('k-marge').value||0;
+  const cb=document.getElementById('k-detail-cb');
+  if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Selecteer een dag.</p>';return;}
+  const k=(S.keuken&&S.keuken[d])||{};
+  const slots=[{s:'mid',l:'Middag'},{s:'av',l:'Avond'}].filter(x=>k[x.s]&&MM[k[x.s]]);
+  if(!slots.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Geen maaltijden gepland op deze dag.</p>';return;}
+  const p=getPorties(d,marge);const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+  let html=`<div class="portie-bar">\U0001f4c5 ${fD(d)} \u2014 <strong>${n} aanwezigen</strong> \u2192 <strong>${p.toFixed(1)} gewogen porties</strong> <span style="color:#666;font-size:12px;">(+${marge}% marge \u2022 kleintjes 65% \u2022 middenbouw 80% \u2022 groot/leiding 100-105%)</span></div>`;
+  slots.forEach(({s,l})=>{
+    const m=MM[k[s]];
+    html+=`<div class="slot-lbl">${l}: ${m.nm}</div>`;
+    if(m.tip)html+=`<div class="tip-box">\U0001f4a1 ${m.tip}</div>`;
+    html+='<div class="ing-grid">';
+    m.ing.forEach(i=>{
+      const amt=i.pp*p;const si=i.sol?SOL[i.sol]:null;
+      let sh='';
+      if(si){const pkgs=Math.ceil(amt/si.vpv);sh=`<div class="ing-sol">art.${si.art} \u2014 ${pkgs}\u00d7 ${si.nm}</div>`;}
+      html+=`<div class="ing-card"><div class="ing-nm">${i.n}</div><div><span class="ing-am">${fmtQ(amt,i.u)}</span></div>${sh}${i.note?`<div class="ing-note">${i.note}</div>`:''}</div>`;
+    });
+    html+='</div>';
+  });
+  cb.innerHTML=html;
+}
+
+function renderSL(){
+  const marge=+document.getElementById('k-shop-marge').value||0;
+  const cb=document.getElementById('k-shop-cb');if(!S.keuken)S.keuken={};
+  const tots={};
+  getDays().forEach(d=>{
+    const k=S.keuken[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    ['mid','av'].forEach(slot=>{
+      const m=MM[k[slot]];if(!m)return;
+      m.ing.forEach(i=>{
+        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};
+        tots[i.n].total+=i.pp*p;
+      });
+    });
+  });
+  const items=Object.values(tots);
+  if(!items.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Plan eerst maaltijden in via de dagplanning.</p>';return;}
+  const g={sol:[],slager:[],super:[],bakker:[]};
+  items.forEach(it=>{(g[it.sup]||g.super).push(it);});
+  const lbl={sol:'\U0001f7e1 Solucious (bestelling)',slager:'\U0001f534 Slager / lokaal',super:'\U0001f7e2 Supermarkt',bakker:'\U0001f35e Bakkerij'};
+  let html='';
+  ['sol','slager','super','bakker'].forEach(sup=>{
+    const list=g[sup];if(!list||!list.length)return;
+    html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
+    list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      const si=it.sol?SOL[it.sol]:null;
+      let artH='',pkgH='';
+      if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
+      html+=`<div class="shop-row"><span class="shop-nm">${it.n}${artH}</span><span class="shop-amt">${fmtQ(it.total,it.u)}${pkgH}</span></div>`;
+    });
+    html+='</div>';
+  });
+  cb.innerHTML=html;
+}
+
+const VASTE_MENUS={
+  on:[{nm:'\U0001f35e Standaard ontbijt',nt:'Boterhammen\nChoco\nConfituur\nHagelslag\nSpeculoospasta\nCornflakes\nChocopoeder voor chocolademelk\nMelk\nFruitsap\nAppelsap'}],
+  mi:[{nm:'\U0001f96a Boterhammen middag',nt:'Boterhammen\nKaas\nHesp\nSalami'}],
+};
+function buildMenuOpts(k){
+  var opts='<option value="">\u2014 vrije keuze \u2014</option>';
+  if(VASTE_MENUS[k])VASTE_MENUS[k].forEach(function(v){opts+='<option value="'+v.nm+'">'+v.nm+'</option>';});
+  if(k==='av')MEALS.forEach(function(mx){opts+='<option value="'+mx.nm+'">'+mx.nm+'</option>';});
+  return opts;
+}
+function menuSlotHtml(d,k,l,m){
+  var opts=buildMenuOpts(k);
+  var cur=(m[k]&&m[k].ma)||'';
+  var inDropdown=MEALS.some(function(mx){return mx.nm===cur;})||(VASTE_MENUS[k]&&VASTE_MENUS[k].some(function(v){return v.nm===cur;}));
+  var sel='<select style="width:100%;margin-bottom:4px;border:1px solid #ddd;border-radius:5px;padding:6px 8px;font-size:13px;font-family:inherit;" onchange="uMenuSel(this,\''+d+'\',\''+k+'\')">'+opts+'</select>';
+  var txt='<input type="text" placeholder="Of typ vrije naam..." value="'+(inDropdown?'':cur.replace(/"/g,'&quot;'))+'" style="width:100%;margin-bottom:6px;border:1px solid #ddd;border-radius:5px;padding:5px 8px;font-size:12px;font-family:inherit;" onchange="uMenu(\''+d+'\',\''+k+'\',\'ma\',this.value)">';
+  var nt=(m[k]&&m[k].nt)||'';
+  var ta='<textarea placeholder="Notities / ingredi\u00ebnten..." style="width:100%;border:1px solid #ddd;border-radius:5px;padding:6px 8px;font-size:12px;font-family:inherit;min-height:60px;resize:vertical;" onchange="uMenu(\''+d+'\',\''+k+'\',\'nt\',this.value)">'+nt+'</textarea>';
+  return '<div><div class="ml2">'+l+'</div>'+sel+txt+ta+'</div>';
+}
+function renderMenu(){
+  const bd=document.getElementById('menu-bd');bd.innerHTML='';
+  getDays().forEach(d=>{
+    const m=S.menu[d]||{};const av=S.av[d]||{};let tot=0;S.setup.takken.forEach(t=>tot+=av[t.id]||0);
+    const div=document.createElement('div');div.className='db';
+    const inner=[['on','Ontbijt'],['mi','Middag'],['av','Avond'],['uu','4-uurtje'],['des','Dessert']].map(([k,l])=>menuSlotHtml(d,k,l,m)).join('');
+    div.innerHTML='<div class="dh" onclick="this.nextElementSibling.classList.toggle(\'open\')"><span>'+fD(d)+'</span><span style="font-size:12px;color:#888;">'+(tot||'geen')+' aanwezigen</span></div><div class="dbody">'+inner+'</div>';
+    bd.appendChild(div);
+    div.querySelectorAll('.dbody select').forEach((sel,idx)=>{
+      const k=['on','mi','av','uu','des'][idx];const cur=(m[k]&&m[k].ma)||'';
+      const inDropdown=MEALS.some(mx=>mx.nm===cur)||(VASTE_MENUS[k]&&VASTE_MENUS[k].some(v=>v.nm===cur));
+      if(inDropdown)sel.value=cur;
+    });
+  });
+}
+function uMenuSel(sel,d,k){
+  const val=sel.value;
+  if(!val)return;
+  uMenu(d,k,'ma',val);
+  sel.nextElementSibling.value='';
+  // auto-fill notities voor vaste menu's
+  const vm=VASTE_MENUS[k]&&VASTE_MENUS[k].find(v=>v.nm===val);
+  if(vm){
+    const ta=sel.parentElement.querySelector('textarea');
+    if(ta&&!ta.value){ta.value=vm.nt;uMenu(d,k,'nt',vm.nt);}
+  }
+}function uMenu(d,meal,f,v){if(!S.menu[d])S.menu[d]={};if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal][f]=v;save();}
+
+function addAankoop(){
+  const a={id:uid(),d:document.getElementById('a-d').value,w:document.getElementById('a-w').value,l:document.getElementById('a-l').value,b:parseFloat(document.getElementById('a-b').value)||0,c:document.getElementById('a-c').value,p:document.getElementById('a-p').value,n:document.getElementById('a-n').value};
+  if(!a.d||!a.b){alert('Datum en bedrag zijn verplicht.');return;}
+  S.aankopen.push(a);['a-w','a-l','a-b','a-n','a-p'].forEach(id=>document.getElementById(id).value='');save();renderAankopen();
+}
+function dAankoop(id){S.aankopen=S.aankopen.filter(a=>a.id!==id);save();renderAankopen();}
+function renderAankopen(){
+  const f=document.getElementById('a-f').value;const items=(f?S.aankopen.filter(a=>a.c===f):S.aankopen).slice().sort((a,b)=>a.d.localeCompare(b.d));
+  const bd=document.getElementById('a-bd');bd.innerHTML='';let tot=0;
+  items.forEach(a=>{tot+=a.b;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${a.d?fD(a.d):'\u2014'}</td><td>${a.w||'\u2014'}</td><td class="muted">${a.l||'\u2014'}</td><td><span class="pill">${a.c}</span></td><td class="muted">${a.p||'\u2014'}</td><td class="tr tw5">${fmt(a.b)}</td><td style="font-size:12px;color:#888">${a.n||''}</td><td><button class="btn btn-bad" onclick="dAankoop('${a.id}')">&#x2715;</button></td>`;bd.appendChild(tr);});
+  document.getElementById('a-tot').textContent=fmt(tot);
+  const cats=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];const met=document.getElementById('a-met');met.innerHTML='';
+  cats.forEach(c=>{const t=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0);met.innerHTML+=`<div class="met"><div class="ml">${c}</div><div class="mv">${fmt(t)}</div></div>`;});
+  met.innerHTML+=`<div class="met met-ok"><div class="ml">Totaal huidig kamp</div><div class="mv">${fmt(S.aankopen.reduce((s,a)=>s+a.b,0))}</div></div>`;
+}
+function renderRef(){
+  const bd=document.getElementById('ref-bd');bd.innerHTML='';let tot=0;
+  const sorted=[...REF].sort((a,b)=>a.d.localeCompare(b.d));
+  ['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'].forEach(c=>{
+    const items=sorted.filter(r=>r.c===c);if(!items.length)return;
+    const hr=document.createElement('tr');hr.className='bsec';hr.innerHTML=`<td colspan="5">${c}</td><td></td>`;bd.appendChild(hr);
+    items.forEach(r=>{tot+=r.b;const tr=document.createElement('tr');tr.className='ref-row';tr.innerHTML=`<td style="white-space:nowrap">${fD(r.d)}</td><td>${r.w}</td><td class="muted">${r.l||'\u2014'}</td><td><span class="pill pill-ref">${r.c}</span></td><td class="tr">${fmt(r.b)}</td><td style="font-size:12px;color:#888">${r.n||''}</td>`;bd.appendChild(tr);});
+  });
+  document.getElementById('ref-tot').textContent=fmt(tot);
+  const met=document.getElementById('ref-met');met.innerHTML='';
+  ['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'].forEach(c=>{const t=REF.filter(r=>r.c===c).reduce((s,r)=>s+r.b,0);if(t>0)met.innerHTML+=`<div class="met"><div class="ml">${c}</div><div class="mv">${fmt(t)}</div></div>`;});
+  met.innerHTML+=`<div class="met met-info"><div class="ml">Totaal 2025</div><div class="mv">${fmt(REF.reduce((s,r)=>s+r.b,0))}</div></div>`;
+}
+
+function renderVer(){
+  const pvb=document.getElementById('pv-bd');pvb.innerHTML='';let pvt=0;
+  S.ver.pv.forEach((v,i)=>{pvt+=v.b||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${v.tak}" style="width:80px" onchange="uPV(${i},'tak',this.value)"></td><td><select onchange="uPV(${i},'tp',this.value)">${['Trein','Bus','Bestelwagen','Auto','Andere'].map(t=>`<option${v.tp===t?' selected':''}>${t}</option>`).join('')}</select></td><td class="tr"><input type="number" value="${v.b}" step="0.5" style="width:90px" onchange="uPV(${i},'b',+this.value)"></td><td><input type="text" value="${v.nt||''}" onchange="uPV(${i},'nt',this.value)"></td><td><button class="btn btn-bad" onclick="dPV(${i})">&#x2715;</button></td>`;pvb.appendChild(tr);});
+  document.getElementById('pv-t').textContent=fmt(pvt);
+  const mvb=document.getElementById('mv-bd');mvb.innerHTML='';let mvB=0,mvS=0;
+  S.ver.mv.forEach((v,i)=>{mvB+=v.b||0;mvS+=v.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${v.om}" style="min-width:200px" onchange="uMV(${i},'om',this.value)"></td><td class="tr"><input type="number" value="${v.b}" step="50" style="width:90px" onchange="uMV(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${v.s}" step="50" style="width:90px" onchange="uMV(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((v.b||0)-(v.s||0))}</td><td><button class="btn btn-bad" onclick="dMV(${i})">&#x2715;</button></td>`;mvb.appendChild(tr);});
+  document.getElementById('mv-b').textContent=fmt(mvB);document.getElementById('mv-s').textContent=fmt(mvS);document.getElementById('mv-n').textContent=fmt(mvB-mvS);
+}
+function uPV(i,f,v){S.ver.pv[i][f]=v;renderVer();save();}function addPV(){S.ver.pv.push({id:uid(),tak:'',tp:'Trein',b:0,nt:''});renderVer();save();}function dPV(i){S.ver.pv.splice(i,1);renderVer();save();}
+function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.mv.push({id:uid(),om:'',b:0,s:0});renderVer();save();}function dMV(i){S.ver.mv.splice(i,1);renderVer();save();}
+
+function renderBudget(){
+  const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
+  inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');
+  s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});
+  // Speelgeld is geen inkomst maar een uitgave (uitbetaald aan groepen)
+  outR.push('<tr class="bsec"><td colspan="3">Speelgeld (uitbetaald aan groepen)</td></tr>');
+  let spTot=0;
+  s.takken.forEach(t=>{
+    if(t.sg===false)return; // geen speelgeld voor leiding/seniors
+    const n=nights(t.aa,t.vt),b=t.ins*n*s.sp;
+    if(b===0)return;
+    spTot+=b;to+=b;
+    outR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${n} nachten \xd7 ${fmt(s.sp)}</td><td class="tr">${fmt(b)}</td></tr>`);
+  });
+  if(spTot===0)outR.push('<tr><td colspan="3" class="muted">Geen speelgeld ingecalculeerd</td></tr>');
+  const terrRes=calcTerrein();to+=terrRes.netto;
+  outR.push('<tr class="bsec"><td colspan="3">Huur kampterrein</td></tr>');
+  outR.push(`<tr><td>Dagvergoeding (${getDays().length} dagen)</td><td class="muted">variabel</td><td class="tr">${fmt(terrRes.dagtot)}</td></tr>`);
+  outR.push(`<tr><td>Borg</td><td></td><td class="tr">${fmt(terrRes.borg)}</td></tr>`);
+  outR.push(`<tr><td>Subsidie</td><td></td><td class="tr muted">\u2212 ${fmt(terrRes.sub)}</td></tr>`);
+  outR.push('<tr class="bsec"><td colspan="3">Vaste kosten</td></tr>');
+  s.vk.forEach(k=>{const n=(k.b||0)-(k.s||0);to+=n;outR.push(`<tr><td>${k.om}</td><td class="muted">${fmt(k.b)}${k.s?' \u2212 '+fmt(k.s):''}</td><td class="tr">${fmt(n)}</td></tr>`);});
+  outR.push('<tr class="bsec"><td colspan="3">Variabele kosten (raming)</td></tr>');
+  s.vark.forEach(k=>{to+=k.r||0;outR.push(`<tr><td>${k.om}</td><td></td><td class="tr">${fmt(k.r)}</td></tr>`);});
+  const pvT=S.ver.pv.reduce((a,v)=>a+(v.b||0),0),mvN=S.ver.mv.reduce((a,v)=>a+(v.b||0)-(v.s||0),0);
+  if(pvT+mvN>0){outR.push('<tr class="bsec"><td colspan="3">Vervoer</td></tr>');if(pvT>0){to+=pvT;outR.push(`<tr><td>Personenvervoer</td><td></td><td class="tr">${fmt(pvT)}</td></tr>`);}if(mvN>0){to+=mvN;outR.push(`<tr><td>Materiaalvervoer</td><td></td><td class="tr">${fmt(mvN)}</td></tr>`);}}
+  if(S.aankopen.length){outR.push('<tr class="bsec"><td colspan="3">Aankopen (werkelijk)</td></tr>');const cc={};S.aankopen.forEach(a=>cc[a.c]=(cc[a.c]||0)+a.b);Object.entries(cc).forEach(([c,t])=>{to+=t;outR.push(`<tr><td>${c}</td><td></td><td class="tr">${fmt(t)}</td></tr>`);});}
+  document.getElementById('b-in').innerHTML=inR.join('');document.getElementById('b-int').textContent=fmt(ti);
+  document.getElementById('b-out').innerHTML=outR.join('');document.getElementById('b-outt').textContent=fmt(to);
+  const cats=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];const cmpR=[];let cH=0,cR=0;
+  cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
+  document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
+  document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>t+=av[tk.id]||0);gep+=t*s.eb;});
+  const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
+  const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
+  document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
+  let wiT=0,oiT=0,lT=0,iT=0;const optR=[];
+  s.takken.forEach(t=>{const n=nights(t.aa,t.vt),wi=t.ins*t.kp,oi=t.tot*t.kp,diff=oi-wi;wiT+=wi;oiT+=oi;lT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';optR.push(`<tr><td>${t.nm}</td><td class="tr">${t.tot||0}</td><td class="tr">${t.ins||0}</td><td class="tr" style="color:${clr};font-weight:600">${t.tot?dp+'%':'\u2014'}</td><td class="tr">${fmt(wi)}</td><td class="tr">${fmt(oi)}</td><td class="tr ${diff>0?'ok':'muted'}">${fmt(diff)}</td></tr>`);});
+  document.getElementById('b-opt').innerHTML=optR.join('');const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
+  document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
+  const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
+  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
+  document.getElementById('b-terr-t').textContent=fmt(terrT);
+  const saldo=ti-to;
+  document.getElementById('b-met').innerHTML=`<div class="met met-ok"><div class="ml">Totaal inkomsten</div><div class="mv">${fmt(ti)}</div></div><div class="met met-bad"><div class="ml">Totaal uitgaven</div><div class="mv">${fmt(to)}</div></div><div class="met ${saldo>=0?'met-ok':'met-bad'}"><div class="ml">Saldo</div><div class="mv ${saldo>=0?'ok':'bad'}">${fmt(saldo)}</div></div><div class="met met-info"><div class="ml">Gemiste inkomsten</div><div class="mv">${fmt(oiT-wiT)}</div></div>`;
+}
+
+function addBericht(){
+  const naam=document.getElementById('pb-naam').value.trim();
+  const cat=document.getElementById('pb-cat').value;
+  const msg=document.getElementById('pb-msg').value.trim();
+  if(!naam||!msg){alert('Naam en bericht zijn verplicht.');return;}
+  if(!S.prikbord)S.prikbord=[];
+  S.prikbord.unshift({id:uid(),naam,cat,msg,ts:new Date().toISOString()});
+  document.getElementById('pb-msg').value='';
+  save();renderPrikbord();
+}
+function deleteBericht(id){
+  if(!confirm('Bericht verwijderen?'))return;
+  S.prikbord=S.prikbord.filter(b=>b.id!==id);
+  save();renderPrikbord();
+}
+function renderPrikbord(){
+  if(!S.prikbord)S.prikbord=[];
+  const bd=document.getElementById('pb-berichten');
+  if(!S.prikbord.length){bd.innerHTML='<div class="pb-empty">Nog geen berichten. Wees de eerste!</div>';return;}
+  bd.innerHTML=S.prikbord.map(b=>{
+    const d=new Date(b.ts);
+    const ts=d.getDate()+'/'+(d.getMonth()+1)+' '+d.getHours()+':'+(d.getMinutes()+'').padStart(2,'0');
+    return `<div class="pb-card">
+      <div class="pb-hdr"><span class="pb-naam">${b.naam}</span><span class="pb-cat">${b.cat}</span><span class="pb-ts">${ts}</span></div>
+      <div class="pb-msg">${b.msg.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+      <div style="text-align:right;"><button class="pb-del" onclick="deleteBericht('${b.id}')">verwijderen</button></div>
+    </div>`;
+  }).join('');
+}
+function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Kampbeheer_2026_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);}
+function importFile(inp){const file=inp.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{S=JSON.parse(e.target.result);if(!S.keuken)S.keuken={};loadSU();sbWrite();}catch(err){alert('Ongeldig bestand.');}};r.readAsText(file);inp.value='';}
+sbLoad();
+</script>
+
+</body>
+</html>
