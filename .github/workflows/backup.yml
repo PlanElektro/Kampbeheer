@@ -2,8 +2,8 @@ name: Wekelijkse backup kampbeheer
 
 on:
   schedule:
-    - cron: '0 3 * * 0'  # Elke zondag om 3u 's nachts (UTC)
-  workflow_dispatch:      # Ook manueel te starten via Actions tab
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
 
 jobs:
   backup:
@@ -18,32 +18,24 @@ jobs:
       - name: Maak backups-map aan
         run: mkdir -p backups
 
-      - name: Haal data op uit Supabase
+      - name: Haal data op uit Supabase en sla op
         run: |
           DATE=$(date +%Y-%m-%d)
           curl -s \
             -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZnZwemJlcXBzeGlxZHdrdWNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjQwNzEsImV4cCI6MjA5MTEwMDA3MX0.OShTHhxz9p-_LXHLZ0NBs8-FzvM9ojcSpakDdNJ5hPk" \
             -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZnZwemJlcXBzeGlxZHdrdWNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjQwNzEsImV4cCI6MjA5MTEwMDA3MX0.OShTHhxz9p-_LXHLZ0NBs8-FzvM9ojcSpakDdNJ5hPk" \
             "https://vjfvpzbeqpsxiqdwkuch.supabase.co/rest/v1/kampbeheer?id=eq.kamp2026&select=data" \
-            | python3 -c "
-import sys, json
-rows = json.load(sys.stdin)
-data = rows[0]['data'] if rows else {}
-print(json.dumps(data, indent=2, ensure_ascii=False))
-" > "backups/backup-${DATE}.json"
+            -o "backups/backup-${DATE}.json"
           echo "Backup opgeslagen: backups/backup-${DATE}.json"
 
       - name: Verwijder backups ouder dan 12 weken
-        run: |
-          find backups/ -name "backup-*.json" -mtime +84 -delete
+        run: find backups/ -name "backup-*.json" -mtime +84 -delete
 
       - name: Commit en push backup
         run: |
           git config user.name "Backup Bot"
           git config user.email "backup@kampbeheer.be"
           git add backups/
-          git diff --staged --quiet && echo "Geen wijzigingen" || (
-            git commit -m "Automatische backup $(date +%Y-%m-%d)"
-            git push
-          )
+          git diff --staged --quiet && echo "Geen wijzigingen" || git commit -m "Automatische backup $(date +%Y-%m-%d)"
+          git push
           
