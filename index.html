@@ -119,6 +119,16 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th></th></tr></thead>
     <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table>
   </div></div></div>
+  <div class="card"><div class="ch"><h3>Kookploeg</h3><button class="btn btn-ok" onclick="addKP()">+ Persoon</button></div><div class="cb">
+    <div class="fgrid" style="margin-bottom:14px;">
+      <div class="fg"><label>Tarief per dag (€)</label><input type="number" id="kp-tarief" value="10" step="1" onchange="saveKP()"></div>
+      <div class="fg"><label>Maximum per persoon (€)</label><input type="number" id="kp-max" value="50" step="5" onchange="saveKP()"></div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Naam</th><th>Aankomst</th><th>Vertrek</th><th class="tr">Dagen</th><th class="tr">Bijdrage (€)</th><th></th></tr></thead>
+    <tbody id="kp-body"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="4"><strong>Totaal</strong></td><td class="tr tw5" id="kp-tot">—</td><td></td></tr></tfoot>
+    </table></div>
+  </div></div>
   <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn btn-ok" onclick="addVK()">+ Kost</button></div><div class="cb"><div class="tw">
     <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
     <tbody id="vk-body"></tbody>
@@ -429,6 +439,7 @@ const REF_EET=6394;
 const DEF={
   setup:{nm:'Kamp 2026',st:'2026-07-14',ei:'2026-07-28',eb:10,ab:3,sp:3,ld:15,lb:50,
     terrein:{r:1.5,min:150,borg:500,sub:1000},
+    kookploeg:{tarief:10,max:50,leden:[]},
     takken:[
       {id:'JW',nm:'Jongwelpen',tot:27,ins:10,aa:'2026-07-22',vt:'2026-07-28',kp:175},
       {id:'W',nm:'Welpen',tot:21,ins:6,aa:'2026-07-21',vt:'2026-07-28',kp:185},
@@ -456,7 +467,7 @@ async function sbLoad(){
     const r=await fetch(`${SB_URL}/rest/v1/kampbeheer?id=eq.${SB_ID}&select=data`,{headers:HDR});
     if(!r.ok)throw new Error(r.status);
     const rows=await r.json();
-    if(rows&&rows.length&&rows[0].data){S=rows[0].data;if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];setSS('ok','gesynchroniseerd');}
+    if(rows&&rows.length&&rows[0].data){S=rows[0].data;if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};setSS('ok','gesynchroniseerd');}
     else await sbWrite();
   }catch(e){setSS('err','offline \u2014 lokaal');}
   loadSU();syncAVFromSetup(false);
@@ -486,6 +497,7 @@ function refCat(c){return REF.filter(r=>r.c===c).reduce((s,r)=>s+r.b,0);}
 function getPorties(d,marge){
   const av=S.av[d]||{};let p=0;
   S.setup.takken.forEach(t=>{p+=(av[t.id]||0)*getTF(t.id);});
+  p+=(av['kp']||0)*1.05; // kookploeg factor zelfde als leiding
   return p*(1+(marge||0)/100);
 }
 function calcTerrein(){
@@ -512,7 +524,7 @@ function loadSU(){
   document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
   document.getElementById('s-eb').value=s.eb;document.getElementById('s-ab').value=s.ab;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
   const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
-  document.getElementById('hnm').textContent=s.nm||'';rTk();rVK();rVarK();updateTerreinPreview();
+  document.getElementById('hnm').textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
 }
 function saveSU(){
   const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
@@ -562,19 +574,47 @@ function syncAVFromSetup(force){
         S.av[d][t.id]=0;
       }
     });
+    // kookploeg
+    const kpAanwezig=(S.setup.kookploeg&&S.setup.kookploeg.leden||[]).filter(k=>k.aa&&k.vt&&d>=k.aa&&d<=k.vt).length;
+    if(force||S.av[d]['kp']==null||S.av[d]['kp']===undefined){S.av[d]['kp']=kpAanwezig;}
   });
-  save();
-  // Herrender als tab open is
   if(document.getElementById('p-av').classList.contains('act'))renderAV();
 }
+function kpDagen(k){if(!k.aa||!k.vt)return 0;return Math.max(0,Math.round((new Date(k.vt)-new Date(k.aa))/86400000)+1);}
+function kpBijdrage(k){const kpCfg=S.setup.kookploeg||{tarief:10,max:50};return Math.min(kpDagen(k)*(kpCfg.tarief||10),(kpCfg.max||50));}
+function saveKP(){
+  if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+  S.setup.kookploeg.tarief=+document.getElementById('kp-tarief').value||10;
+  S.setup.kookploeg.max=+document.getElementById('kp-max').value||50;
+  rKP();syncAVFromSetup(false);save();
+}
+function rKP(){
+  if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+  const kp=S.setup.kookploeg;
+  document.getElementById('kp-tarief').value=kp.tarief||10;
+  document.getElementById('kp-max').value=kp.max||50;
+  const tb=document.getElementById('kp-body');tb.innerHTML='';let tot=0;
+  (kp.leden||[]).forEach((k,i)=>{
+    const d=kpDagen(k),b=kpBijdrage(k);tot+=b;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${k.naam||''}" placeholder="Naam" style="min-width:120px" onchange="uKP(${i},'naam',this.value)"></td><td><input type="date" value="${k.aa||''}" style="width:130px" onchange="uKP(${i},'aa',this.value)"></td><td><input type="date" value="${k.vt||''}" style="width:130px" onchange="uKP(${i},'vt',this.value)"></td><td class="tr">${d}</td><td class="tr tw5">${fmt(b)}</td><td><button class="btn btn-bad" onclick="dKP(${i})">&#x2715;</button></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('kp-tot').textContent=fmt(tot);
+}
+function uKP(i,f,v){S.setup.kookploeg.leden[i][f]=v;rKP();syncAVFromSetup(false);save();}
+function addKP(){if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};S.setup.kookploeg.leden.push({id:uid(),naam:'',aa:S.setup.st,vt:S.setup.ei});rKP();save();}
+function dKP(i){S.setup.kookploeg.leden.splice(i,1);rKP();syncAVFromSetup(false);save();}
 function renderAV(){
   const days=getDays(),tak=S.setup.takken;
-  document.getElementById('av-hd').innerHTML='<th>Dag</th>'+tak.map(t=>`<th>${t.nm}</th>`).join('')+'<th class="tr">Totaal</th>';
+  document.getElementById('av-hd').innerHTML='<th>Dag</th>'+tak.map(t=>`<th>${t.nm}</th>`).join('')+'<th>Kookploeg</th><th class="tr">Totaal</th>';
   const bd=document.getElementById('av-bd');bd.innerHTML='';const tots={tt:0};tak.forEach(t=>tots[t.id]=0);
   days.forEach(d=>{const av=S.av[d]||{};let dt=0;let cells=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td>`;
     tak.forEach(t=>{const v=av[t.id]||0;dt+=v;tots[t.id]+=v;cells+=`<td><input type="number" min="0" value="${v}" style="width:55px" onchange="uAV('${d}','${t.id}',+this.value)"></td>`;});
+    const kpv=av['kp']||0;dt+=kpv;tots['kp']=(tots['kp']||0)+kpv;
+    cells+=`<td><input type="number" min="0" value="${kpv}" style="width:55px" onchange="uAV('${d}','kp',+this.value)"></td>`;
     tots.tt+=dt;cells+=`<td class="tr tw5">${dt}</td>`;const tr=document.createElement('tr');tr.innerHTML=cells;bd.appendChild(tr);});
-  document.getElementById('av-ft').innerHTML='<td><strong>Totaal</strong></td>'+tak.map(t=>`<td class="tr">${tots[t.id]}</td>`).join('')+`<td class="tr tw5">${tots.tt}</td>`;
+  document.getElementById('av-ft').innerHTML='<td><strong>Totaal</strong></td>'+tak.map(t=>`<td class="tr">${tots[t.id]}</td>`).join('')+`<td class="tr">${tots['kp']||0}</td><td class="tr tw5">${tots.tt}</td>`;
   updateTerreinPreview();
 }
 function uAV(d,f,v){if(!S.av[d])S.av[d]={};S.av[d][f]=v;save();renderAV();}
@@ -754,6 +794,11 @@ function renderBudget(){
   const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
   inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');
   s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});
+  const kp=s.kookploeg||{tarief:10,max:50,leden:[]};
+  if(kp.leden&&kp.leden.length){
+    inR.push('<tr class="bsec"><td colspan="3">Bijdrage kookploeg</td></tr>');
+    kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpDagen(k)} dagen \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});
+  }
   // Speelgeld is geen inkomst maar een uitgave (uitbetaald aan groepen)
   outR.push('<tr class="bsec"><td colspan="3">Speelgeld (uitbetaald aan groepen)</td></tr>');
   let spTot=0;
