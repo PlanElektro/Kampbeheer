@@ -593,9 +593,9 @@ function syncAVFromSetup(force){
         S.av[d][t.id]=0;
       }
     });
-    // kookploeg
+    // kookploeg — altijd herberekenen want volledig afgeleid uit setup
     const kpAanwezig=(S.setup.kookploeg&&S.setup.kookploeg.leden||[]).filter(k=>k.aa&&k.vt&&d>=k.aa&&d<=k.vt).length;
-    if(force||S.av[d]['kp']==null||S.av[d]['kp']===undefined){S.av[d]['kp']=kpAanwezig;}
+    S.av[d]['kp']=kpAanwezig;
   });
   if(document.getElementById('p-av').classList.contains('act'))renderAV();
 }
