@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚓ Kampbeheer 2026 — Sea Scouts Nieuwpoort</title>
 <style>
+#login-screen{position:fixed;inset:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;z-index:9999;}
+#login-box{background:#fff;border-radius:12px;padding:40px 36px;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+#login-box h2{font-size:22px;font-weight:700;margin-bottom:6px;}
+#login-box p{font-size:13px;color:#666;margin-bottom:24px;}
+#login-box input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 14px;font-size:16px;font-family:inherit;text-align:center;letter-spacing:2px;margin-bottom:14px;}
+#login-box input:focus{outline:none;border-color:#1a1a1a;}
+#login-box button{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;}
+#login-box button:hover{background:#333;}
+#login-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:14px;}
 #app{max-width:1100px;margin:0 auto;padding:16px;}
@@ -78,7 +87,17 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 </style>
 </head>
 <body>
-<div id="app">
+<div id="login-screen">
+  <div id="login-box">
+    <div style="font-size:36px;margin-bottom:12px;">⚓</div>
+    <h2>Kampbeheer 2026</h2>
+    <p>Sea Scouts 8ste FOS 't Vloedgat Nieuwpoort</p>
+    <input type="password" id="pw-input" placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')checkPW()">
+    <button onclick="checkPW()">Aanmelden</button>
+    <div id="login-err"></div>
+  </div>
+</div>
+<div id="app" style="display:none;">
 <div id="hdr">
   <div><h1>⚓ Kampbeheer 2026</h1><div style="font-size:12px;color:#666;" id="hnm"></div></div>
   <div id="sync-bar">
@@ -874,7 +893,27 @@ function renderPrikbord(){
 }
 function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Kampbeheer_2026_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);}
 function importFile(inp){const file=inp.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{S=JSON.parse(e.target.result);if(!S.keuken)S.keuken={};loadSU();sbWrite();}catch(err){alert('Ongeldig bestand.');}};r.readAsText(file);inp.value='';}
-sbLoad();
+const _k='OHN0ZWZvcw==';
+function checkPW(){
+  const v=document.getElementById('pw-input').value;
+  if(btoa(v)===_k){
+    localStorage.setItem('kamp26','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    sbLoad();
+  } else {
+    document.getElementById('login-err').textContent='Fout wachtwoord, probeer opnieuw.';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+// Check bestaande sessie
+if(localStorage.getItem('kamp26')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  sbLoad();
+}
+
 </script>
 
 </body>
