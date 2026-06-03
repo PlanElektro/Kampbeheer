@@ -5,55 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kampbrief 2 — Kasterlee 2026</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:Arial,sans-serif;font-size:15px;color:#222;background:#f4f6fa;display:flex;justify-content:center;padding:24px 12px;}
-  .brief{background:#fff;max-width:680px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,.10);border-radius:6px;overflow:hidden;}
-
-  /* Header */
-  .header{display:flex;align-items:center;gap:0;border-bottom:4px solid #1B3A6B;}
-  .header-logo{background:#fff;padding:20px 18px;border-right:3px solid #C8A951;flex-shrink:0;}
-  .header-logo img{width:90px;height:90px;display:block;}
-  .header-text{padding:18px 24px;}
-  .header-text .title{font-size:28px;font-weight:900;color:#1B3A6B;letter-spacing:.5px;line-height:1.1;}
-  .header-text .subtitle{font-size:16px;color:#C8A951;font-style:italic;margin-top:4px;}
-  .header-text .org{font-size:12px;color:#999;margin-top:8px;}
-
-  /* Body */
-  .body{padding:28px 32px;}
-  p{margin-bottom:14px;line-height:1.65;}
-  .aanhef{margin-bottom:24px;}
-
-  /* Sectie */
-  .sectie{margin-top:28px;}
-  .sectie h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#1B3A6B;padding-bottom:6px;border-bottom:2px solid #C8A951;margin-bottom:14px;}
-
-  /* Bullet lijst */
-  ul{list-style:none;padding:0;margin:0 0 14px 0;}
-  ul li{padding:7px 14px;margin-bottom:4px;background:#E8EDF5;border-left:3px solid #1B3A6B;border-radius:3px;font-size:14px;}
-  ul li .tak{font-weight:700;font-style:italic;color:#333;}
-  ul li .prijs{font-weight:900;color:#1B3A6B;float:right;}
-
-  /* Betaalbox */
-  .betaalbox{background:#E8EDF5;border:1px solid #b8c7e0;border-radius:5px;padding:14px 18px;margin:14px 0;}
-  .betaalbox .rek{font-weight:900;color:#1B3A6B;font-size:16px;}
-  .betaalbox .naam{font-size:13px;color:#555;margin-top:2px;}
-
-  /* Deadline */
-  .deadline{font-weight:700;text-decoration:underline;}
-
-  /* Waarschuwing */
-  .warning{background:#fffbeb;border:1px solid #f0d060;border-radius:5px;padding:10px 14px;font-size:13px;margin:10px 0;}
-
-  /* UiTPAS */
-  .uitpas{background:#f0f7ff;border:1px solid #b8d4f0;border-radius:5px;padding:14px 18px;font-size:14px;}
-
-  a{color:#1B3A6B;font-weight:600;}
-  .afsluiting{margin-top:32px;padding-top:18px;border-top:1px solid #e0e0e0;}
-  .footer{background:#1B3A6B;color:#fff;text-align:center;font-size:12px;padding:12px;margin-top:0;}
-  .footer a{color:#C8A951;}
+  .brief{font-family:Arial,sans-serif;font-size:15px;color:#222;background:#fff;max-width:680px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,.10);border-radius:6px;overflow:hidden;box-sizing:border-box;}
+  .brief *{box-sizing:border-box;}
+  .brief .header{display:flex;align-items:center;gap:0;border-bottom:4px solid #1B3A6B;}
+  .brief .header-logo{background:#fff;padding:20px 18px;border-right:3px solid #C8A951;flex-shrink:0;}
+  .brief .header-logo img{width:90px;height:90px;display:block;}
+  .brief .header-text{padding:18px 24px;}
+  .brief .header-text .title{font-size:28px;font-weight:900;color:#1B3A6B;letter-spacing:.5px;line-height:1.1;}
+  .brief .header-text .subtitle{font-size:16px;color:#C8A951;font-style:italic;margin-top:4px;}
+  .brief .header-text .org{font-size:12px;color:#999;margin-top:8px;}
+  .brief .body{padding:28px 32px;}
+  .brief p{margin-bottom:14px;line-height:1.65;margin-top:0;}
+  .brief .aanhef{margin-bottom:24px;}
+  .brief .sectie{margin-top:28px;}
+  .brief .sectie h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#1B3A6B;padding-bottom:6px;border-bottom:2px solid #C8A951;margin-bottom:14px;}
+  .brief ul{list-style:none;padding:0;margin:0 0 14px 0;}
+  .brief ul li{padding:7px 14px;margin-bottom:4px;background:#E8EDF5;border-left:3px solid #1B3A6B;border-radius:3px;font-size:14px;}
+  .brief ul li .tak{font-weight:700;font-style:italic;color:#333;}
+  .brief ul li .prijs{font-weight:900;color:#1B3A6B;float:right;}
+  .brief .betaalbox{background:#E8EDF5;border:1px solid #b8c7e0;border-radius:5px;padding:14px 18px;margin:14px 0;}
+  .brief .betaalbox .rek{font-weight:900;color:#1B3A6B;font-size:16px;}
+  .brief .betaalbox .naam{font-size:13px;color:#555;margin-top:2px;}
+  .brief .deadline{font-weight:700;text-decoration:underline;}
+  .brief .warning{background:#fffbeb;border:1px solid #f0d060;border-radius:5px;padding:10px 14px;font-size:13px;margin:10px 0;}
+  .brief .uitpas{background:#f0f7ff;border:1px solid #b8d4f0;border-radius:5px;padding:14px 18px;font-size:14px;}
+  .brief a{color:#1B3A6B;font-weight:600;}
+  .brief .afsluiting{margin-top:32px;padding-top:18px;border-top:1px solid #e0e0e0;}
+  .brief .footer{background:#1B3A6B;color:#fff;text-align:center;font-size:12px;padding:12px;margin-top:0;}
+  .brief .footer a{color:#C8A951;}
 </style>
 </head>
-<body>
+<body style="margin:0;padding:0;">
 <div class="brief">
 
   <div class="header">
