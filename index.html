@@ -530,7 +530,7 @@ function calcTerrein(){
 }
 function updateTerreinPreview(){
   const r=S.setup.terrein||{},res=calcTerrein();const empty=res.rows.every(r=>r.tot===0);
-  document.getElementById('terr-preview').innerHTML=empty?`Formule: max(${fmt(r.r)} \xd7 aanwezigen, ${fmt(r.min)}) per dag + borg ${fmt(r.borg)} \u2212 subsidie ${fmt(r.sub)}`:`<strong>Berekende terreinprijs:</strong> ${res.rows.length} dagen = ${fmt(res.dagtot)} + borg ${fmt(res.borg)} \u2212 subsidie ${fmt(res.sub)} = <strong>${fmt(res.netto)}</strong>`;
+  document.getElementById('terr-preview').innerHTML=empty?`Formule: max(${fmt(r.r)} \xd7 aanwezigen, ${fmt(r.min)}) per dag \u2212 subsidie ${fmt(r.sub)}`:`<strong>Berekende terreinprijs:</strong> ${res.rows.length} dagen = ${fmt(res.dagtot)} \u2212 subsidie ${fmt(res.sub)} = <strong>${fmt(res.dagtot-res.sub)}</strong> <span style="font-size:11px;color:#888;">(borg ${fmt(res.borg)} terugbetaalbaar, niet meegerekend)</span>`;
 }
 
 document.getElementById('tabs').addEventListener('click',e=>{
