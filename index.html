@@ -507,6 +507,8 @@ async function sbLoad(){
     if(rows&&rows.length&&rows[0].data){S=rows[0].data;if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};setSS('ok','gesynchroniseerd');}
     else await sbWrite();
   }catch(e){setSS('err','offline \u2014 lokaal');}
+  // Eenmalige sync menu→keuken voor bestaande data
+  if(S.menu){Object.keys(S.menu).forEach(d=>{const m=S.menu[d]||{};if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(m.av&&m.av.ma&&!S.keuken[d].av)S.keuken[d].av=m.av.ma;if(m.mi&&m.mi.ma&&!S.keuken[d].mid)S.keuken[d].mid=m.mi.ma;});}
   loadSU();syncAVFromSetup(false);
 }
 async function sbWrite(){
@@ -688,7 +690,7 @@ function renderKeuken(){
 }
 function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;
   // Sync naar menu
-  if(!S.menu[d])S.menu[d]={};const meal=slot==='av'?'avond':'middag';if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal]['ma']=val;
+  if(!S.menu[d])S.menu[d]={};const meal=slot==='av'?'av':'mi';if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal]['ma']=val;
   save();renderKeuken();}
 
 function renderKD(){
@@ -844,7 +846,7 @@ function uMenuSel(sel,d,k){
   }
 }function uMenu(d,meal,f,v){if(!S.menu[d])S.menu[d]={};if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal][f]=v;
   // Sync naar keuken
-  if(f==='ma'){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(meal==='avond')S.keuken[d]['av']=v;if(meal==='middag')S.keuken[d]['mid']=v;}
+  if(f==='ma'){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(meal==='av')S.keuken[d]['av']=v;if(meal==='mi')S.keuken[d]['mid']=v;}
   save();}
 
 function addAankoop(){
