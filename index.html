@@ -267,6 +267,11 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <table><thead><tr><th>Omschrijving</th><th class="tr">Huidig kamp</th><th class="tr">Vorig kamp (2025)</th></tr></thead>
     <tbody id="b-eet"></tbody>
   </table></div></div></div>
+  <div class="card"><div class="ch"><h3>📊 Prijsscenario's — kampprijs vergelijking</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak</th><th class="tr">Huidig</th><th class="tr">+€10</th><th class="tr">+€15</th><th class="tr">Leden</th><th class="tr">Extra (+€10)</th><th class="tr">Extra (+€15)</th></tr></thead>
+    <tbody id="b-scenario"></tbody>
+    <tfoot><tr class="tfoot" id="b-scenario-ft"></tr></tfoot>
+  </table></div></div></div>
   <div class="card"><div class="ch"><h3>Werkelijk vs optimaal</h3></div><div class="cb"><div class="tw">
     <table><thead><tr><th>Tak</th><th class="tr">Totaal leden</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th class="tr">Werkelijk inkomen</th><th class="tr">Optimaal inkomen</th><th class="tr">Verschil</th></tr></thead>
     <tbody id="b-opt"></tbody><tfoot><tr class="tfoot" id="b-opt-ft"></tr></tfoot>
@@ -832,8 +837,9 @@ function renderBudget(){
   const terrRes=calcTerrein();to+=terrRes.netto;
   outR.push('<tr class="bsec"><td colspan="3">Huur kampterrein</td></tr>');
   outR.push(`<tr><td>Dagvergoeding (${getDays().length} dagen)</td><td class="muted">variabel</td><td class="tr">${fmt(terrRes.dagtot)}</td></tr>`);
-  outR.push(`<tr><td>Borg</td><td></td><td class="tr">${fmt(terrRes.borg)}</td></tr>`);
   outR.push(`<tr><td>Subsidie</td><td></td><td class="tr muted">\u2212 ${fmt(terrRes.sub)}</td></tr>`);
+  to+=terrRes.dagtot-terrRes.sub;
+  outR.push(`<tr><td style="color:#888;font-size:12px;">Borg (terugbetaalbare waarborg)</td><td></td><td class="tr muted" style="font-size:12px;">${fmt(terrRes.borg)} <em>niet meegerekend</em></td></tr>`);
   outR.push('<tr class="bsec"><td colspan="3">Vaste kosten</td></tr>');
   s.vk.forEach(k=>{const n=(k.b||0)-(k.s||0);to+=n;outR.push(`<tr><td>${k.om}</td><td class="muted">${fmt(k.b)}${k.s?' \u2212 '+fmt(k.s):''}</td><td class="tr">${fmt(n)}</td></tr>`);});
   outR.push('<tr class="bsec"><td colspan="3">Variabele kosten (raming)</td></tr>');
@@ -853,7 +859,18 @@ function renderBudget(){
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
   let wiT=0,oiT=0,lT=0,iT=0;const optR=[];
   s.takken.forEach(t=>{const n=nights(t.aa,t.vt),wi=t.ins*t.kp,oi=t.tot*t.kp,diff=oi-wi;wiT+=wi;oiT+=oi;lT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';optR.push(`<tr><td>${t.nm}</td><td class="tr">${t.tot||0}</td><td class="tr">${t.ins||0}</td><td class="tr" style="color:${clr};font-weight:600">${t.tot?dp+'%':'\u2014'}</td><td class="tr">${fmt(wi)}</td><td class="tr">${fmt(oi)}</td><td class="tr ${diff>0?'ok':'muted'}">${fmt(diff)}</td></tr>`);});
-  document.getElementById('b-opt').innerHTML=optR.join('');const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
+  // Prijsscenario's
+  const betTak=s.takken.filter(t=>t.sg!==false&&t.kp>0);
+  const scR=[];let ext10=0,ext15=0;
+  betTak.forEach(t=>{
+    const e10=t.ins*10,e15=t.ins*15;ext10+=e10;ext15+=e15;
+    scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}</td><td class="tr tw5">€${t.kp+10}</td><td class="tr tw5">€${t.kp+15}</td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
+  });
+  document.getElementById('b-scenario').innerHTML=scR.join('');
+  const buf=ti-to;
+  document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal</strong></td><td colspan="3"></td><td class="tr">${betTak.reduce((a,t)=>a+t.ins,0)}</td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;
+  // Buffer rij
+  document.getElementById('b-scenario').innerHTML+=`<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#666;padding-top:10px">Huidige buffer (excl. eten)</td><td class="tr ${buf>=0?'ok':'bad'}">${fmt(buf)}</td><td class="tr ok">${fmt(buf+ext10)}</td><td class="tr ok">${fmt(buf+ext15)}</td><td colspan="3"></td></tr>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
   document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
   const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
   terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
