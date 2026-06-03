@@ -190,6 +190,13 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
       <button class="btn" onclick="renderSL()">↻ Herbereken</button>
     </div>
   </div><div class="cb" id="k-shop-cb"><p style="color:#888;font-size:13px;">Plan eerst maaltijden in.</p></div></div>
+
+  <div class="card" style="margin-top:14px;"><div class="ch"><h3>📅 Bestellijst per dag</h3>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="k-day-sel" class="plan-sel" style="max-width:160px;" onchange="renderDaySL()"><option value="">— kies dag —</option></select>
+      <select id="k-day-marge" class="plan-sel" style="max-width:120px;" onchange="renderDaySL()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+    </div>
+  </div><div class="cb" id="k-day-cb"><p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p></div></div>
 </div>
 
 <div class="panel" id="p-menu">
@@ -671,6 +678,13 @@ function renderKeuken(){
   const ds=document.getElementById('k-sel-dag');ds.innerHTML='<option value="">Kies dag</option>';
   days.forEach(d=>{const k=S.keuken[d]||{};if(k.mid||k.av)ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
   renderKD();renderSL();
+  // Vul dag-dropdown
+  const ds2=document.getElementById('k-day-sel');
+  const prev2=ds2.value;
+  ds2.innerHTML='<option value="">— kies dag —</option>';
+  getDays().forEach(d=>ds2.innerHTML+=`<option value="${d}">${fD(d)}</option>`);
+  if(prev2)ds2.value=prev2;
+  renderDaySL();
 }
 function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;
   // Sync naar menu
@@ -723,6 +737,51 @@ function renderSL(){
   items.forEach(it=>{(g[it.sup]||g.super).push(it);});
   const lbl={sol:'\U0001f7e1 Solucious (bestelling)',slager:'\U0001f534 Slager / lokaal',super:'\U0001f7e2 Supermarkt',bakker:'\U0001f35e Bakkerij'};
   let html='';
+  ['sol','slager','super','bakker'].forEach(sup=>{
+    const list=g[sup];if(!list||!list.length)return;
+    html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
+    list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      const si=it.sol?SOL[it.sol]:null;
+      let artH='',pkgH='';
+      if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
+      html+=`<div class="shop-row"><span class="shop-nm">${it.n}${artH}</span><span class="shop-amt">${fmtQ(it.total,it.u)}${pkgH}</span></div>`;
+    });
+    html+='</div>';
+  });
+  cb.innerHTML=html;
+}
+
+function renderDaySL(){
+  const d=document.getElementById('k-day-sel').value;
+  const cb=document.getElementById('k-day-cb');
+  if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p>';return;}
+  const marge=+document.getElementById('k-day-marge').value||0;
+  const k=S.keuken&&S.keuken[d]||{};
+  const p=getPorties(d,marge);
+  const tots={};
+  ['mid','av'].forEach(slot=>{
+    const m=MM[k[slot]];if(!m)return;
+    m.ing.forEach(i=>{
+      if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,meals:[]};
+      tots[i.n].total+=i.pp*p;
+      if(!tots[i.n].meals.includes(m.nm))tots[i.n].meals.push(m.nm);
+    });
+  });
+  const items=Object.values(tots);
+  // Toon ook maaltijden van de dag
+  const meals=[];
+  if(k.mid)meals.push({slot:'Middag',nm:k.mid});
+  if(k.av)meals.push({slot:'Avond',nm:k.av});
+  let html='';
+  if(meals.length){
+    html+='<div style="margin-bottom:12px;">';
+    meals.forEach(m=>html+=`<span style="display:inline-block;background:#e8edf5;color:#1b3a6b;border-radius:4px;padding:3px 10px;font-size:12px;margin-right:6px;font-weight:600;">${m.slot}: ${m.nm}</span>`);
+    html+='</div>';
+  }
+  if(!items.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Geen maaltijden gepland voor deze dag, of maaltijden zonder ingrediënten.</p>';return;}
+  const g={sol:[],slager:[],super:[],bakker:[]};
+  items.forEach(it=>{(g[it.sup]||g.super).push(it);});
+  const lbl={sol:'\U0001f7e1 Solucious',slager:'\U0001f534 Slager / lokaal',super:'\U0001f7e2 Supermarkt',bakker:'\U0001f35e Bakkerij'};
   ['sol','slager','super','bakker'].forEach(sup=>{
     const list=g[sup];if(!list||!list.length)return;
     html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
