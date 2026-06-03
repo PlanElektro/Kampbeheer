@@ -853,7 +853,7 @@ function renderBudget(){
   cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
   document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
   document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
-  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>t+=av[tk.id]||0);gep+=t*s.eb;});
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>t+=av[tk.id]||0);t+=(av['kp']||0);gep+=t*s.eb;});
   const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
   const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
@@ -866,11 +866,10 @@ function renderBudget(){
     const e10=t.ins*10,e15=t.ins*15;ext10+=e10;ext15+=e15;
     scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}</td><td class="tr tw5">€${t.kp+10}</td><td class="tr tw5">€${t.kp+15}</td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
   });
-  document.getElementById('b-scenario').innerHTML=scR.join('');
-  const buf=ti-to;
-  document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal</strong></td><td colspan="3"></td><td class="tr">${betTak.reduce((a,t)=>a+t.ins,0)}</td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;
-  // Buffer rij
-  document.getElementById('b-scenario').innerHTML+=`<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#666;padding-top:10px">Huidige buffer (excl. eten)</td><td class="tr ${buf>=0?'ok':'bad'}">${fmt(buf)}</td><td class="tr ok">${fmt(buf+ext10)}</td><td class="tr ok">${fmt(buf+ext15)}</td><td colspan="3"></td></tr>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
+  const bufTot=ti-to-gep;
+  document.getElementById('b-scenario').innerHTML=scR.join('')+
+    `<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#444;padding-top:10px"><strong>Geraamde buffer (eten inbegrepen)</strong></td><td class="tr tw5 ${bufTot>=0?'ok':'bad'}">${fmt(bufTot)}</td><td class="tr tw5 ok">${fmt(bufTot+ext10)}</td><td class="tr tw5 ok">${fmt(bufTot+ext15)}</td><td colspan="3" style="font-size:11px;color:#888;padding-top:10px">Voeding = eetbudget ${fmt(s.eb)}/p/dag</td></tr>`;
+  document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal extra inkomsten</strong></td><td colspan="4"></td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
   document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
   const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
   terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
