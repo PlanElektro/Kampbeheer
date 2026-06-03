@@ -859,6 +859,7 @@ function renderBudget(){
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
   let wiT=0,oiT=0,lT=0,iT=0;const optR=[];
   s.takken.forEach(t=>{const n=nights(t.aa,t.vt),wi=t.ins*t.kp,oi=t.tot*t.kp,diff=oi-wi;wiT+=wi;oiT+=oi;lT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';optR.push(`<tr><td>${t.nm}</td><td class="tr">${t.tot||0}</td><td class="tr">${t.ins||0}</td><td class="tr" style="color:${clr};font-weight:600">${t.tot?dp+'%':'\u2014'}</td><td class="tr">${fmt(wi)}</td><td class="tr">${fmt(oi)}</td><td class="tr ${diff>0?'ok':'muted'}">${fmt(diff)}</td></tr>`);});
+  document.getElementById('b-opt').innerHTML=optR.join('');
   // Prijsscenario's
   const betTak=s.takken.filter(t=>t.sg!==false&&t.kp>0);
   const scR=[];let ext10=0,ext15=0;
