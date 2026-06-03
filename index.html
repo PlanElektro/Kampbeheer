@@ -99,7 +99,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 <div id="readonly-banner">👁 Alleen-lezen modus — <strong>aanmelden</strong> om wijzigingen te maken</div>
 <div id="app">
 <div id="hdr">
-  <div><h1>⚓ Kampbeheer 2026</h1></div>
+  <div><h1>⚓ Kampbeheer 2026</h1><span id="hnm" style="display:none"></span></div>
   <div id="sync-bar">
     <span class="sync-dot" id="sync-dot"></span><span id="sync-txt">verbinden...</span>
     <button class="btn" onclick="exportData()" style="margin-left:8px">↓ backup</button>
@@ -554,13 +554,13 @@ function loadSU(){
   document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
   document.getElementById('s-eb').value=s.eb;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
   const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
-  document.getElementById('hnm').textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
+  const _hnm=document.getElementById('hnm');if(_hnm)_hnm.textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
 }
 function saveSU(){
   const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
   s.eb=+document.getElementById('s-eb').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
   s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
-  document.getElementById('hnm').textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);
+  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);
   if(document.getElementById('p-budget').classList.contains('act'))renderBudget();
   save();
 }
