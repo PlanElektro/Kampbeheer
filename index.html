@@ -268,7 +268,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <tbody id="b-eet"></tbody>
   </table></div></div></div>
   <div class="card"><div class="ch"><h3>📊 Prijsscenario's — kampprijs vergelijking</h3></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Tak</th><th class="tr">Huidig</th><th class="tr">+€10</th><th class="tr">+€15</th><th class="tr">Leden</th><th class="tr">Extra (+€10)</th><th class="tr">Extra (+€15)</th></tr></thead>
+    <table><thead><tr><th>Tak</th><th class="tr">Huidig</th><th class="tr">+€10/dag/kind</th><th class="tr">+€15/dag/kind</th><th class="tr">Leden</th><th class="tr">Extra (+€10)</th><th class="tr">Extra (+€15)</th></tr></thead>
     <tbody id="b-scenario"></tbody>
     <tfoot><tr class="tfoot" id="b-scenario-ft"></tr></tfoot>
   </table></div></div></div>
@@ -864,8 +864,9 @@ function renderBudget(){
   const betTak=s.takken.filter(t=>t.sg!==false&&t.kp>0);
   const scR=[];let ext10=0,ext15=0;
   betTak.forEach(t=>{
-    const e10=t.ins*10,e15=t.ins*15;ext10+=e10;ext15+=e15;
-    scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}</td><td class="tr tw5">€${t.kp+10}</td><td class="tr tw5">€${t.kp+15}</td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
+    const d=nights(t.aa,t.vt)+1;
+    const e10=t.ins*d*10,e15=t.ins*d*15;ext10+=e10;ext15+=e15;
+    scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}<br><span style="font-size:11px;color:#888">${d} dagen</span></td><td class="tr tw5">€${t.kp+d*10}<br><span style="font-size:11px;color:#16a34a">+€${d*10}</span></td><td class="tr tw5">€${t.kp+d*15}<br><span style="font-size:11px;color:#16a34a">+€${d*15}</span></td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
   });
   const bufTot=ti-to;
   document.getElementById('b-scenario').innerHTML=scR.join('')+
