@@ -197,6 +197,22 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
       <select id="k-day-marge" class="plan-sel" style="max-width:120px;" onchange="renderDaySL()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
     </div>
   </div><div class="cb" id="k-day-cb"><p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p></div></div>
+
+  <div class="card" style="margin-top:14px;background:linear-gradient(135deg,#1b3a6b 0%,#2d5a9e 100%);color:#fff;">
+    <div class="ch" style="border-bottom:1px solid rgba(255,255,255,.15);">
+      <h3 style="color:#fff;">🤖 AI Bestellijst genereren</h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="ai-marge" class="plan-sel" style="max-width:120px;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">
+          <option value="10" selected>+10% marge</option>
+          <option value="15">+15% marge</option>
+          <option value="20">+20% marge</option>
+        </select>
+        <button onclick="generateAIBestellijst()" style="background:#c8a951;color:#1b3a6b;border:none;border-radius:7px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">✨ Genereer bestellijst</button>
+      </div>
+    </div>
+    <div style="padding:12px 16px;font-size:13px;opacity:.85;">Claude analyseert je menu, aanwezigen en ingrediënten → gestructureerde bestellijst per leverancier met bulktips.</div>
+  </div>
+  <div id="ai-result" style="display:none;margin-top:8px;"></div>
 </div>
 
 <div class="panel" id="p-menu">
@@ -498,6 +514,105 @@ let S=JSON.parse(JSON.stringify(DEF));
 let saveTimer=null;
 
 function setSS(c,t){document.getElementById('sync-dot').className='sync-dot '+(c||'');document.getElementById('sync-txt').textContent=t||'';}
+async function generateAIBestellijst(){
+  const marge=+document.getElementById('ai-marge').value||10;
+  const res=document.getElementById('ai-result');
+  res.style.display='block';
+  res.innerHTML=`<div class="card"><div class="cb" style="padding:24px;text-align:center;color:#888;"><div style="font-size:24px;margin-bottom:8px;">⏳</div>Claude analyseert je menu en berekent de bestellijst...<br><small>Dit duurt 15-30 seconden</small></div></div>`;
+
+  // Verzamel ingrediënten uit maaltijden
+  const tots={};
+  getDays().forEach(d=>{
+    const k=S.keuken[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    ['mid','av'].forEach(slot=>{
+      const m=MM[k[slot]];if(!m)return;
+      m.ing.forEach(i=>{
+        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',total:0};
+        tots[i.n].total+=i.pp*p;
+      });
+    });
+  });
+
+  // Menuoverzicht per dag
+  const menuLines=getDays().map(d=>{
+    const k=S.keuken[d]||{};const m=S.menu[d]||{};
+    const av=S.av[d]||{};let tot=0;
+    S.setup.takken.forEach(t=>tot+=av[t.id]||0);tot+=av['kp']||0;
+    if(tot<1)return null;
+    const mid=k.mid||'-';const avnd=k.av||'-';
+    const on=(m.on&&m.on.ma)||'Standaard ontbijt';
+    const uu=(m.uu&&m.uu.ma)||'';const des=(m.des&&m.des.ma)||'';
+    return `${fD(d)}: ${tot}p | Ontbijt: ${on} | Middag: ${mid} | Avond: ${avnd}${uu?' | 4u: '+uu:''}${des?' | Dessert: '+des:''}`;
+  }).filter(Boolean);
+
+  // Ingrediëntenlijst
+  const ingLines=Object.values(tots).map(i=>`${i.n}: ${fmtQ(i.total,i.u)} (${i.sup})`);
+
+  const prompt=`Je bent assistent voor een scoutskamp in Kasterlee (14-28 juli 2026) voor de Sea Scouts Nieuwpoort. Je helpt de kookverantwoordelijke een volledige bestellijst opmaken.
+
+MENU PER DAG (met aanwezigen):
+${menuLines.join('\n')}
+
+BEREKENDE INGREDIËNTEN (inclusief ${marge}% veiligheidsmarge, uit maaltijdrecepten):
+${ingLines.length?ingLines.join('\n'):'(geen maaltijden met ingrediënten ingepland)'}
+
+STANDAARD DAGELIJKSE ITEMS (niet in bovenstaande lijst):
+- Ontbijt: boterhammen (~3/persoon), choco/confituur/hagelslag (~50g/persoon/dag), cornflakes (~40g), melk (~0.25L), fruitsap (~0.15L), chocopoeder
+- Middag boterhammen: boterhammen (~4/persoon), kaas (~40g), hesp (~30g), salami (~20g), mayonaise, mosterd
+
+Maak een volledige, gestructureerde bestellijst in het Nederlands met deze secties:
+
+## 🟡 Solucious (online bestellen vóór het kamp)
+Artikelen die via Solucious besteld worden. Geef aantallen in verpakkingseenheden.
+
+## 🔴 Slager / lokaal
+Vers vlees, charcuterie. Geef per soort het totaal gewicht en wanneer op te halen.
+
+## 🟢 Supermarkt
+Zuivel, groenten, droge waren, brood. Groepeer per categorie. Geef bulktips waar zinvol.
+
+## 🍞 Bakkerij
+Brood per dag (aantal broden). Geef aan wanneer te bestellen.
+
+## 💡 Tips & aandachtspunten
+Max 5 praktische tips voor de inkoop (wat vooraf, wat ter plaatse, bulkvoordelen).
+
+Wees concreet met hoeveelheden. Gebruik de ${marge}% marge consequent.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const txt=data.content&&data.content[0]&&data.content[0].text;
+    if(!txt)throw new Error('Geen antwoord van AI');
+
+    // Render markdown
+    const html=txt
+      .replace(/^## (.+)$/gm,'<h3 style="color:#1b3a6b;margin:18px 0 8px;border-bottom:2px solid #c8a951;padding-bottom:4px;">$1</h3>')
+      .replace(/^### (.+)$/gm,'<h4 style="color:#1b3a6b;margin:12px 0 6px;">$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/^- (.+)$/gm,'<li style="margin:3px 0;padding-left:4px;">$1</li>')
+      .replace(/(<li.*<\/li>\n?)+/g,'<ul style="margin:6px 0 10px 16px;list-style:disc;">$&</ul>')
+      .replace(/\n\n/g,'<br>');
+
+    res.innerHTML=`<div class="card"><div class="ch" style="justify-content:space-between;">
+      <h3>🤖 AI Bestellijst — ${marge}% marge</h3>
+      <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('ai-raw').value);this.textContent='✓ Gekopieerd';setTimeout(()=>this.textContent='📋 Kopieer tekst',2000)">📋 Kopieer tekst</button>
+    </div>
+    <div class="cb" style="padding:16px 20px;line-height:1.7;font-size:14px;">${html}</div>
+    <textarea id="ai-raw" style="display:none;">${txt.replace(/</g,'&lt;')}</textarea></div>`;
+  }catch(e){
+    res.innerHTML=`<div class="card"><div class="cb" style="padding:16px;color:#dc2626;">⚠️ Fout bij genereren: ${e.message}</div></div>`;
+  }
+}
+
 async function sbLoad(){
   setSS('busy','laden...');
   try{
