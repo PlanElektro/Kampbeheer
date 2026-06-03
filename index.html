@@ -135,7 +135,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <div class="fg"><label>Subsidie (€)</label><input type="number" id="tr-s" step="50" onchange="saveSU()"></div>
   </div><div class="terr-box" id="terr-preview"></div></div></div>
   <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-ok" onclick="addTak()">+ Tak</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th></th></tr></thead>
+    <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th>Eetbudget</th><th></th></tr></thead>
     <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table>
   </div></div></div>
   <div class="card"><div class="ch"><h3>Kookploeg</h3><button class="btn btn-ok" onclick="addKP()">+ Persoon</button></div><div class="cb">
@@ -470,7 +470,7 @@ const DEF={
       {id:'JV',nm:'Jongverkenners',tot:19,ins:12,aa:'2026-07-19',vt:'2026-07-28',kp:210},
       {id:'SG',nm:'Scouts & Guides',tot:17,ins:5,aa:'2026-07-17',vt:'2026-07-28',kp:230},
       {id:'SE',nm:'Seniors',tot:5,ins:5,aa:'2026-07-25',vt:'2026-07-28',kp:0,sg:false},
-      {id:'moly522axf8',nm:'Leiding',tot:18,ins:16,aa:'2026-07-14',vt:'2026-07-28',kp:50,sg:false},
+      {id:'moly522axf8',nm:'Leiding',tot:18,ins:16,aa:'2026-07-14',vt:'2026-07-28',kp:50,sg:false,eet:false},
     ],
     vk:[{id:1,om:'Huur tenten',b:201,s:0},{id:2,om:'Koelwagen',b:450,s:0},{id:3,om:"Toi Toi's",b:900,s:0}],
     vark:[{id:1,om:'Water',r:150},{id:2,om:'Electriciteit',r:250},{id:3,om:'Gas',r:150},{id:4,om:'EHBO',r:150},{id:5,om:'Aankoop materiaal',r:250},{id:6,om:'Sjortouw',r:375},{id:7,om:'Schade gehuurde tenten',r:150},{id:8,om:'Transport materiaal (raming)',r:2000}],
@@ -559,7 +559,7 @@ function saveSU(){
 function rTk(){
   const tb=document.getElementById('tk-body');tb.innerHTML='';let tT=0,iT=0;
   S.setup.takken.forEach((t,i)=>{tT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';const tr=document.createElement('tr');
-    tr.innerHTML=`<td><input type="text" value="${t.nm}" onchange="uTk(${i},'nm',this.value)"></td><td><input type="number" value="${t.tot||0}" onchange="uTk(${i},'tot',+this.value)"></td><td><input type="number" value="${t.ins||0}" onchange="uTk(${i},'ins',+this.value)"></td><td style="color:${clr};font-weight:600;font-size:12px;">${t.tot?dp+'%':'\u2014'}</td><td><input type="date" value="${t.aa}" style="width:130px" onchange="uTk(${i},'aa',this.value)"></td><td><input type="date" value="${t.vt}" style="width:130px" onchange="uTk(${i},'vt',this.value)"></td><td><input type="number" value="${t.kp}" step="5" style="width:75px" onchange="uTk(${i},'kp',+this.value)"></td><td style="text-align:center;"><input type="checkbox" ${t.sg!==false?'checked':''} onchange="uTk(${i},'sg',this.checked)" title="Ontvangt speelgeld"></td><td><button class="btn btn-bad" onclick="dTk(${i})">&#x2715;</button></td>`;
+    tr.innerHTML=`<td><input type="text" value="${t.nm}" onchange="uTk(${i},'nm',this.value)"></td><td><input type="number" value="${t.tot||0}" onchange="uTk(${i},'tot',+this.value)"></td><td><input type="number" value="${t.ins||0}" onchange="uTk(${i},'ins',+this.value)"></td><td style="color:${clr};font-weight:600;font-size:12px;">${t.tot?dp+'%':'\u2014'}</td><td><input type="date" value="${t.aa}" style="width:130px" onchange="uTk(${i},'aa',this.value)"></td><td><input type="date" value="${t.vt}" style="width:130px" onchange="uTk(${i},'vt',this.value)"></td><td><input type="number" value="${t.kp}" step="5" style="width:75px" onchange="uTk(${i},'kp',+this.value)"></td><td style="text-align:center;"><input type="checkbox" ${t.sg!==false?'checked':''} onchange="uTk(${i},'sg',this.checked)" title="Ontvangt speelgeld"></td><td style="text-align:center;"><input type="checkbox" ${t.eet!==false?'checked':''} onchange="uTk(${i},'eet',this.checked)" title="Telt mee in eetbudget"></td><td><button class="btn btn-bad" onclick="dTk(${i})">&#x2715;</button></td>`;
     tb.appendChild(tr);});
   const tp=tT?Math.round(iT/tT*100):0;
   document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${tT}</td><td class="tr">${iT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="4"></td>`;
@@ -853,7 +853,7 @@ function renderBudget(){
   cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
   document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
   document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
-  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.sg===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
   const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
   const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
