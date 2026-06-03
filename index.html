@@ -521,7 +521,7 @@ function fmtQ(v,u){
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function getDays(){if(!S.setup.st||!S.setup.ei)return[];const d=[],e=new Date(S.setup.ei);let c=new Date(S.setup.st);while(c<=e){d.push(c.toISOString().slice(0,10));c=new Date(c);c.setDate(c.getDate()+1);}return d;}
-function fD(iso){const d=new Date(iso+'T12:00:00');return DNL[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);}
+function fD(iso){const d=new Date(iso+'T12:00:00');return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
 function nights(a,b){if(!a||!b)return 0;return Math.max(0,(new Date(b)-new Date(a))/86400000);}
 function refCat(c){return REF.filter(r=>r.c===c).reduce((s,r)=>s+r.b,0);}
 function getPorties(d,marge){
