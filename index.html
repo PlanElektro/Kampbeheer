@@ -672,7 +672,10 @@ function renderKeuken(){
   days.forEach(d=>{const k=S.keuken[d]||{};if(k.mid||k.av)ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
   renderKD();renderSL();
 }
-function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;save();renderKeuken();}
+function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;
+  // Sync naar menu
+  if(!S.menu[d])S.menu[d]={};const meal=slot==='av'?'avond':'middag';if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal]['ma']=val;
+  save();renderKeuken();}
 
 function renderKD(){
   const d=document.getElementById('k-sel-dag').value;
@@ -780,7 +783,10 @@ function uMenuSel(sel,d,k){
     const ta=sel.parentElement.querySelector('textarea');
     if(ta&&!ta.value){ta.value=vm.nt;uMenu(d,k,'nt',vm.nt);}
   }
-}function uMenu(d,meal,f,v){if(!S.menu[d])S.menu[d]={};if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal][f]=v;save();}
+}function uMenu(d,meal,f,v){if(!S.menu[d])S.menu[d]={};if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal][f]=v;
+  // Sync naar keuken
+  if(f==='ma'){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(meal==='avond')S.keuken[d]['av']=v;if(meal==='middag')S.keuken[d]['mid']=v;}
+  save();}
 
 function addAankoop(){
   const a={id:uid(),d:document.getElementById('a-d').value,w:document.getElementById('a-w').value,l:document.getElementById('a-l').value,b:parseFloat(document.getElementById('a-b').value)||0,c:document.getElementById('a-c').value,p:document.getElementById('a-p').value,n:document.getElementById('a-n').value};
