@@ -123,8 +123,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <div class="fg"><label>Startdatum</label><input type="date" id="s-st" onchange="saveSU()"></div>
     <div class="fg"><label>Einddatum</label><input type="date" id="s-ei" onchange="saveSU()"></div>
     <div class="fg"><label>Eetbudget p/p/dag (€)</label><input type="number" id="s-eb" step="0.5" onchange="saveSU()"></div>
-    <div class="fg"><label>Activiteiten p/p/dag (€)</label><input type="number" id="s-ab" step="0.5" onchange="saveSU()"></div>
-    <div class="fg"><label>Speelgeld p/p/nacht (€)</label><input type="number" id="s-sp" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Speelgeld p/p/nacht (€) — enkel takleden</label><input type="number" id="s-sp" step="0.5" onchange="saveSU()"></div>
     <div class="fg"><label>Aantal leiding</label><input type="number" id="s-ld" onchange="saveSU()"></div>
     <div class="fg"><label>Leidingbijdrage (€)</label><input type="number" id="s-lb" step="5" onchange="saveSU()"></div>
   </div></div></div>
@@ -546,15 +545,17 @@ document.getElementById('tabs').addEventListener('click',e=>{
 function loadSU(){
   const s=S.setup;
   document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
-  document.getElementById('s-eb').value=s.eb;document.getElementById('s-ab').value=s.ab;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
+  document.getElementById('s-eb').value=s.eb;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
   const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
   document.getElementById('hnm').textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
 }
 function saveSU(){
   const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
-  s.eb=+document.getElementById('s-eb').value;s.ab=+document.getElementById('s-ab').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
+  s.eb=+document.getElementById('s-eb').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
   s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
-  document.getElementById('hnm').textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);save();
+  document.getElementById('hnm').textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);
+  if(document.getElementById('p-budget').classList.contains('act'))renderBudget();
+  save();
 }
 function rTk(){
   const tb=document.getElementById('tk-body');tb.innerHTML='';let tT=0,iT=0;
@@ -564,7 +565,7 @@ function rTk(){
   const tp=tT?Math.round(iT/tT*100):0;
   document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${tT}</td><td class="tr">${iT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="4"></td>`;
 }
-function uTk(i,f,v){S.setup.takken[i][f]=v;syncAVFromSetup(false);rTk();save();}
+function uTk(i,f,v){S.setup.takken[i][f]=v;syncAVFromSetup(false);rTk();if(document.getElementById('p-budget').classList.contains('act'))renderBudget();save();}
 function addTak(){S.setup.takken.push({id:uid(),nm:'Nieuwe tak',tot:0,ins:0,aa:S.setup.st,vt:S.setup.ei,kp:0});rTk();save();}
 function dTk(i){if(!confirm('Tak verwijderen?'))return;S.setup.takken.splice(i,1);rTk();save();}
 function rVK(){
