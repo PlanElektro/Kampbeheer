@@ -816,6 +816,7 @@ function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.
 
 function renderBudget(){
   const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
   inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');
   s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});
   const kp=s.kookploeg||{tarief:10,max:50,leden:[]};
@@ -847,13 +848,13 @@ function renderBudget(){
   const pvT=S.ver.pv.reduce((a,v)=>a+(v.b||0),0),mvN=S.ver.mv.reduce((a,v)=>a+(v.b||0)-(v.s||0),0);
   if(pvT+mvN>0){outR.push('<tr class="bsec"><td colspan="3">Vervoer</td></tr>');if(pvT>0){to+=pvT;outR.push(`<tr><td>Personenvervoer</td><td></td><td class="tr">${fmt(pvT)}</td></tr>`);}if(mvN>0){to+=mvN;outR.push(`<tr><td>Materiaalvervoer</td><td></td><td class="tr">${fmt(mvN)}</td></tr>`);}}
   if(S.aankopen.length){outR.push('<tr class="bsec"><td colspan="3">Aankopen (werkelijk)</td></tr>');const cc={};S.aankopen.forEach(a=>cc[a.c]=(cc[a.c]||0)+a.b);Object.entries(cc).forEach(([c,t])=>{to+=t;outR.push(`<tr><td>${c}</td><td></td><td class="tr">${fmt(t)}</td></tr>`);});}
+  else{outR.push('<tr class="bsec"><td colspan="3">Voeding (gepland eetbudget)</td></tr>');to+=gep;outR.push(`<tr><td>Eetbudget (${fmt(s.eb)}/p/dag × takleden)</td><td class="muted">raming</td><td class="tr">${fmt(gep)}</td></tr>`);}
   document.getElementById('b-in').innerHTML=inR.join('');document.getElementById('b-int').textContent=fmt(ti);
   document.getElementById('b-out').innerHTML=outR.join('');document.getElementById('b-outt').textContent=fmt(to);
   const cats=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];const cmpR=[];let cH=0,cR=0;
   cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
   document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
   document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
-  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
   const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
   const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
