@@ -853,7 +853,7 @@ function renderBudget(){
   cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
   document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
   document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
-  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>t+=av[tk.id]||0);t+=(av['kp']||0);gep+=t*s.eb;});
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.sg===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
   const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
   const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
   document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
