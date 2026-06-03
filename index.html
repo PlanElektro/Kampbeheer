@@ -458,6 +458,7 @@ const MEALS=[
    ]},
 ];
 const MM=Object.fromEntries(MEALS.map(m=>[m.id,m]));
+const MMN=Object.fromEntries(MEALS.map(m=>[m.nm,m]));
 
 const REF=[
   {d:'2025-07-13',w:'Vandenbroucke NPT',l:'Nieuwpoort',b:95,c:'Eten & drinken',n:'Vlees'},
@@ -523,10 +524,11 @@ async function generateAIBestellijst(){
   // Verzamel ingrediënten uit maaltijden
   const tots={};
   getDays().forEach(d=>{
-    const k=S.keuken[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
-    ['mid','av'].forEach(slot=>{
-      const m=MM[k[slot]];if(!m)return;
-      m.ing.forEach(i=>{
+    const mn=S.menu[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';
+    [mid,avnd].forEach(nm=>{
+      const meal=MMN[nm];if(!meal)return;
+      meal.ing.forEach(i=>{
         if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',total:0};
         tots[i.n].total+=i.pp*p;
       });
@@ -780,24 +782,22 @@ function renderKeuken(){
   if(!S.keuken)S.keuken={};
   const days=getDays();
   const bd=document.getElementById('k-plan-bd');bd.innerHTML='';
-  const mOpts='<option value="">\u2014</option>'+MEALS.map(m=>`<option value="${m.id}">${m.nm}</option>`).join('');
   days.forEach(d=>{
-    const k=S.keuken[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+    const m=S.menu[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+    const mid=(m.mi&&m.mi.ma)||'';const avnd=(m.av&&m.av.ma)||'';
+    const mLbl=mid?`<span style="background:#e8edf5;padding:3px 8px;border-radius:4px;font-size:12px;color:#1b3a6b;">${mid}</span>`:`<span style="color:#bbb;font-size:12px;">—</span>`;
+    const aLbl=avnd?`<span style="background:#e8edf5;padding:3px 8px;border-radius:4px;font-size:12px;color:#1b3a6b;">${avnd}</span>`:`<span style="color:#bbb;font-size:12px;">—</span>`;
     const tr=document.createElement('tr');
-    const mSel=`<select class="plan-sel" onchange="uK('${d}','mid',this.value)">${mOpts}</select>`;
-    const aSel=`<select class="plan-sel" onchange="uK('${d}','av',this.value)">${mOpts}</select>`;
-    tr.innerHTML=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td><td class="tr">${n||'\u2014'}</td><td>${mSel}</td><td>${aSel}</td>`;
+    tr.innerHTML=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td><td class="tr">${n||'—'}</td><td>${mLbl}</td><td>${aLbl}</td>`;
     bd.appendChild(tr);
-    tr.querySelectorAll('select')[0].value=k.mid||'';
-    tr.querySelectorAll('select')[1].value=k.av||'';
   });
-  // dag selector
-  const ds=document.getElementById('k-sel-dag');ds.innerHTML='<option value="">Kies dag</option>';
-  days.forEach(d=>{const k=S.keuken[d]||{};if(k.mid||k.av)ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
+  // dag selector — toon dagen met menu
+  const ds=document.getElementById('k-sel-dag');const prev=ds.value;
+  ds.innerHTML='<option value="">Kies dag</option>';
+  days.forEach(d=>{const m=S.menu[d]||{};if((m.mi&&m.mi.ma)||(m.av&&m.av.ma))ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
+  if(prev)ds.value=prev;
   renderKD();renderSL();
-  // Vul dag-dropdown
-  const ds2=document.getElementById('k-day-sel');
-  const prev2=ds2.value;
+  const ds2=document.getElementById('k-day-sel');const prev2=ds2.value;
   ds2.innerHTML='<option value="">— kies dag —</option>';
   getDays().forEach(d=>ds2.innerHTML+=`<option value="${d}">${fD(d)}</option>`);
   if(prev2)ds2.value=prev2;
@@ -813,17 +813,18 @@ function renderKD(){
   const marge=+document.getElementById('k-marge').value||0;
   const cb=document.getElementById('k-detail-cb');
   if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Selecteer een dag.</p>';return;}
-  const k=(S.keuken&&S.keuken[d])||{};
-  const slots=[{s:'mid',l:'Middag'},{s:'av',l:'Avond'}].filter(x=>k[x.s]&&MM[k[x.s]]);
+  const m=S.menu[d]||{};
+  const mid=(m.mi&&m.mi.ma)||'';const avnd=(m.av&&m.av.ma)||'';
+  const slots=[{s:'mid',l:'Middag',nm:mid},{s:'av',l:'Avond',nm:avnd}].filter(x=>x.nm&&MMN[x.nm]);
   if(!slots.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Geen maaltijden gepland op deze dag.</p>';return;}
   const p=getPorties(d,marge);const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
   let html=`<div class="portie-bar">\U0001f4c5 ${fD(d)} \u2014 <strong>${n} aanwezigen</strong> \u2192 <strong>${p.toFixed(1)} gewogen porties</strong> <span style="color:#666;font-size:12px;">(+${marge}% marge \u2022 kleintjes 65% \u2022 middenbouw 80% \u2022 groot/leiding 100-105%)</span></div>`;
-  slots.forEach(({s,l})=>{
-    const m=MM[k[s]];
-    html+=`<div class="slot-lbl">${l}: ${m.nm}</div>`;
-    if(m.tip)html+=`<div class="tip-box">\U0001f4a1 ${m.tip}</div>`;
+  slots.forEach(({s,l,nm})=>{
+    const meal=MMN[nm];
+    html+=`<div class="slot-lbl">${l}: ${nm}</div>`;
+    if(meal.tip)html+=`<div class="tip-box">\U0001f4a1 ${meal.tip}</div>`;
     html+='<div class="ing-grid">';
-    m.ing.forEach(i=>{
+    meal.ing.forEach(i=>{
       const amt=i.pp*p;const si=i.sol?SOL[i.sol]:null;
       let sh='';
       if(si){const pkgs=Math.ceil(amt/si.vpv);sh=`<div class="ing-sol">art.${si.art} \u2014 ${pkgs}\u00d7 ${si.nm}</div>`;}
@@ -836,13 +837,14 @@ function renderKD(){
 
 function renderSL(){
   const marge=+document.getElementById('k-shop-marge').value||0;
-  const cb=document.getElementById('k-shop-cb');if(!S.keuken)S.keuken={};
+  const cb=document.getElementById('k-shop-cb');
   const tots={};
   getDays().forEach(d=>{
-    const k=S.keuken[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
-    ['mid','av'].forEach(slot=>{
-      const m=MM[k[slot]];if(!m)return;
-      m.ing.forEach(i=>{
+    const mn=S.menu[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';
+    [mid,avnd].forEach(nm=>{
+      const meal=MMN[nm];if(!meal)return;
+      meal.ing.forEach(i=>{
         if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};
         tots[i.n].total+=i.pp*p;
       });
@@ -873,22 +875,23 @@ function renderDaySL(){
   const cb=document.getElementById('k-day-cb');
   if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p>';return;}
   const marge=+document.getElementById('k-day-marge').value||0;
-  const k=S.keuken&&S.keuken[d]||{};
+  const mn=S.menu[d]||{};
+  const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';
   const p=getPorties(d,marge);
   const tots={};
-  ['mid','av'].forEach(slot=>{
-    const m=MM[k[slot]];if(!m)return;
-    m.ing.forEach(i=>{
+  [mid,avnd].forEach(nm=>{
+    const meal=MMN[nm];if(!meal)return;
+    meal.ing.forEach(i=>{
       if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,meals:[]};
       tots[i.n].total+=i.pp*p;
-      if(!tots[i.n].meals.includes(m.nm))tots[i.n].meals.push(m.nm);
+      if(!tots[i.n].meals.includes(meal.nm))tots[i.n].meals.push(meal.nm);
     });
   });
   const items=Object.values(tots);
-  // Toon ook maaltijden van de dag
+  // Toon maaltijden van de dag
   const meals=[];
-  if(k.mid)meals.push({slot:'Middag',nm:k.mid});
-  if(k.av)meals.push({slot:'Avond',nm:k.av});
+  if(mid)meals.push({slot:'Middag',nm:mid});
+  if(avnd)meals.push({slot:'Avond',nm:avnd});
   let html='';
   if(meals.length){
     html+='<div style="margin-bottom:12px;">';
