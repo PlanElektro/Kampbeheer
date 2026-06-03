@@ -834,7 +834,7 @@ function renderBudget(){
     outR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${n} nachten \xd7 ${fmt(s.sp)}</td><td class="tr">${fmt(b)}</td></tr>`);
   });
   if(spTot===0)outR.push('<tr><td colspan="3" class="muted">Geen speelgeld ingecalculeerd</td></tr>');
-  const terrRes=calcTerrein();to+=terrRes.netto;
+  const terrRes=calcTerrein();
   outR.push('<tr class="bsec"><td colspan="3">Huur kampterrein</td></tr>');
   outR.push(`<tr><td>Dagvergoeding (${getDays().length} dagen)</td><td class="muted">variabel</td><td class="tr">${fmt(terrRes.dagtot)}</td></tr>`);
   outR.push(`<tr><td>Subsidie</td><td></td><td class="tr muted">\u2212 ${fmt(terrRes.sub)}</td></tr>`);
