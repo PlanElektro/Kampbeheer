@@ -866,9 +866,9 @@ function renderBudget(){
     const e10=t.ins*10,e15=t.ins*15;ext10+=e10;ext15+=e15;
     scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}</td><td class="tr tw5">€${t.kp+10}</td><td class="tr tw5">€${t.kp+15}</td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
   });
-  const bufTot=ti-to-gep;
+  const bufTot=ti-to;
   document.getElementById('b-scenario').innerHTML=scR.join('')+
-    `<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#444;padding-top:10px"><strong>Geraamde buffer (eten inbegrepen)</strong></td><td class="tr tw5 ${bufTot>=0?'ok':'bad'}">${fmt(bufTot)}</td><td class="tr tw5 ok">${fmt(bufTot+ext10)}</td><td class="tr tw5 ok">${fmt(bufTot+ext15)}</td><td colspan="3" style="font-size:11px;color:#888;padding-top:10px">Voeding = eetbudget ${fmt(s.eb)}/p/dag</td></tr>`;
+    `<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#444;padding-top:10px"><strong>Saldo na alle kosten</strong><br><span style="font-size:11px;color:#888;font-weight:400">inkomsten − infrastructuur (voeding gedekt via kampprijs)</span></td><td class="tr tw5 ${bufTot>=0?'ok':'bad'}">${fmt(bufTot)}</td><td class="tr tw5 ${(bufTot+ext10)>=0?'ok':'bad'}">${fmt(bufTot+ext10)}</td><td class="tr tw5 ${(bufTot+ext15)>=0?'ok':'bad'}">${fmt(bufTot+ext15)}</td><td colspan="3"></td></tr>`;
   document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal extra inkomsten</strong></td><td colspan="4"></td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
   document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
   const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
