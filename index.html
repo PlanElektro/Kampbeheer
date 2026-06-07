@@ -783,7 +783,7 @@ function renderKeuken(){
   const days=getDays();
   const bd=document.getElementById('k-plan-bd');bd.innerHTML='';
   days.forEach(d=>{
-    const m=S.menu[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+    const m=S.menu[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);n+=(av['kp']||0);
     const mid=(m.mi&&m.mi.ma)||'';const avnd=(m.av&&m.av.ma)||'';
     const mLbl=mid?`<span style="background:#e8edf5;padding:3px 8px;border-radius:4px;font-size:12px;color:#1b3a6b;">${mid}</span>`:`<span style="color:#bbb;font-size:12px;">—</span>`;
     const aLbl=avnd?`<span style="background:#e8edf5;padding:3px 8px;border-radius:4px;font-size:12px;color:#1b3a6b;">${avnd}</span>`:`<span style="color:#bbb;font-size:12px;">—</span>`;
@@ -817,7 +817,7 @@ function renderKD(){
   const mid=(m.mi&&m.mi.ma)||'';const avnd=(m.av&&m.av.ma)||'';
   const slots=[{s:'mid',l:'Middag',nm:mid},{s:'av',l:'Avond',nm:avnd}].filter(x=>x.nm&&MMN[x.nm]);
   if(!slots.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Geen maaltijden gepland op deze dag.</p>';return;}
-  const p=getPorties(d,marge);const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);
+  const p=getPorties(d,marge);const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);n+=(av['kp']||0);
   let html=`<div class="portie-bar">\U0001f4c5 ${fD(d)} \u2014 <strong>${n} aanwezigen</strong> \u2192 <strong>${p.toFixed(1)} gewogen porties</strong> <span style="color:#666;font-size:12px;">(+${marge}% marge \u2022 kleintjes 65% \u2022 middenbouw 80% \u2022 groot/leiding 100-105%)</span></div>`;
   slots.forEach(({s,l,nm})=>{
     const meal=MMN[nm];
@@ -939,7 +939,7 @@ function menuSlotHtml(d,k,l,m){
 function renderMenu(){
   const bd=document.getElementById('menu-bd');bd.innerHTML='';
   getDays().forEach(d=>{
-    const m=S.menu[d]||{};const av=S.av[d]||{};let tot=0;S.setup.takken.forEach(t=>tot+=av[t.id]||0);
+    const m=S.menu[d]||{};const av=S.av[d]||{};let tot=0;S.setup.takken.forEach(t=>tot+=av[t.id]||0);tot+=(av['kp']||0);
     const div=document.createElement('div');div.className='db';
     const inner=[['on','Ontbijt'],['mi','Middag'],['av','Avond'],['uu','4-uurtje'],['des','Dessert']].map(([k,l])=>menuSlotHtml(d,k,l,m)).join('');
     div.innerHTML='<div class="dh" onclick="this.nextElementSibling.classList.toggle(\'open\')"><span>'+fD(d)+'</span><span style="font-size:12px;color:#888;">'+(tot||'geen')+' aanwezigen</span></div><div class="dbody">'+inner+'</div>';
