@@ -621,9 +621,18 @@ async function sbLoad(){
     const r=await fetch(`${SB_URL}/rest/v1/kampbeheer?id=eq.${SB_ID}&select=data`,{headers:HDR});
     if(!r.ok)throw new Error(r.status);
     const rows=await r.json();
-    if(rows&&rows.length&&rows[0].data){S=rows[0].data;if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};setSS('ok','gesynchroniseerd');}
-    else await sbWrite();
-  }catch(e){setSS('err','offline \u2014 lokaal');}
+    if(rows&&rows.length&&rows[0].data){
+      S=rows[0].data;
+      if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+      localStorage.setItem('kamp26_cache',JSON.stringify(S)); // cache opslaan
+      setSS('ok','gesynchroniseerd');
+    } else await sbWrite();
+  }catch(e){
+    // Offline — probeer cache
+    const cached=localStorage.getItem('kamp26_cache');
+    if(cached){try{S=JSON.parse(cached);setSS('err','offline \u2014 cached data');}catch(_){setSS('err','offline \u2014 lokaal');}}
+    else{setSS('err','offline \u2014 lokaal');}
+  }
   // Eenmalige sync menu→keuken voor bestaande data
   if(S.menu){Object.keys(S.menu).forEach(d=>{const m=S.menu[d]||{};if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(m.av&&m.av.ma&&!S.keuken[d].av)S.keuken[d].av=m.av.ma;if(m.mi&&m.mi.ma&&!S.keuken[d].mid)S.keuken[d].mid=m.mi.ma;});}
   loadSU();syncAVFromSetup(false);
