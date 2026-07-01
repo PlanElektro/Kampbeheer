@@ -15,13 +15,6 @@ body.locked .plan-sel{pointer-events:none;background:#f9f9f9;}
 #login-btn:hover{background:#f5f5f5;}
 #login-btn.logged{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}
 #login-btn.logged:hover{background:#bbf7d0;}
-.login-popup{position:fixed;top:60px;right:16px;background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:1000;min-width:240px;display:none;}
-.login-popup.open{display:block;}
-.login-popup h4{font-size:14px;font-weight:600;margin-bottom:12px;}
-.login-popup input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;margin-bottom:8px;}
-.login-popup input:focus{outline:none;border-color:#1a1a1a;}
-.login-popup button{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:9px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;}
-.login-popup button:hover{background:#333;}
 #login-err{color:#dc2626;font-size:12px;margin-top:6px;min-height:16px;}
 #readonly-banner{display:none;background:#fffbeb;border-bottom:1px solid #fde68a;padding:7px 16px;font-size:12px;color:#92400e;text-align:center;}
 #readonly-banner.show{display:block;}
@@ -87,6 +80,17 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .terr-box{background:#f5f5f5;border-radius:6px;padding:10px 14px;font-size:12px;color:#666;margin-top:10px;}.terr-box strong{color:#1a1a1a;}
 .ref-row td{font-size:12px;color:#888;background:#fafafa;}.ref-row:hover td{background:#f5f5f5;}
 #sync-bar{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+#gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#0f2547 0%,#1b3a6b 55%,#2d5a9e 100%);padding:20px;}
+#gate.gate-hidden{display:none;}
+.gate-card{background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:34px 30px 28px;max-width:340px;width:100%;text-align:center;}
+.gate-card .gate-anchor{font-size:44px;line-height:1;}
+.gate-card h2{font-size:19px;margin:10px 0 2px;color:#1b3a6b;}
+.gate-card .gate-sub{font-size:12.5px;color:#889;margin-bottom:18px;}
+.gate-card input{width:100%;box-sizing:border-box;padding:11px 12px;font-size:16px;border:1px solid #ccd;border-radius:8px;text-align:center;}
+.gate-card button{width:100%;margin-top:10px;padding:11px;font-size:15px;font-weight:700;color:#fff;background:#1b3a6b;border:none;border-radius:8px;cursor:pointer;}
+.gate-card button:hover{background:#2d5a9e;}
+#gate-err{color:#c0392b;font-size:12.5px;min-height:16px;margin-top:8px;}
+
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;}
 .sync-dot.ok{background:#16a34a;}.sync-dot.err{background:#dc2626;}.sync-dot.busy{background:#f59e0b;animation:pulse 1s infinite;}
 #sync-txt{font-size:12px;color:#666;}
@@ -164,6 +168,16 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+<div id="gate" class="gate-hidden">
+  <div class="gate-card">
+    <div class="gate-anchor">⚓</div>
+    <h2>Kampbeheer 2026</h2>
+    <div class="gate-sub">8ste FOS 't Vloedgat · Kasterlee</div>
+    <input type="password" id="gate-pw" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkGate()">
+    <button onclick="checkGate()">Aanmelden</button>
+    <div id="gate-err"></div>
+  </div>
+</div>
 <div style="background:#dc2626;color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:700;letter-spacing:.5px;">🧪 TESTOMGEVING — losse kopie van de data (test2026). Wijzigingen hier raken je echte kamp NIET.</div>
 <div id="readonly-banner">👁 Alleen-lezen modus — <strong>aanmelden</strong> om wijzigingen te maken</div>
 <div id="app">
@@ -193,12 +207,6 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
     <div id="arch-list"></div>
     <div id="arch-detail" style="margin-top:14px;"></div>
   </div>
-</div>
-<div class="login-popup" id="login-popup">
-  <h4>Aanmelden</h4>
-  <input type="password" id="pw-input" placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')checkPW()">
-  <button onclick="checkPW()">Aanmelden</button>
-  <div id="login-err"></div>
 </div>
 <div id="tabs">
   <button class="tb act" data-tab="setup">⚙ Setup</button>
@@ -1996,34 +2004,28 @@ function setLocked(locked){
   if(locked){btn.textContent='🔒 Aanmelden';btn.className='';}
   else{btn.textContent='✓ Aangemeld';btn.className='logged';}
   // logout optie
-  btn.onclick=locked?toggleLoginPopup:()=>{if(confirm('Afmelden?')){localStorage.removeItem('kamp26');setLocked(true);}};
+  btn.onclick=locked?()=>showGate(true):()=>{if(confirm('Afmelden?')){localStorage.removeItem('kamp26');setLocked(true);showGate(true);}};
 }
-function toggleLoginPopup(){
-  const p=document.getElementById('login-popup');
-  p.classList.toggle('open');
-  if(p.classList.contains('open'))setTimeout(()=>document.getElementById('pw-input').focus(),50);
+function showGate(v){
+  document.getElementById('gate').classList.toggle('gate-hidden',!v);
+  if(v)setTimeout(()=>document.getElementById('gate-pw').focus(),80);
 }
-async function checkPW(){
-  const v=document.getElementById('pw-input').value;
+async function checkGate(){
+  const v=document.getElementById('gate-pw').value;
   if(await _hash(v)===_kh){
     localStorage.setItem('kamp26','1');
-    document.getElementById('login-popup').classList.remove('open');
-    document.getElementById('pw-input').value='';
-    document.getElementById('login-err').textContent='';
+    document.getElementById('gate-pw').value='';
+    document.getElementById('gate-err').textContent='';
     setLocked(false);
+    showGate(false);
   } else {
-    document.getElementById('login-err').textContent='Fout wachtwoord.';
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-input').focus();
+    document.getElementById('gate-err').textContent='Fout wachtwoord.';
+    document.getElementById('gate-pw').value='';
+    document.getElementById('gate-pw').focus();
   }
 }
-// Sluit popup bij klik buiten
-document.addEventListener('click',e=>{
-  const p=document.getElementById('login-popup');
-  const btn=document.getElementById('login-btn');
-  if(p.classList.contains('open')&&!p.contains(e.target)&&e.target!==btn)p.classList.remove('open');
-});
 setLocked(!isLoggedIn());
+showGate(!isLoggedIn());
 sbLoad();
 updateBackupAge();
 
