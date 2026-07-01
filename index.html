@@ -12,20 +12,20 @@ body.locked .btn-ok, body.locked .btn-bad{display:none;}
 body.locked .lockhide{display:none;}
 body.locked .plan-sel{pointer-events:none;background:#f9f9f9;}
 #login-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;font-family:inherit;font-weight:500;border-radius:7px;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#1a1a1a;}
-#login-btn:hover{background:#f5f5f5;}
+#login-btn:hover{background:#f1f4fa;}
 #login-btn.logged{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}
 #login-btn.logged:hover{background:#bbf7d0;}
 #login-err{color:#dc2626;font-size:12px;margin-top:6px;min-height:16px;}
 #readonly-banner{display:none;background:#fffbeb;border-bottom:1px solid #fde68a;padding:7px 16px;font-size:12px;color:#92400e;text-align:center;}
 #readonly-banner.show{display:block;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:14px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#eef2f8;color:#1a1a1a;font-size:14px;}
 #app{max-width:1100px;margin:0 auto;padding:16px;}
 #hdr{display:flex;align-items:center;gap:10px;padding:12px 0 10px;border-bottom:1px solid #e0e0e0;margin-bottom:16px;flex-wrap:wrap;}
 #hdr h1{font-size:18px;font-weight:600;}
 #tabs{display:flex;border-bottom:1px solid #e0e0e0;margin-bottom:18px;overflow-x:auto;}
 .tb{padding:9px 15px;font-size:13px;color:#666;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
-.tb:hover{color:#1a1a1a;background:#f0f0f0;}.tb.act{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500;}
+.tb:hover{color:#1b3a6b;background:#e8eef8;}.tb.act{color:#1b3a6b;border-bottom-color:#1b3a6b;font-weight:600;}
 #subtabs{display:none;gap:6px;flex-wrap:wrap;margin:-10px 0 16px;padding:8px 10px;background:#f8fafc;border:1px solid #eef2f7;border-radius:8px;}
 .stb{padding:5px 12px;font-size:12.5px;color:#475569;background:#fff;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;}
 .stb:hover{background:#eef2f7;}
@@ -37,14 +37,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .arch-tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px;}
 .arch-tbl th,.arch-tbl td{border:1px solid #eee;padding:4px 8px;text-align:left;}
 .panel{display:none;}.panel.act{display:block;}
-.card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;margin-bottom:16px;overflow:hidden;}
-.ch{padding:11px 16px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;background:#fafafa;flex-wrap:wrap;gap:8px;}
+.card{background:#fff;border:1px solid #e3e9f4;border-radius:8px;margin-bottom:16px;overflow:hidden;}
+.ch{padding:11px 16px;border-bottom:1px solid #e3e9f4;display:flex;align-items:center;justify-content:space-between;background:#f6f8fc;flex-wrap:wrap;gap:8px;}
 .ch h3{font-size:13px;font-weight:600;}.cb{padding:16px;}.tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th{text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:#666;border-bottom:1px solid #e5e5e5;background:#fafafa;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;}
 td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}tr:hover td{background:#fafafa;}
-.tfoot td{font-weight:600;background:#f5f5f5;border-top:1px solid #e5e5e5;border-bottom:none;}tr.tfoot:hover td{background:#f5f5f5;}
+.tfoot td{font-weight:600;background:#f1f4fa;border-top:1px solid #e5e5e5;border-bottom:none;}tr.tfoot:hover td{background:#f1f4fa;}
 td input[type=text],td input[type=number],td input[type=date],td select{border:1px solid #ddd;border-radius:5px;padding:4px 8px;font-size:12px;font-family:inherit;color:#1a1a1a;background:#fff;}
 td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .fg{display:flex;flex-direction:column;gap:5px;}
@@ -57,7 +57,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .ml{font-size:11px;color:#888;margin-bottom:4px;}.mv{font-size:20px;font-weight:600;}
 .met-ok .mv{color:#16a34a;}.met-bad .mv{color:#dc2626;}.met-info .mv{color:#2563eb;}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-family:inherit;font-weight:500;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#1a1a1a;}
-.btn:hover{background:#f5f5f5;}.btn-ok{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}.btn-ok:hover{background:#bbf7d0;}
+.btn:hover{background:#f1f4fa;}.btn-ok{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}.btn-ok:hover{background:#bbf7d0;}
 .btn-bad{color:#dc2626;border-color:#fecaca;}.btn-bad:hover{background:#fef2f2;}
 .db{border:1px solid #e5e5e5;border-radius:7px;margin-bottom:10px;overflow:hidden;}
 .dh{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:#fafafa;font-size:13px;font-weight:500;user-select:none;}
@@ -72,13 +72,13 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .menu-chev{display:inline-block;transition:transform .2s;}
 .db.mopen .menu-chev{transform:rotate(180deg);}
 .db.mopen .dh{background:#eff6ff;}
-.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f5f5f5;padding-top:12px;}tr.bsec:hover td{background:#f5f5f5;}
+.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f1f4fa;padding-top:12px;}tr.bsec:hover td{background:#f1f4fa;}
 .tr{text-align:right;}.tw5{font-weight:600;}.muted{color:#888;}.ok{color:#16a34a;}.bad{color:#dc2626;}
 .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:#f0f0f0;color:#666;}
 .pill-ref{background:#dbeafe;color:#1d4ed8;}
 .note{font-size:12px;color:#888;padding:10px 14px;background:#fffbeb;border-radius:7px;margin-bottom:14px;border:1px solid #fde68a;}
-.terr-box{background:#f5f5f5;border-radius:6px;padding:10px 14px;font-size:12px;color:#666;margin-top:10px;}.terr-box strong{color:#1a1a1a;}
-.ref-row td{font-size:12px;color:#888;background:#fafafa;}.ref-row:hover td{background:#f5f5f5;}
+.terr-box{background:#f1f4fa;border-radius:6px;padding:10px 14px;font-size:12px;color:#666;margin-top:10px;}.terr-box strong{color:#1a1a1a;}
+.ref-row td{font-size:12px;color:#888;background:#fafafa;}.ref-row:hover td{background:#f1f4fa;}
 #sync-bar{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
 #gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#0f2547 0%,#1b3a6b 55%,#2d5a9e 100%);padding:20px;}
 #gate.gate-hidden{display:none;}
@@ -90,6 +90,11 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .gate-card input{width:100%;box-sizing:border-box;padding:11px 12px;font-size:16px;border:1px solid #ccd;border-radius:8px;text-align:center;}
 .gate-card button{width:100%;margin-top:10px;padding:11px;font-size:15px;font-weight:700;color:#fff;background:#1b3a6b;border:none;border-radius:8px;cursor:pointer;}
 .gate-card button:hover{background:#2d5a9e;}
+body::before{content:'';display:block;height:5px;background:linear-gradient(90deg,#0f2547,#1b3a6b 45%,#2d5a9e);}
+#app-title{color:#1b3a6b;}
+.fg input:focus,.fg select:focus,.fg textarea:focus,td input:focus,td select:focus{outline:none;border-color:#2d5a9e;}
+.shop-sec h4{border-bottom-color:#d9e2f2 !important;}
+
 #gate-err{color:#c0392b;font-size:12.5px;min-height:16px;margin-top:8px;}
 
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;}
@@ -918,7 +923,7 @@ async function generateAIBestellijst(){
   // Ingrediëntenlijst
   const ingLines=Object.values(tots).map(i=>`${i.n}: ${fmtQ(i.total,i.u)} (${i.sup})`);
 
-  const prompt=`Je bent assistent voor een scoutskamp in Kasterlee (14-28 juli 2026) voor de 8ste FOS 't Vloedgat. Je helpt de kookverantwoordelijke een volledige bestellijst opmaken.
+  const prompt=`Je bent assistent voor het scoutskamp "${S.setup.nm||'Kamp'}"${S.setup.st&&S.setup.ei?` (${fD(S.setup.st)} – ${fD(S.setup.ei)})`:''} van de Seascouts 8ste FOS 't Vloedgat. Je helpt de kookverantwoordelijke een volledige bestellijst opmaken.
 
 MENU PER DAG (met aanwezigen):
 ${menuLines.join('\n')}
@@ -1199,7 +1204,7 @@ function printDoc(title,inner,landscape){
     +'h1{font-size:18px;margin:0 0 2px;}.sub{color:#555;font-size:12px;margin:0 0 12px;}'
     +'table{border-collapse:collapse;width:100%;font-size:12px;}'
     +'th,td{border:1px solid #999;padding:5px 7px;text-align:center;vertical-align:top;}'
-    +'th{background:#eee;}td.l,th.l{text-align:left;}tr.tot td{font-weight:bold;background:#f5f5f5;}'
+    +'th{background:#eee;}td.l,th.l{text-align:left;}tr.tot td{font-weight:bold;background:#f1f4fa;}'
     +'.tot-col{font-weight:bold;}.note{color:#666;font-size:10px;margin-top:3px;line-height:1.3;font-weight:normal;}';
   var doc='<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+css+'</style></head><body>'+inner+'</body></html>';
   var ifr=document.createElement('iframe');ifr.setAttribute('aria-hidden','true');
