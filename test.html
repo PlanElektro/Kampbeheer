@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>⚓ Kampbeheer 2026 — 8ste FOS 't Vloedgat</title>
+<title>⚓ Kampbeheer — 8ste FOS 't Vloedgat</title>
 <style>
 /* Locked state — readonly voor niet-ingelogde gebruikers */
 body.locked input, body.locked select, body.locked textarea{pointer-events:none;background:#f9f9f9;color:#555;}
@@ -84,6 +84,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 #gate.gate-hidden{display:none;}
 .gate-card{background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:34px 30px 28px;max-width:340px;width:100%;text-align:center;}
 .gate-card .gate-anchor{font-size:44px;line-height:1;}
+.gate-card .gate-logo{max-width:130px;max-height:110px;height:auto;display:block;margin:0 auto;}
 .gate-card h2{font-size:19px;margin:10px 0 2px;color:#1b3a6b;}
 .gate-card .gate-sub{font-size:12.5px;color:#889;margin-bottom:18px;}
 .gate-card input{width:100%;box-sizing:border-box;padding:11px 12px;font-size:16px;border:1px solid #ccd;border-radius:8px;text-align:center;}
@@ -170,9 +171,9 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 <body>
 <div id="gate" class="gate-hidden">
   <div class="gate-card">
-    <div class="gate-anchor">⚓</div>
-    <h2>Kampbeheer 2026</h2>
-    <div class="gate-sub">8ste FOS 't Vloedgat · Kasterlee</div>
+    <img class="gate-logo" src="https://d2783408ec.clvaw-cdnwnd.com/4a85776f6eed7bc7fdd83198bfc675cc/200000053-dad6bdad6e/logo-4.png?ph=d2783408ec" alt="8ste FOS 't Vloedgat" onerror="this.outerHTML='<div class=&quot;gate-anchor&quot;>⚓</div>'">
+    <h2>Kampbeheer</h2>
+    <div class="gate-sub">Seascouts 8ste FOS 't Vloedgat</div>
     <input type="password" id="gate-pw" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkGate()">
     <button onclick="checkGate()">Aanmelden</button>
     <div id="gate-err"></div>
@@ -182,7 +183,7 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 <div id="readonly-banner">👁 Alleen-lezen modus — <strong>aanmelden</strong> om wijzigingen te maken</div>
 <div id="app">
 <div id="hdr">
-  <div><h1>⚓ Kampbeheer 2026</h1><span id="hnm" style="display:none"></span></div>
+  <div><h1 id="app-title">⚓ Kampbeheer</h1><span id="hnm" style="display:none"></span></div>
   <div id="sync-bar">
     <span class="sync-dot" id="sync-dot"></span><span id="sync-txt">verbinden...</span>
     <button class="btn" onclick="exportData()" style="margin-left:8px">↓ backup</button>
@@ -1084,13 +1085,13 @@ function loadSU(){
   document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
   document.getElementById('s-eb').value=s.eb;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
   const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
-  const _hnm=document.getElementById('hnm');if(_hnm)_hnm.textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
+  const _hnm=document.getElementById('hnm');if(_hnm)_hnm.textContent=s.nm||'';const _t1=document.getElementById('app-title');if(_t1)_t1.textContent='⚓ '+(s.nm||'Kampbeheer');rTk();rVK();rVarK();rKP();updateTerreinPreview();
 }
 function saveSU(){
   const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
   s.eb=+document.getElementById('s-eb').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
   s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
-  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);
+  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';const _t2=document.getElementById('app-title');if(_t2)_t2.textContent='⚓ '+(s.nm||'Kampbeheer');updateTerreinPreview();syncAVFromSetup(false);
   if(document.getElementById('p-budget').classList.contains('act'))renderBudget();
   save();
 }
