@@ -94,6 +94,14 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 #app-title{color:#1b3a6b;}
 .fg input:focus,.fg select:focus,.fg textarea:focus,td input:focus,td select:focus{outline:none;border-color:#2d5a9e;}
 .shop-sec h4{border-bottom-color:#d9e2f2 !important;}
+#bak-cb th:first-child,#bak-cb td:first-child{position:sticky;left:0;background:#fff;z-index:2;box-shadow:2px 0 5px -3px rgba(27,58,107,.35);}
+#bak-cb thead th:first-child{z-index:3;background:#f6f8fc;}
+@media(max-width:640px){
+  #bak-cb td,#bak-cb th{padding:6px 5px;font-size:12px;}
+  #bak-cb td input{width:38px !important;padding:3px 4px;}
+}
+#tabs.more{-webkit-mask-image:linear-gradient(90deg,#000 84%,transparent);mask-image:linear-gradient(90deg,#000 84%,transparent);}
+
 
 #gate-err{color:#c0392b;font-size:12.5px;min-height:16px;margin-top:8px;}
 
@@ -308,7 +316,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   </div><div class="cb" id="k-day-cb"><p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p></div></div>
 
   <div class="card" style="margin-top:14px;background:linear-gradient(135deg,#1b3a6b 0%,#2d5a9e 100%);color:#fff;">
-    <div class="ch" style="border-bottom:1px solid rgba(255,255,255,.15);">
+    <div class="ch" style="background:transparent;border-bottom:1px solid rgba(255,255,255,.15);">
       <h3 style="color:#fff;">🤖 AI Bestellijst genereren</h3>
       <div style="display:flex;gap:8px;align-items:center;">
         <select id="ai-marge" class="plan-sel" style="max-width:120px;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">
@@ -372,6 +380,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
         <li><strong>👥 Aanwezigen</strong> — wie er per dag is (per tak + kookploeg). Bepaalt de hoeveelheden.</li>
         <li><strong>📋 Menu</strong> — kies per dag wat er gegeten wordt. <strong>Dit is de enige plek waar je het menu invoert.</strong></li>
         <li><strong>🍳 Keuken</strong> — leest het menu en toont per dag de hoeveelheden en geschatte foodkost. Read-only.</li>
+        <li><strong>🍽️ Verdeling per bak</strong> — onderaan de Keuken-tab: verdeelt kids (uit Aanwezigen) én leiding per tak over de eetbakken. De leiding is voorgevuld op alle kampdagen en per dag aanpasbaar; “↺ Herstel voorgevuld” wist je aanpassingen.</li>
         <li><strong>🍲 Recepten</strong> — pas recepten, hoeveelheden en ingrediënten aan, of voeg er toe.</li>
         <li><strong>📌 Prikbord</strong> — berichten en to-do's voor het team.</li>
       </ul>
@@ -424,7 +433,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 
 <div class="panel" id="p-aankopen">
   <div class="card" style="background:linear-gradient(135deg,#1b3a6b 0%,#2d5a9e 100%);color:#fff;">
-    <div class="ch" style="border-bottom:1px solid rgba(255,255,255,.15);">
+    <div class="ch" style="background:transparent;border-bottom:1px solid rgba(255,255,255,.15);">
       <h3 style="color:#fff;">📦 Solucious bestelling importeren</h3>
       <label class="btn" style="background:#c8a951;color:#1b3a6b;font-weight:700;cursor:pointer;border:none;">📎 Kies bestand (XLS / CSV)<input type="file" id="sol-file" accept=".xls,.xlsx,.csv" style="display:none;" onchange="importSolucious(this)"></label>
     </div>
@@ -2032,6 +2041,7 @@ async function checkGate(){
 }
 setLocked(!isLoggedIn());
 showGate(!isLoggedIn());
+(function(){var t=document.getElementById('tabs');if(!t)return;function f(){t.classList.toggle('more',t.scrollLeft+t.clientWidth<t.scrollWidth-4);}t.addEventListener('scroll',f);window.addEventListener('resize',f);f();})();
 sbLoad();
 updateBackupAge();
 
