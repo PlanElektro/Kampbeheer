@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚓ Kampbeheer 2026 — 8ste FOS 't Vloedgat</title>
+<style>
+/* Locked state — readonly voor niet-ingelogde gebruikers */
+body.locked input, body.locked select, body.locked textarea{pointer-events:none;background:#f9f9f9;color:#555;}
+body.locked .btn-ok, body.locked .btn-bad{display:none;}
+body.locked .lockhide{display:none;}
+body.locked .plan-sel{pointer-events:none;background:#f9f9f9;}
+#login-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;font-family:inherit;font-weight:500;border-radius:7px;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#1a1a1a;}
+#login-btn:hover{background:#f5f5f5;}
+#login-btn.logged{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}
+#login-btn.logged:hover{background:#bbf7d0;}
+.login-popup{position:fixed;top:60px;right:16px;background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:1000;min-width:240px;display:none;}
+.login-popup.open{display:block;}
+.login-popup h4{font-size:14px;font-weight:600;margin-bottom:12px;}
+.login-popup input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;margin-bottom:8px;}
+.login-popup input:focus{outline:none;border-color:#1a1a1a;}
+.login-popup button{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:9px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;}
+.login-popup button:hover{background:#333;}
+#login-err{color:#dc2626;font-size:12px;margin-top:6px;min-height:16px;}
+#readonly-banner{display:none;background:#fffbeb;border-bottom:1px solid #fde68a;padding:7px 16px;font-size:12px;color:#92400e;text-align:center;}
+#readonly-banner.show{display:block;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:14px;}
+#app{max-width:1100px;margin:0 auto;padding:16px;}
+#hdr{display:flex;align-items:center;gap:10px;padding:12px 0 10px;border-bottom:1px solid #e0e0e0;margin-bottom:16px;flex-wrap:wrap;}
+#hdr h1{font-size:18px;font-weight:600;}
+#tabs{display:flex;border-bottom:1px solid #e0e0e0;margin-bottom:18px;overflow-x:auto;}
+.tb{padding:9px 15px;font-size:13px;color:#666;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.tb:hover{color:#1a1a1a;background:#f0f0f0;}.tb.act{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500;}
+#subtabs{display:none;gap:6px;flex-wrap:wrap;margin:-10px 0 16px;padding:8px 10px;background:#f8fafc;border:1px solid #eef2f7;border-radius:8px;}
+.stb{padding:5px 12px;font-size:12.5px;color:#475569;background:#fff;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.stb:hover{background:#eef2f7;}
+.stb.act{background:#1b3a6b;color:#fff;border-color:#1b3a6b;font-weight:600;}
+.kk-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:0;}
+@media(max-width:760px){.kk-split{grid-template-columns:1fr;}}
+.arch-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.arch-sec{margin-top:12px;}
+.arch-tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px;}
+.arch-tbl th,.arch-tbl td{border:1px solid #eee;padding:4px 8px;text-align:left;}
+.panel{display:none;}.panel.act{display:block;}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;margin-bottom:16px;overflow:hidden;}
+.ch{padding:11px 16px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;background:#fafafa;flex-wrap:wrap;gap:8px;}
+.ch h3{font-size:13px;font-weight:600;}.cb{padding:16px;}.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:#666;border-bottom:1px solid #e5e5e5;background:#fafafa;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;}
+td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:#fafafa;}
+.tfoot td{font-weight:600;background:#f5f5f5;border-top:1px solid #e5e5e5;border-bottom:none;}tr.tfoot:hover td{background:#f5f5f5;}
+td input[type=text],td input[type=number],td input[type=date],td select{border:1px solid #ddd;border-radius:5px;padding:4px 8px;font-size:12px;font-family:inherit;color:#1a1a1a;background:#fff;}
+td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.4px;}
+.fg input,.fg select,.fg textarea{border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;}
+.fg textarea{min-height:48px;resize:vertical;}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.met{background:#fafafa;border:1px solid #e5e5e5;border-radius:7px;padding:12px 14px;}
+.ml{font-size:11px;color:#888;margin-bottom:4px;}.mv{font-size:20px;font-weight:600;}
+.met-ok .mv{color:#16a34a;}.met-bad .mv{color:#dc2626;}.met-info .mv{color:#2563eb;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-family:inherit;font-weight:500;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#1a1a1a;}
+.btn:hover{background:#f5f5f5;}.btn-ok{background:#dcfce7;color:#16a34a;border-color:#bbf7d0;}.btn-ok:hover{background:#bbf7d0;}
+.btn-bad{color:#dc2626;border-color:#fecaca;}.btn-bad:hover{background:#fef2f2;}
+.db{border:1px solid #e5e5e5;border-radius:7px;margin-bottom:10px;overflow:hidden;}
+.dh{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:#fafafa;font-size:13px;font-weight:500;user-select:none;}
+.dh:hover{background:#f0f0f0;}.dbody{display:none;padding:14px;gap:12px;}.dbody.open{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+.ml2{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:5px;letter-spacing:.4px;}
+.menu-slot{background:#fafafa;border:1px solid #eee;border-radius:7px;padding:10px;}
+.menu-dh-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.menu-dh-date{font-weight:600;}
+.menu-av-chip{background:#e8edf5;color:#1b3a6b;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+.menu-av-empty{color:#c0392b;opacity:.5;font-size:11px;font-style:italic;}
+.menu-dh-r{font-size:12px;color:#888;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.menu-chev{display:inline-block;transition:transform .2s;}
+.db.mopen .menu-chev{transform:rotate(180deg);}
+.db.mopen .dh{background:#eff6ff;}
+.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f5f5f5;padding-top:12px;}tr.bsec:hover td{background:#f5f5f5;}
+.tr{text-align:right;}.tw5{font-weight:600;}.muted{color:#888;}.ok{color:#16a34a;}.bad{color:#dc2626;}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:#f0f0f0;color:#666;}
+.pill-ref{background:#dbeafe;color:#1d4ed8;}
+.note{font-size:12px;color:#888;padding:10px 14px;background:#fffbeb;border-radius:7px;margin-bottom:14px;border:1px solid #fde68a;}
+.terr-box{background:#f5f5f5;border-radius:6px;padding:10px 14px;font-size:12px;color:#666;margin-top:10px;}.terr-box strong{color:#1a1a1a;}
+.ref-row td{font-size:12px;color:#888;background:#fafafa;}.ref-row:hover td{background:#f5f5f5;}
+#sync-bar{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;}
+.sync-dot.ok{background:#16a34a;}.sync-dot.err{background:#dc2626;}.sync-dot.busy{background:#f59e0b;animation:pulse 1s infinite;}
+#sync-txt{font-size:12px;color:#666;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.plan-sel{font-size:12px;border:1px solid #ddd;border-radius:5px;padding:4px 6px;max-width:170px;width:100%;}
+.ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:12px;}
+.ing-card{background:#fafafa;border:1px solid #e5e5e5;border-radius:7px;padding:12px;}
+.ing-nm{font-size:12px;color:#666;margin-bottom:3px;}.ing-am{font-size:22px;font-weight:700;line-height:1;}
+.ing-sol{font-size:11px;color:#854d0e;background:#fef9c3;padding:2px 6px;border-radius:4px;margin-top:5px;display:inline-block;}
+.ing-note{font-size:11px;color:#888;margin-top:3px;}
+.ing-cost{font-size:11px;margin-top:4px;color:#1b3a6b;font-weight:600;}
+.ing-cost-warn{color:#b45309;}
+.ing-cost-unknown{color:#bbb;font-weight:400;font-style:italic;}
+.day-cost-ok{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:7px;padding:10px 16px;font-size:13px;color:#065f46;margin-bottom:12px;}
+.day-cost-warn{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px 16px;font-size:13px;color:#92400e;margin-bottom:12px;}
+.eval-box{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:7px;padding:10px 14px;margin:8px 0 18px;}
+.eval-h{font-size:12px;font-weight:700;color:#5b21b6;margin-bottom:6px;}
+.eval-note{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:38px;}
+.eval-note:focus{outline:none;border-color:#7c3aed;}
+.kd-meal{margin-bottom:8px;}
+.kd-meal-hd{display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px;background:#fafafa;border:1px solid #eee;border-radius:7px;padding:8px 12px;margin-top:0;}
+.kd-meal-hd:hover{background:#f3f4f6;}
+.kd-chev{transition:transform .2s;color:#999;font-size:12px;}
+.kd-meal.open .kd-chev{transform:rotate(180deg);}
+.kd-meal.open .kd-meal-hd{border-bottom-left-radius:0;border-bottom-right-radius:0;background:#eff6ff;}
+.kd-meal-body{display:none;border:1px solid #eee;border-top:none;border-radius:0 0 7px 7px;padding:10px 12px;}
+.kd-meal.open .kd-meal-body{display:block;}
+.rec-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px;}
+.rec-add-btn{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+.rec-add-btn:hover{background:#e0e7ff;}
+.rec-cat-h{font-size:13px;font-weight:700;color:#374151;margin:16px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px;}
+.rec-card{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fff;overflow:hidden;}
+.rec-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;cursor:pointer;background:#fafafa;gap:10px;}
+.rec-hd:hover{background:#f3f4f6;}
+.rec-hd-nm{font-weight:600;font-size:14px;color:#1f2937;}
+.rec-meta{font-size:11px;color:#9ca3af;white-space:nowrap;}
+.rec-body{display:none;padding:12px 14px;border-top:1px solid #eee;}
+.rec-card.open .rec-body{display:block;}
+.rec-lbl{display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 4px;}
+.rec-in{width:100%;border:1px solid #ddd;border-radius:6px;padding:7px 9px;font-size:13px;font-family:inherit;}
+.rec-ta{width:100%;border:1px solid #ddd;border-radius:6px;padding:7px 9px;font-size:12px;font-family:inherit;min-height:48px;resize:vertical;}
+.rec-tbl-w{overflow-x:auto;}
+.rec-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.rec-tbl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;padding:4px 6px;font-weight:600;}
+.rec-tbl td{padding:3px 6px;border-top:1px solid #f3f4f6;}
+.rec-in2{width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:5px 7px;font-size:13px;font-family:inherit;box-sizing:border-box;}
+.rec-num{max-width:80px;}
+.rec-cost{font-size:12px;color:#1b3a6b;font-weight:600;white-space:nowrap;}
+.rec-unknown{color:#bbb;font-weight:400;font-style:italic;}
+.rec-del{background:none;border:none;color:#d1d5db;cursor:pointer;font-size:14px;padding:2px 4px;}
+.rec-del:hover{color:#ef4444;}
+.rec-add-ing{margin-top:8px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+.rec-add-ing:hover{background:#dcfce7;}
+.rec-actions{display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f3f4f6;}
+.rec-dup{background:#f9fafb;border:1px solid #e5e7eb;color:#4b5563;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+.rec-delrec{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:auto;}
+.shop-sec{margin-bottom:20px;}
+.shop-sec h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e5e5;}
+.shop-row{display:flex;align-items:baseline;padding:7px 0;border-bottom:0.5px solid #f0f0f0;gap:10px;font-size:13px;}
+.shop-row:last-child{border-bottom:none;}.shop-nm{flex:1;}.shop-art{font-size:10px;color:#854d0e;background:#fef9c3;padding:1px 5px;border-radius:3px;margin-left:5px;white-space:nowrap;}
+.shop-amt{font-weight:700;white-space:nowrap;}.shop-pkg{font-size:11px;color:#666;margin-left:6px;}
+.portie-bar{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 16px;font-size:13px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.portie-bar strong{color:#1d4ed8;}
+.tip-box{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;}
+.slot-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444;margin:14px 0 6px;}
+.pb-card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;}
+.pb-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pb-naam{font-weight:600;font-size:13px;}.pb-cat{font-size:12px;}.pb-ts{font-size:11px;color:#888;margin-left:auto;}
+.pb-msg{font-size:13px;color:#333;line-height:1.5;white-space:pre-wrap;}
+.pb-del{font-size:11px;color:#dc2626;cursor:pointer;background:none;border:none;padding:0;font-family:inherit;margin-left:auto;}
+.pb-del:hover{text-decoration:underline;}
+.pb-empty{color:#888;font-size:13px;padding:20px 0;text-align:center;}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div style="background:#dc2626;color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:700;letter-spacing:.5px;">🧪 TESTOMGEVING — losse kopie van de data (test2026). Wijzigingen hier raken je echte kamp NIET.</div>
+<div id="readonly-banner">👁 Alleen-lezen modus — <strong>aanmelden</strong> om wijzigingen te maken</div>
+<div id="app">
+<div id="hdr">
+  <div><h1>⚓ Kampbeheer 2026</h1><span id="hnm" style="display:none"></span></div>
+  <div id="sync-bar">
+    <span class="sync-dot" id="sync-dot"></span><span id="sync-txt">verbinden...</span>
+    <button class="btn" onclick="exportData()" style="margin-left:8px">↓ backup</button>
+    <button class="btn" onclick="document.getElementById('import-input').click()">↑ herstel</button>
+    <span id="bk-age" style="font-size:11px;color:#888;margin-left:6px;"></span>
+    <button class="btn" onclick="openArchief()" title="Bekijk gearchiveerde kampen" style="margin-left:6px;">🗄️ Archief</button>
+    <button id="login-btn" onclick="toggleLoginPopup()">🔒 Aanmelden</button>
+  </div>
+</div>
+<div id="arch-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;">
+  <div style="background:#fff;border-radius:10px;max-width:820px;width:100%;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:12px;">
+      <h2 style="margin:0;font-size:18px;">🗄️ Archief — vorige kampen</h2>
+      <button class="btn" onclick="closeArchief()">✕ Sluiten</button>
+    </div>
+    <div class="lockhide" style="background:#eef3fb;border:1px solid #1b3a6b;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-weight:600;color:#1b3a6b;margin-bottom:4px;">🗓️ Nieuw kamp starten</div>
+      <p style="font-size:13px;color:#444;margin:0 0 8px;">Archiveert het huidige kamp (komt hieronder te staan, alleen-lezen) en maakt een nieuw kamp als <strong>volledige kopie</strong>, met de datums verschoven naar het nieuwe kamp. Eerst wordt een backup gedownload; daarna geef je naam + datums en typ je <strong>NIEUW</strong> ter bevestiging.</p>
+      <button class="btn" style="background:#1b3a6b;color:#fff;border-color:#1b3a6b;" onclick="nieuwKamp()">🗓️ Nieuw kamp starten…</button>
+    </div>
+    <div style="font-weight:600;margin-bottom:6px;">Vorige kampen</div>
+    <div id="arch-list"></div>
+    <div id="arch-detail" style="margin-top:14px;"></div>
+  </div>
+</div>
+<div class="login-popup" id="login-popup">
+  <h4>Aanmelden</h4>
+  <input type="password" id="pw-input" placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')checkPW()">
+  <button onclick="checkPW()">Aanmelden</button>
+  <div id="login-err"></div>
+</div>
+<div id="tabs">
+  <button class="tb act" data-tab="setup">⚙ Setup</button>
+  <button class="tb" data-group="administratie">🗂️ Administratie</button>
+  <button class="tb" data-group="kampkost">🍽️ Kampkost</button>
+  <button class="tb" data-tab="prikbord">📌 Prikbord</button>
+  <button class="tb" data-tab="handleiding">ℹ️ Handleiding</button>
+</div>
+<div id="subtabs"></div>
+
+<div class="panel act" id="p-setup">
+  <div class="card"><div class="ch"><h3>Kampinfo</h3></div><div class="cb"><div class="fgrid">
+    <div class="fg"><label>Kampnaam</label><input type="text" id="s-nm" onchange="saveSU()"></div>
+    <div class="fg"><label>Startdatum</label><input type="date" id="s-st" onchange="saveSU()"></div>
+    <div class="fg"><label>Einddatum</label><input type="date" id="s-ei" onchange="saveSU()"></div>
+    <div class="fg"><label>Eetbudget p/p/dag (€)</label><input type="number" id="s-eb" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Speelgeld p/p/nacht (€)</label><input type="number" id="s-sp" step="0.5" onchange="saveSU()"></div>
+    <div class="fg"><label>Aantal leiding</label><input type="number" id="s-ld" onchange="saveSU()"></div>
+    <div class="fg"><label>Leidingbijdrage (€)</label><input type="number" id="s-lb" step="5" onchange="saveSU()"></div>
+  </div></div></div>
+  <div class="card"><div class="ch"><h3>Huur kampterrein</h3></div><div class="cb"><div class="fgrid">
+    <div class="fg"><label>Tarief p/p/dag (€)</label><input type="number" id="tr-r" step="0.1" onchange="saveSU()"></div>
+    <div class="fg"><label>Minimum per dag (€)</label><input type="number" id="tr-m" step="10" onchange="saveSU()"></div>
+    <div class="fg"><label>Borg / voorschot (€)</label><input type="number" id="tr-b" step="50" onchange="saveSU()"></div>
+    <div class="fg"><label>Subsidie (€)</label><input type="number" id="tr-s" step="50" onchange="saveSU()"></div>
+  </div><div class="terr-box" id="terr-preview"></div></div></div>
+  <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-ok" onclick="addTak()">+ Tak</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th>Eetbudget</th><th></th></tr></thead>
+    <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table>
+  </div></div></div>
+  <div class="card"><div class="ch"><h3>Kookploeg</h3><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn lockhide" onclick="kpSort()" title="Sorteer op aankomstdatum">↕ Sorteer op aankomst</button><button class="btn btn-ok" onclick="addKP()">+ Persoon</button></div></div><div class="cb">
+    <div class="fgrid" style="margin-bottom:14px;">
+      <div class="fg"><label>Tarief per dag (€)</label><input type="number" id="kp-tarief" value="10" step="1" onchange="saveKP()"></div>
+      <div class="fg"><label>Maximum per persoon (€)</label><input type="number" id="kp-max" value="50" step="5" onchange="saveKP()"></div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Naam</th><th>Aankomst</th><th>Vertrek</th><th class="tr">Dagen</th><th class="tr">Bijdrage (€)</th><th></th></tr></thead>
+    <tbody id="kp-body"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="4"><strong>Totaal</strong></td><td class="tr tw5" id="kp-tot">—</td><td></td></tr></tfoot>
+    </table></div>
+  </div></div>
+  <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn btn-ok" onclick="addVK()">+ Kost</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+    <tbody id="vk-body"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="vk-b">—</td><td class="tr" id="vk-s">—</td><td class="tr tw5" id="vk-n">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Variabele kosten (raming)</h3><button class="btn btn-ok" onclick="addVarK()">+ Kost</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Raming (€)</th><th></th></tr></thead>
+    <tbody id="vark-body"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr tw5" id="vark-t">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-av">
+  <div class="card"><div class="ch"><h3>Aanwezigen per dag per tak</h3><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn" onclick="printAV()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button><button class="btn btn-ok" onclick="syncAVFromSetup(false)" title="Vul lege velden in op basis van ingeschreven leden">↻ Sync vanuit setup</button><button class="btn btn-bad" onclick="if(confirm('Alle aanwezigheidsdata overschrijven met ingeschreven aantallen uit setup?'))syncAVFromSetup(true)" title="Overschrijf alles met ingeschreven aantallen">↺ Reset naar setup</button></div></div><div class="cb"><div class="tw">
+    <table><thead><tr id="av-hd"></tr></thead><tbody id="av-bd"></tbody><tfoot><tr id="av-ft" class="tfoot"></tr></tfoot></table>
+  </div></div></div>
+</div>
+
+<div class="panel" id="p-keuken">
+  <div class="kk-split">
+    <div class="card"><div class="ch"><h3>📅 Maaltijdplanning</h3><span style="font-size:11px;color:#888;">avond, 4-uurtje &amp; dessert per dag (ontbijt &amp; middag zijn elke dag hetzelfde)</span></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Dag</th><th class="tr">Aanwezig</th><th>Avond</th><th>4-uurtje</th><th>Dessert</th></tr></thead><tbody id="k-plan-bd"></tbody></table>
+    </div></div></div>
+    <div class="card"><div class="ch"><h3>🧮 Hoeveelheden per dag</h3>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <select id="k-sel-dag" class="plan-sel" style="max-width:130px;" onchange="renderKD()"></select>
+        <select id="k-marge" class="plan-sel" style="max-width:100px;" onchange="renderKD()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+      </div>
+    </div><div class="cb" id="k-detail-cb"><p style="color:#888;font-size:13px;">Selecteer een dag.</p></div></div>
+  </div>
+  <div class="card" style="margin-top:14px;"><div class="ch"><h3>🍽️ Verdeling per bak</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <button class="btn" onclick="printBak()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button>
+      <button class="btn lockhide" onclick="bakResetLeiding()" title="Wis handmatige aanpassingen, terug naar voorgevuld">↺ Herstel voorgevuld</button>
+    </div>
+  </div><div class="cb" id="bak-cb">
+    <div id="bak-cfg" class="lockhide" style="font-size:12px;color:#555;margin-bottom:10px;"></div>
+    <div class="tw"><table><thead><tr id="bak-hd"></tr></thead><tbody id="bak-bd"></tbody></table></div>
+    <div id="bak-note" style="font-size:11px;color:#888;margin-top:8px;"></div>
+  </div></div>
+  <div class="card" style="margin-top:14px;"><div class="ch"><h3>🛒 Totale bestellijst — heel kamp</h3>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="k-shop-marge" class="plan-sel" style="max-width:120px;" onchange="renderSL()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+      <button class="btn" onclick="renderSL()">↻ Herbereken</button>
+    </div>
+  </div><div class="cb" id="k-shop-cb"><p style="color:#888;font-size:13px;">Plan eerst maaltijden in.</p></div></div>
+
+  <div class="card" style="margin-top:14px;"><div class="ch"><h3>📅 Bestellijst per dag</h3>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="k-day-sel" class="plan-sel" style="max-width:160px;" onchange="renderDaySL()"><option value="">— kies dag —</option></select>
+      <select id="k-day-marge" class="plan-sel" style="max-width:120px;" onchange="renderDaySL()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select>
+    </div>
+  </div><div class="cb" id="k-day-cb"><p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p></div></div>
+
+  <div class="card" style="margin-top:14px;background:linear-gradient(135deg,#1b3a6b 0%,#2d5a9e 100%);color:#fff;">
+    <div class="ch" style="border-bottom:1px solid rgba(255,255,255,.15);">
+      <h3 style="color:#fff;">🤖 AI Bestellijst genereren</h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="ai-marge" class="plan-sel" style="max-width:120px;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">
+          <option value="10" selected>+10% marge</option>
+          <option value="15">+15% marge</option>
+          <option value="20">+20% marge</option>
+        </select>
+        <button onclick="generateAIBestellijst()" style="background:#c8a951;color:#1b3a6b;border:none;border-radius:7px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">✨ Genereer bestellijst</button>
+      </div>
+    </div>
+    <div style="padding:12px 16px;font-size:13px;opacity:.85;">Claude analyseert je menu, aanwezigen en ingrediënten → gestructureerde bestellijst per leverancier met bulktips.</div>
+  </div>
+  <div id="ai-result" style="display:none;margin-top:8px;"></div>
+</div>
+
+<div class="panel" id="p-menu">
+  <div class="card"><div class="ch"><h3>📋 Maaltijdplanning per dag</h3><div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap;"><span style="font-size:11px;color:#888;">klik een dag open om de gangen te kiezen</span><button class="btn" onclick="printMenu()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button></div></div><div class="cb" id="menu-bd"></div></div>
+</div>
+
+<div class="panel" id="p-recepten">
+  <div class="card"><div class="ch"><h3>🍲 Recepten bewerken</h3><span style="font-size:11px;color:#888;">hoeveelheden, prijzen &amp; ingrediënten — wijzigingen werken meteen door in Keuken &amp; bestellijst</span></div><div class="cb" id="rec-bd"></div></div>
+</div>
+
+<div class="panel" id="p-prikbord">
+  <div class="card"><div class="ch"><h3>Nieuw bericht</h3></div><div class="cb">
+    <div class="fgrid">
+      <div class="fg"><label>Naam</label><input type="text" id="pb-naam" placeholder="Jouw naam"></div>
+      <div class="fg"><label>Categorie</label><select id="pb-cat"><option>📌 Opmerking</option><option>💡 Suggestie</option><option>✅ To-do</option><option>❓ Vraag</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Bericht</label><textarea id="pb-msg" placeholder="Schrijf hier je bericht..." style="min-height:70px;"></textarea></div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-ok" onclick="addBericht()">+ Plaatsen</button></div>
+  </div></div>
+  <div id="pb-berichten"></div>
+</div>
+
+<div class="panel" id="p-handleiding">
+  <style>
+  .hl{max-width:820px;}
+  .hl .card{margin-bottom:14px;}
+  .hl h4{font-size:14px;font-weight:700;color:#1b3a6b;margin:0 0 8px;}
+  .hl p{font-size:13.5px;line-height:1.6;color:#333;margin:0 0 10px;}
+  .hl ul{margin:0 0 10px;padding-left:20px;}
+  .hl li{font-size:13.5px;line-height:1.6;color:#333;margin-bottom:5px;}
+  .hl strong{color:#1b3a6b;}
+  .hl .hl-warn{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.6;}
+  .hl .hl-tip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.6;}
+  .hl code{background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:12.5px;}
+  </style>
+  <div class="hl">
+    <div class="card"><div class="ch"><h3>🔑 Inloggen</h3></div><div class="cb">
+      <p>Bovenaan klik je op <strong>"Aanmelden"</strong> en geef je het wachtwoord in. Zonder aanmelden kun je alles bekijken maar niets wijzigen (read-only).</p>
+      <p style="color:#888;font-size:12.5px;">Let op: dit is een eenvoudige toegangscontrole in de browser en géén echte beveiliging — het houdt enkel toevallige bezoekers tegen. Zet geen gevoelige of privacygevoelige gegevens in deze tool.</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>🗂️ De tabs in het kort</h3></div><div class="cb">
+      <ul>
+        <li><strong>⚙ Setup</strong> — kampdata, takken, aantallen, eetbudget. De basis waar de rest op rekent.</li>
+        <li><strong>💰 Budget</strong> — inkomsten (kampprijs) min kosten. Voeding is een vast budget (zie verder).</li>
+        <li><strong>🚌 Vervoer</strong> — vervoersplanning en -kosten.</li>
+        <li><strong>🛒 Aankopen</strong> — werkelijke aankopen registreren + Solucious-bestellingen importeren.</li>
+        <li><strong>👥 Aanwezigen</strong> — wie er per dag is (per tak + kookploeg). Bepaalt de hoeveelheden.</li>
+        <li><strong>📋 Menu</strong> — kies per dag wat er gegeten wordt. <strong>Dit is de enige plek waar je het menu invoert.</strong></li>
+        <li><strong>🍳 Keuken</strong> — leest het menu en toont per dag de hoeveelheden en geschatte foodkost. Read-only.</li>
+        <li><strong>🍲 Recepten</strong> — pas recepten, hoeveelheden en ingrediënten aan, of voeg er toe.</li>
+        <li><strong>📌 Prikbord</strong> — berichten en to-do's voor het team.</li>
+      </ul>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>💾 Backup &amp; herstel (lees dit)</h3></div><div class="cb">
+      <p>Alle gegevens zitten samen in één pakket dat bij élke wijziging volledig overschreven wordt. Je <strong>backup is daarom je enige vangnet</strong>.</p>
+      <ul>
+        <li><strong>↓ backup</strong> (bovenaan): downloadt een bestand met alle gegevens. Doe dit <strong>regelmatig</strong>, en zeker <strong>vóór elke grote wijziging</strong>. Bewaar het bestand goed.</li>
+        <li><strong>↑ herstel</strong> (bovenaan): zet een eerder gedownloade backup terug. <strong>Dit overschrijft alles.</strong> Ter veiligheid wordt er eerst automatisch een backup van de huidige toestand gedownload, en moet je twee keer bevestigen.</li>
+      </ul>
+      <div class="hl-tip">Er draait ook een automatische wekelijkse backup op de achtergrond. Maar vertrouw daar niet blind op — een eigen <strong>↓ backup</strong> vóór je iets ingrijpends doet, is altijd de veiligste gewoonte.</div>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>🍽️ Van Menu naar foodkost</h3></div><div class="cb">
+      <p>Je kiest het eten in de <strong>Menu</strong>-tab. De <strong>Keuken</strong>-tab rekent dat automatisch om naar hoeveelheden en kost per persoon — je hoeft daar niets in te typen.</p>
+      <p>Ontbijt en middag zijn elke dag hetzelfde (boterhammen) en staan standaard ingevuld. Avond, 4-uurtje en dessert kies je per dag. Een dessert dat je als vrije tekst typt (bv. "Schepijs") heeft geen recept en telt dus niet mee in de kost — koppel er een recept aan via de Recepten-tab als je het wilt meerekenen.</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>🍲 Recepten &amp; prijzen aanpassen</h3></div><div class="cb">
+      <p>In de <strong>Recepten</strong>-tab pas je per recept de naam, de tip en per ingrediënt de hoeveelheid per persoon aan. Je kunt ingrediënten en hele recepten toevoegen, dupliceren of verwijderen. Wijzigingen werken meteen door in de Keuken en de bestellijst.</p>
+      <p>De prijzen komen uit eerdere Solucious-bestellingen. Wil je ze actueel houden, importeer dan een recente bestelling (zie hieronder).</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>📦 Solucious importeren (prijzen bijwerken)</h3></div><div class="cb">
+      <p>In de <strong>Aankopen</strong>-tab kies je bovenaan een Solucious-orderbevestiging (XLS of CSV). De artikels, leverdatum en het totaalbedrag worden ingelezen. Je controleert alles vóór het toegevoegd wordt. De recentste prijs per artikel wint, zodat je prijzen up-to-date blijven.</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>💶 Wat betekent de €10 per dag?</h3></div><div class="cb">
+      <p>De €10 per persoon per dag is een <strong>budget</strong> waarmee de kampprijs berekend is — geen vaste kostprijs die elke dag exact opgaat. De kinderen betalen samen al het eten, ook dat van leiding en kookploeg.</p>
+      <p>In het budget is voeding daarom een <strong>vaste lijn</strong> die niet automatisch meebeweegt met je aankopen. Je werkelijke aankopen worden er enkel naast getoond ter controle (binnen/boven budget). Ga je erover, dan zie je dat, maar het budget past zichzelf niet automatisch aan — dat beslis jij.</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>🔄 Synchronisatie &amp; offline</h3></div><div class="cb">
+      <p>Bovenaan zie je een <strong>"gesynchroniseerd"</strong>-bolletje. Groen betekent dat je wijzigingen bewaard zijn. De tool bewaart ook een kopie op je toestel, zodat ze blijft werken als het internet even wegvalt.</p>
+      <p style="color:#888;font-size:12.5px;">Gebruiken meerdere mensen de tool tegelijk, dan geldt "wie het laatst bewaart, wint". Spreek dus af wie wat invult om elkaars wijzigingen niet te overschrijven.</p>
+    </div></div>
+
+    <div class="card"><div class="ch"><h3>👋 Voor je opvolger / nieuw kampjaar</h3></div><div class="cb">
+      <ul>
+        <li>Geef je opvolger dit document door en overloop samen één keer alle tabs.</li>
+        <li>Maak vóór de overdracht een verse <strong>↓ backup</strong> en bewaar die op een veilige plek.</li>
+        <li>Voor een nieuw kampjaar: de structuur (recepten, prijzen, takken) wil je behouden, maar de variabele gegevens (aanwezigheden, menu, aankopen) wil je leegmaken. Vraag hulp als je dit niet zeker weet — fout wissen is moeilijk terug te draaien.</li>
+        <li><strong>Test vóór live (voor wie de tool beheert):</strong> er bestaat een aparte oefenversie op het adres dat eindigt op <code>/test.html</code>. Bouw of test wijzigingen daar eerst; de gewone versie is de échte tool die op kamp gebruikt wordt.</li>
+        <li>De tool is bewust één eenvoudig bestand zonder ingewikkelde installatie, net zodat ze overdraagbaar blijft. Hou het zo simpel mogelijk.</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<div class="panel" id="p-aankopen">
+  <div class="card" style="background:linear-gradient(135deg,#1b3a6b 0%,#2d5a9e 100%);color:#fff;">
+    <div class="ch" style="border-bottom:1px solid rgba(255,255,255,.15);">
+      <h3 style="color:#fff;">📦 Solucious bestelling importeren</h3>
+      <label class="btn" style="background:#c8a951;color:#1b3a6b;font-weight:700;cursor:pointer;border:none;">📎 Kies bestand (XLS / CSV)<input type="file" id="sol-file" accept=".xls,.xlsx,.csv" style="display:none;" onchange="importSolucious(this)"></label>
+    </div>
+    <div style="padding:12px 16px;font-size:13px;opacity:.9;">Upload de orderbevestiging van Solucious. De artikels, leverdatum en het totaalbedrag worden automatisch ingelezen. Je controleert alles vóór het wordt toegevoegd.</div>
+  </div>
+  <div id="sol-preview" style="display:none;margin-bottom:8px;"></div>
+  <div class="card"><div class="ch"><h3>Nieuwe aankoop registreren</h3></div><div class="cb">
+    <div class="fgrid">
+      <div class="fg"><label>Datum</label><input type="date" id="a-d"></div>
+      <div class="fg"><label>Winkel</label><input type="text" id="a-w" placeholder="bv. Colruyt"></div>
+      <div class="fg"><label>Locatie</label><input type="text" id="a-l" placeholder="bv. Pelt"></div>
+      <div class="fg"><label>Bedrag (€)</label><input type="number" id="a-b" step="0.01" min="0"></div>
+      <div class="fg"><label>Categorie</label><select id="a-c"><option>Eten &amp; drinken</option><option>Bakkerij</option><option>Apotheek</option><option>Materiaal</option><option>Diversen</option></select></div>
+      <div class="fg"><label>Betaald door</label><input type="text" id="a-p" placeholder="bv. Tobias"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notities</label><input type="text" id="a-n"></div>
+    </div>
+    <div style="margin-top:14px;"><button class="btn btn-ok" onclick="addAankoop()">+ Registreer aankoop</button></div>
+  </div></div>
+  <div class="metrics" id="a-met"></div>
+  <div class="card"><div class="ch"><h3>Aankopen huidig kamp</h3>
+    <select id="a-f" onchange="renderAankopen()" style="font-size:12px;border:1px solid #ddd;border-radius:5px;padding:4px 8px;"><option value="">Alle</option><option>Eten &amp; drinken</option><option>Bakkerij</option><option>Apotheek</option><option>Materiaal</option><option>Diversen</option></select>
+  </div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Datum</th><th>Winkel</th><th>Locatie</th><th>Categorie</th><th>Betaald door</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
+    <tbody id="a-bd"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="5"><strong>Gefilterd totaal</strong></td><td class="tr tw5" id="a-tot">—</td><td colspan="2"></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Referentie vorig kamp (2025)</h3><span class="pill pill-ref">enkel-lezen</span></div><div class="cb">
+    <div class="metrics" id="ref-met"></div>
+    <div class="tw"><table><thead><tr><th>Categorie</th><th class="tr">Bedrag incl. BTW (€)</th></tr></thead>
+    <tbody id="ref-bd"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal vorig kamp</strong></td><td class="tr tw5" id="ref-tot">—</td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-vervoer">
+  <div class="card"><div class="ch"><h3>Personenvervoer</h3><button class="btn btn-ok" onclick="addPV()">+ Rij</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak / groep</th><th>Type</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
+    <tbody id="pv-bd"></tbody>
+    <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal</strong></td><td class="tr tw5" id="pv-t">—</td><td colspan="2"></td></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Materiaalvervoer</h3><button class="btn btn-ok" onclick="addMV()">+ Rij</button></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+    <tbody id="mv-bd"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="mv-b">—</td><td class="tr" id="mv-s">—</td><td class="tr tw5" id="mv-n">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+<div class="panel" id="p-budget">
+  <div class="metrics" id="b-met"></div>
+  <div class="note">⚠ Variabele kosten zijn ramingen. Als je werkelijke aankopen registreert voor dezelfde posten, zet de raming dan op €0.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+    <div class="card"><div class="ch"><h3>Inkomsten</h3></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Omschrijving</th><th>Detail</th><th class="tr">Bedrag (€)</th></tr></thead>
+      <tbody id="b-in"></tbody>
+      <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal inkomsten</strong></td><td class="tr tw5" id="b-int">—</td></tr></tfoot>
+    </table></div></div></div>
+    <div class="card"><div class="ch"><h3>Uitgaven</h3></div><div class="cb"><div class="tw">
+      <table><thead><tr><th>Categorie</th><th>Detail</th><th class="tr">Bedrag (€)</th></tr></thead>
+      <tbody id="b-out"></tbody>
+      <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal uitgaven</strong></td><td class="tr tw5" id="b-outt">—</td></tr></tfoot>
+    </table></div></div></div>
+  </div>
+  <div class="card"><div class="ch"><h3>Aankopen — huidig vs vorig kamp</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Categorie</th><th class="tr">Huidig kamp</th><th class="tr">Vorig kamp (2025)</th><th class="tr">Verschil</th></tr></thead>
+    <tbody id="b-cmp"></tbody><tfoot><tr class="tfoot" id="b-cmp-ft"></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Eetbudget — gepland vs werkelijk</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Omschrijving</th><th class="tr">Huidig kamp</th><th class="tr">Vorig kamp (2025)</th></tr></thead>
+    <tbody id="b-eet"></tbody>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>📊 Prijsscenario's — kampprijs vergelijking</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak</th><th class="tr">Huidig</th><th class="tr">+€10/kind</th><th class="tr">+€15/kind</th><th class="tr">Leden</th><th class="tr">Extra (+€10)</th><th class="tr">Extra (+€15)</th></tr></thead>
+    <tbody id="b-scenario"></tbody>
+    <tfoot><tr class="tfoot" id="b-scenario-ft"></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Werkelijk vs optimaal</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Tak</th><th class="tr">Totaal leden</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th class="tr">Werkelijk inkomen</th><th class="tr">Optimaal inkomen</th><th class="tr">Verschil</th></tr></thead>
+    <tbody id="b-opt"></tbody><tfoot><tr class="tfoot" id="b-opt-ft"></tr></tfoot>
+  </table></div></div></div>
+  <div class="card"><div class="ch"><h3>Terreinhuur — detail per dag</h3></div><div class="cb"><div class="tw">
+    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
+    <tbody id="b-terr"></tbody>
+    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
+  </table></div></div></div>
+</div>
+
+</div>
+<input type="file" id="import-input" accept=".json" style="display:none" onchange="importFile(this)">
+
+
+<script>
+const SB_URL='https://vjfvpzbeqpsxiqdwkuch.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZnZwemJlcXBzeGlxZHdrdWNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjQwNzEsImV4cCI6MjA5MTEwMDA3MX0.OShTHhxz9p-_LXHLZ0NBs8-FzvM9ojcSpakDdNJ5hPk';
+const SB_ID='test2026';
+const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+// Solucious artikelen uit leveringsbonnen 2025
+const SOL={
+ "vol-au-vent": {
+  "art": "112622",
+  "nm": "Vol-au-vent 2,25kg",
+  "merk": "Delicious Cuisine",
+  "vpv": 2250,
+  "vu": "g"
+ },
+ "frietjes": {
+  "art": "01308",
+  "nm": "Frieten 5kg",
+  "merk": "Lutosa",
+  "vpv": 5000,
+  "vu": "g"
+ },
+ "vleesballetjes": {
+  "art": "121851",
+  "nm": "Vleesballetjes voorgegaard 1kg",
+  "merk": "New ELV",
+  "vpv": 1000,
+  "vu": "g"
+ },
+ "gehakt": {
+  "art": "125569",
+  "nm": "Gehakt varken-kalf ±2,5kg",
+  "merk": "",
+  "vpv": 2500,
+  "vu": "g"
+ },
+ "broccoli": {
+  "art": "106258",
+  "nm": "Broccoliroosjes 2,5kg",
+  "merk": "Econom",
+  "vpv": 2500,
+  "vu": "g"
+ },
+ "wortelen": {
+  "art": "29890",
+  "nm": "Wortelen 13kg (bak)",
+  "merk": "",
+  "vpv": 13000,
+  "vu": "g"
+ },
+ "aardappelen-vast": {
+  "art": "120130",
+  "nm": "Aardappelen vastkokend 13kg",
+  "merk": "Deli D'or",
+  "vpv": 13000,
+  "vu": "g"
+ },
+ "aardappelen-bloem": {
+  "art": "120142",
+  "nm": "Aardappelen bloemig 13kg",
+  "merk": "Deli D'or",
+  "vpv": 13000,
+  "vu": "g"
+ },
+ "spek": {
+  "art": "119207",
+  "nm": "Spek gerookt blokjes 1kg",
+  "merk": "Econom",
+  "vpv": 1000,
+  "vu": "g"
+ },
+ "kaas-gemalen": {
+  "art": "114488",
+  "nm": "Emmamix gemalen 45+ 1kg",
+  "merk": "",
+  "vpv": 1000,
+  "vu": "g"
+ },
+ "room": {
+  "art": "114720",
+  "nm": "Room culinair 18% 1L",
+  "merk": "Econom",
+  "vpv": 1000,
+  "vu": "ml"
+ },
+ "melk": {
+  "art": "23537",
+  "nm": "Melk halfvol UHT 1L",
+  "merk": "Everyday",
+  "vpv": 1000,
+  "vu": "ml"
+ },
+ "appelmoes": {
+  "art": "73621",
+  "nm": "Appelmousseline 710g",
+  "merk": "Everyday",
+  "vpv": 710,
+  "vu": "g"
+ },
+ "wraps": {
+  "art": "123003",
+  "nm": "Wraps natuur (25cm) 15st/pak",
+  "merk": "Poco Loco",
+  "vpv": 15,
+  "vu": "st"
+ },
+ "knoflooksaus": {
+  "art": "35931",
+  "nm": "Knoflooksaus 1L",
+  "merk": "Vandemoortele",
+  "vpv": 1000,
+  "vu": "ml"
+ },
+ "samurai": {
+  "art": "114124",
+  "nm": "Samuraiësaus 1L",
+  "merk": "Culino",
+  "vpv": 1000,
+  "vu": "ml"
+ },
+ "mayonaise": {
+  "art": "30306",
+  "nm": "Mayonaise met eieren 500ml",
+  "merk": "Everyday",
+  "vpv": 500,
+  "vu": "ml"
+ },
+ "frituurolie": {
+  "art": "73777",
+  "nm": "Frituurolie 10L",
+  "merk": "Econom",
+  "vpv": 10000,
+  "vu": "ml"
+ },
+ "boter": {
+  "art": "21724",
+  "nm": "Boter bakken&braden vloeibaar 1L",
+  "merk": "Debic",
+  "vpv": 1000,
+  "vu": "ml"
+ },
+ "pitavlees": {
+  "art": "114181",
+  "nm": "Pitavlees van varken gekruid ±1kg",
+  "merk": "",
+  "vpv": 1000,
+  "vu": "g"
+ },
+ "tomaten": {
+  "art": "29893",
+  "nm": "Tomaten extra 6kg (bak)",
+  "merk": "Everyday",
+  "vpv": 6000,
+  "vu": "g"
+ },
+ "komkommer": {
+  "art": "29382",
+  "nm": "Komkommer 1st (±400g)",
+  "merk": "",
+  "vpv": 400,
+  "vu": "g"
+ },
+ "kip-curry-salade": {
+  "art": "126885",
+  "nm": "Kip-currysalade 1,5kg",
+  "merk": "Econom",
+  "vpv": 1500,
+  "vu": "g"
+ },
+ "hesp": {
+  "art": "118409",
+  "vpv": 500,
+  "vu": "g",
+  "nm": "Hamreepjes 500g"
+ },
+ "des-chocomousse": {
+  "art": "54263",
+  "vpv": 8,
+  "vu": "st",
+  "nm": "Chocolademousse 60gx8"
+ },
+ "des-flan": {
+  "art": "122877",
+  "vpv": 4,
+  "vu": "st",
+  "nm": "Flan caramel 100gx4"
+ },
+ "des-creme": {
+  "art": "54291",
+  "vpv": 4,
+  "vu": "st",
+  "nm": "Crèmedessert 125gx4"
+ },
+ "des-liegeois": {
+  "art": "112701",
+  "vpv": 1,
+  "vu": "st",
+  "nm": "Liégeois chocolade 175g"
+ },
+ "des-roomijs": {
+  "art": "129662",
+  "vpv": 5000,
+  "vu": "ml",
+  "nm": "Roomijs vanille 5L"
+ },
+ "des-wafel": {
+  "art": "103943",
+  "vpv": 50,
+  "vu": "st",
+  "nm": "Luikse wafels 55gx50"
+ },
+ "des-yoghurt": {
+  "art": "54257",
+  "vpv": 12,
+  "vu": "st",
+  "nm": "Fruityoghurt 125gx12"
+ },
+ "smeerboter": {
+  "art": "104772",
+  "vpv": 500,
+  "vu": "g",
+  "nm": "Margarine om te smeren 500g"
+ },
+ "choco": {
+  "art": "71951",
+  "vpv": 750,
+  "vu": "g",
+  "nm": "Hazelnootpasta 750g"
+ },
+ "confituur": {
+  "art": "73806",
+  "vpv": 450,
+  "vu": "g",
+  "nm": "Vruchtenconfituur 450g"
+ },
+ "hagelslag": {
+  "art": "53893",
+  "vpv": 600,
+  "vu": "g",
+  "nm": "Hagelslag melkchocolade 600g"
+ },
+ "speculoospasta": {
+  "art": "71478",
+  "vpv": 400,
+  "vu": "g",
+  "nm": "Speculoospasta 400g"
+ },
+ "cornflakes": {
+  "art": "71784",
+  "vpv": 750,
+  "vu": "g",
+  "nm": "Cornflakes 750g"
+ },
+ "cacao": {
+  "art": "120239",
+  "vpv": 800,
+  "vu": "g",
+  "nm": "Cacaopoeder quick 800g"
+ },
+ "fruitsap": {
+  "art": "98476",
+  "vpv": 1000,
+  "vu": "ml",
+  "nm": "Appelsap 1L"
+ },
+ "kaas-belegen": {
+  "art": "121437",
+  "vpv": 250,
+  "vu": "g",
+  "nm": "Kaas emmental 10sneden 250g"
+ },
+ "ham-sneden": {
+  "art": "128882",
+  "vpv": 500,
+  "vu": "g",
+  "nm": "Ontvette ham ±24 halve sneden 500g"
+ },
+ "salami-sneden": {
+  "art": "128889",
+  "vpv": 250,
+  "vu": "g",
+  "nm": "Salami ±22 sneetjes 250g"
+ },
+ "koek-cake": {
+  "art": "103954",
+  "vpv": 36,
+  "vu": "st",
+  "nm": "Cake frangipane ind. 58gx36"
+ },
+ "appel": {
+  "art": "29838",
+  "vpv": 7000,
+  "vu": "g",
+  "nm": "Appelen jonagold 7kg"
+ }
+};
+
+// Leeftijdsfactoren per tak-id
+const SEED_PRIJZEN={"10717":{"p":2.045,"d":"2024-07-15"},"17895":{"p":0.909,"d":"2024-07-18"},"21724":{"p":6.277,"d":"2025-07-14"},"23537":{"p":0.902,"d":"2025-07-14"},"29382":{"p":0.976,"d":"2025-07-23"},"29399":{"p":2.968,"d":"2024-07-26"},"29410":{"p":1.298,"d":"2024-07-23"},"29812":{"p":4.73,"d":"2025-07-14"},"29813":{"p":32.79,"d":"2025-07-23"},"29817":{"p":7.062,"d":"2025-07-14"},"29838":{"p":14.833,"d":"2024-07-23"},"29866":{"p":1.401,"d":"2025-07-24"},"29890":{"p":13.962,"d":"2025-07-14"},"29893":{"p":9.996,"d":"2025-07-23"},"30306":{"p":1.628,"d":"2025-07-14"},"30308":{"p":4.396,"d":"2025-07-14"},"30309":{"p":4.377,"d":"2025-07-14"},"30502":{"p":2.26,"d":"2024-07-23"},"35260":{"p":8.397,"d":"2024-07-15"},"35931":{"p":5.267,"d":"2025-07-14"},"36240":{"p":1.001,"d":"2025-07-14"},"36719":{"p":2.727,"d":"2024-07-26"},"42748":{"p":0.797,"d":"2025-07-14"},"46121":{"p":0.859,"d":"2025-07-14"},"46685":{"p":0.786,"d":"2025-07-14"},"47595":{"p":2.117,"d":"2025-07-14"},"47610":{"p":14.231,"d":"2025-07-14"},"48882":{"p":5.716,"d":"2024-07-18"},"48957":{"p":6.495,"d":"2024-07-15"},"53422":{"p":27.665,"d":"2024-07-18"},"53433":{"p":8.049,"d":"2024-07-18"},"53458":{"p":1.704,"d":"2025-07-14"},"53535":{"p":1.241,"d":"2025-07-14"},"53893":{"p":4.054,"d":"2025-07-14"},"53943":{"p":3.841,"d":"2025-07-14"},"53947":{"p":2.73,"d":"2024-07-18"},"54233":{"p":4.503,"d":"2024-07-15"},"54253":{"p":1.685,"d":"2025-07-14"},"54257":{"p":3.909,"d":"2024-07-15"},"54263":{"p":1.914,"d":"2024-07-18"},"54290":{"p":1.074,"d":"2024-07-23"},"54291":{"p":1.007,"d":"2024-07-23"},"56052":{"p":14.73,"d":"2024-07-15"},"57525":{"p":7.28,"d":"2025-07-14"},"57557":{"p":10.494,"d":"2024-07-15"},"59461":{"p":6.11,"d":"2025-07-23"},"60559":{"p":3.151,"d":"2025-07-14"},"66144":{"p":8.788,"d":"2025-07-14"},"66147":{"p":1.678,"d":"2025-07-14"},"66173":{"p":1.344,"d":"2025-07-14"},"66190":{"p":1.899,"d":"2024-07-23"},"67416":{"p":3.077,"d":"2025-07-14"},"68133":{"p":18.548,"d":"2025-07-24"},"71478":{"p":4.803,"d":"2024-07-15"},"71784":{"p":1.89,"d":"2025-07-14"},"71785":{"p":2.816,"d":"2025-07-14"},"71951":{"p":2.968,"d":"2025-07-14"},"73621":{"p":1.266,"d":"2025-07-14"},"73777":{"p":19.23,"d":"2025-07-14"},"73806":{"p":1.67,"d":"2025-07-14"},"74493":{"p":0.929,"d":"2024-07-23"},"81315":{"p":44.002,"d":"2024-07-15"},"81324":{"p":44.366,"d":"2024-07-15"},"81454":{"p":5.738,"d":"2025-07-14"},"82469":{"p":0.558,"d":"2025-07-14"},"91371":{"p":12.583,"d":"2024-07-15"},"94157":{"p":3.948,"d":"2025-07-24"},"97007":{"p":2.073,"d":"2025-07-14"},"98476":{"p":1.047,"d":"2025-07-14"},"98773":{"p":10.256,"d":"2025-07-14"},"99662":{"p":2.331,"d":"2025-07-14"},"100211":{"p":7.43,"d":"2025-07-14"},"100217":{"p":2.519,"d":"2025-07-14"},"101041":{"p":2.019,"d":"2025-07-14"},"101068":{"p":2.109,"d":"2025-07-14"},"101388":{"p":1.128,"d":"2024-07-15"},"102523":{"p":1.021,"d":"2024-07-23"},"103104":{"p":13.93,"d":"2025-07-14"},"103867":{"p":1.379,"d":"2024-07-23"},"103868":{"p":1.457,"d":"2024-07-23"},"103943":{"p":11.392,"d":"2025-07-14"},"103954":{"p":14.006,"d":"2025-07-14"},"104772":{"p":1.454,"d":"2024-07-15"},"104823":{"p":4.484,"d":"2025-07-14"},"106258":{"p":5.245,"d":"2025-07-24"},"106281":{"p":3.093,"d":"2024-07-23"},"106614":{"p":1.587,"d":"2025-07-14"},"106982":{"p":8.881,"d":"2024-07-15"},"106983":{"p":8.792,"d":"2024-07-18"},"108230":{"p":2.191,"d":"2025-07-14"},"108279":{"p":1.521,"d":"2024-07-26"},"108567":{"p":1.529,"d":"2025-07-23"},"109191":{"p":9.628,"d":"2025-07-14"},"110317":{"p":2.715,"d":"2024-07-26"},"111149":{"p":0.489,"d":"2025-07-14"},"112299":{"p":0.761,"d":"2024-07-15"},"112413":{"p":2.029,"d":"2025-07-24"},"112416":{"p":2.029,"d":"2025-07-23"},"112598":{"p":21.731,"d":"2025-07-14"},"112622":{"p":21.549,"d":"2025-07-14"},"112701":{"p":0.272,"d":"2024-07-23"},"113218":{"p":5.183,"d":"2024-07-18"},"113452":{"p":13.471,"d":"2024-07-26"},"113469":{"p":16.757,"d":"2024-07-18"},"113490":{"p":5.433,"d":"2024-07-26"},"113697":{"p":26.037,"d":"2024-07-26"},"114124":{"p":6.005,"d":"2025-07-14"},"114181":{"p":13.35,"d":"2025-07-14"},"114274":{"p":9.747,"d":"2025-07-14"},"114412":{"p":7.211,"d":"2025-07-14"},"114488":{"p":6.138,"d":"2025-07-23"},"114720":{"p":3.886,"d":"2025-07-14"},"115043":{"p":3.322,"d":"2024-07-15"},"115638":{"p":7.875,"d":"2024-07-18"},"116455":{"p":7.123,"d":"2025-07-23"},"117491":{"p":0,"d":"2024-07-15"},"117632":{"p":2.149,"d":"2025-07-14"},"118221":{"p":4.057,"d":"2024-07-15"},"118370":{"p":12.663,"d":"2024-07-26"},"118409":{"p":5.387,"d":"2025-07-23"},"118422":{"p":13.011,"d":"2024-07-15"},"118562":{"p":24.801,"d":"2024-07-23"},"118628":{"p":18.59,"d":"2024-07-23"},"118900":{"p":11.24,"d":"2024-07-15"},"119207":{"p":6.685,"d":"2025-07-23"},"119229":{"p":7.381,"d":"2024-07-23"},"119313":{"p":1.701,"d":"2024-07-26"},"119523":{"p":1.826,"d":"2024-07-26"},"119749":{"p":7.029,"d":"2024-07-26"},"120130":{"p":27.761,"d":"2025-07-14"},"120142":{"p":25.138,"d":"2025-07-23"},"120239":{"p":4.232,"d":"2025-07-14"},"120575":{"p":2.449,"d":"2025-07-24"},"120642":{"p":11.758,"d":"2025-07-14"},"120715":{"p":4.525,"d":"2024-07-15"},"120720":{"p":8.198,"d":"2024-07-23"},"120936":{"p":22.809,"d":"2024-07-26"},"121111":{"p":4.721,"d":"2025-07-14"},"121437":{"p":2.095,"d":"2024-07-26"},"121695":{"p":3.196,"d":"2024-07-26"},"121851":{"p":7.426,"d":"2025-07-14"},"122086":{"p":2.418,"d":"2024-07-15"},"122217":{"p":2.712,"d":"2025-07-23"},"122707":{"p":2.461,"d":"2024-07-15"},"122772":{"p":2.549,"d":"2024-07-15"},"122877":{"p":0.984,"d":"2024-07-23"},"123003":{"p":2.774,"d":"2025-07-14"},"123222":{"p":15.231,"d":"2025-07-14"},"123382":{"p":0.466,"d":"2024-07-15"},"123383":{"p":2.957,"d":"2025-07-14"},"123387":{"p":23.893,"d":"2025-07-24"},"123490":{"p":13.418,"d":"2024-07-15"},"123758":{"p":17.885,"d":"2024-07-18"},"123790":{"p":1.157,"d":"2025-07-14"},"124002":{"p":3.788,"d":"2024-07-23"},"124056":{"p":20.613,"d":"2025-07-23"},"124137":{"p":16.434,"d":"2025-07-24"},"124449":{"p":3.867,"d":"2024-07-26"},"124725":{"p":2.985,"d":"2024-07-15"},"124935":{"p":29.718,"d":"2024-07-23"},"125416":{"p":17.796,"d":"2024-07-26"},"125569":{"p":17.418,"d":"2025-07-24"},"125748":{"p":4.826,"d":"2025-07-24"},"126203":{"p":0.537,"d":"2025-07-14"},"126504":{"p":27.62,"d":"2024-07-15"},"126885":{"p":13.42,"d":"2025-07-14"},"127300":{"p":3.21,"d":"2025-07-14"},"127462":{"p":10.837,"d":"2024-07-23"},"127476":{"p":18.958,"d":"2024-07-26"},"127550":{"p":5.852,"d":"2025-07-14"},"128008":{"p":2.673,"d":"2025-07-24"},"128377":{"p":4.433,"d":"2024-07-15"},"128882":{"p":5.238,"d":"2025-07-23"},"128889":{"p":3.349,"d":"2025-07-14"},"128890":{"p":3.601,"d":"2025-07-23"},"129035":{"p":14.72,"d":"2025-07-14"},"129381":{"p":5.061,"d":"2025-07-14"},"129398":{"p":5.363,"d":"2025-07-14"},"129423":{"p":0,"d":"2024-07-15"},"129490":{"p":4.478,"d":"2025-07-14"},"129492":{"p":3.776,"d":"2025-07-14"},"129493":{"p":4.302,"d":"2025-07-14"},"129551":{"p":5.919,"d":"2025-07-14"},"129662":{"p":14.507,"d":"2025-07-14"},"129663":{"p":13.413,"d":"2025-07-14"},"129667":{"p":15.351,"d":"2025-07-14"},"130447":{"p":2.966,"d":"2025-07-14"},"130513":{"p":26.565,"d":"2025-07-14"},"131396":{"p":18.968,"d":"2025-07-14"},"131547":{"p":0,"d":"2025-07-14"},"08584":{"p":1.05,"d":"2024-07-15"},"01308":{"p":9.343,"d":"2025-07-24"}};
+const SEED_INGPRIJZEN={"curryketchupsaus":{"p":0.00582,"u":"ml"},"erwtengroentemix":{"p":0.00275,"u":"g"},"gefrituurdeuitjes":{"p":0.00964,"u":"g"},"ijsbergsla":{"p":0.00459,"u":"g"},"knoflook":{"p":0.01422,"u":"g"},"kokosmelk":{"p":0.00246,"u":"ml"},"macaronidroog":{"p":0.00186,"u":"g"},"mas":{"p":0.00337,"u":"g"},"paprika":{"p":0.00667,"u":"g"},"paprikamix":{"p":0.00667,"u":"g"},"passatatomatensaus":{"p":0.0031,"u":"ml"},"rijstsushiwitdroog":{"p":0.00201,"u":"g"},"rijstdroog":{"p":0.00201,"u":"g"},"pastaofrijstdroog":{"p":0.00201,"u":"g"},"spaghettidroog":{"p":0.00188,"u":"g"},"ui":{"p":0.00299,"u":"g"},"watermeloen":{"p":0.00102,"u":"g"},"mengslasalade":{"p":0.00459,"u":"g"},"belegmixkaashespsalami":{"p":0.01259,"u":"g"},"garnituurslatomaatei":{"p":0.00318,"u":"g"},"avocado":{"p":1.473,"u":"st"},"edamame":{"p":0.00634,"u":"g"},"fishsticks":{"p":0.00851,"u":"g"},"kidneybonenuitgelekt":{"p":0.00189,"u":"g"},"sojasaus":{"p":0.00688,"u":"ml"},"sojascheuten":{"p":0.00304,"u":"g"},"tomatenpuree":{"p":0.00353,"u":"g"},"rodecurrypasta":{"p":0.01528,"u":"g"},"kipfilet":{"p":0.00856,"u":"g"},"kipfiletextra":{"p":0.00856,"u":"g"},"kipfiletgegrild":{"p":0.00856,"u":"g"},"kipfiletgemarineerd":{"p":0.00856,"u":"g"},"eiwitzalmkiptofu":{"p":0.00856,"u":"g"},"chipolataworsten":{"p":0.01113,"u":"g"}};
+const TAK_F={'JW':0.65,'W':0.65,'JV':0.80,'SG':1.00,'SE':1.00,'moly522axf8':1.05};
+function getTF(id){return TAK_F[id]||1.00;}
+
+// Maaltijden — pp = hoeveelheid per volwassen portie
+const MEALS=[{"id":"bbq","nm":"🔥 BBQ","tip":"Reken 30% extra voor BBQ — mensen pakken altijd meer. Marineer kip 2u vooraf. Pitavlees varken (art.114181) werkt goed naast chipolata.","ing":[{"n":"Chipolataworsten","u":"g","pp":180,"note":"±3-4 stuks","sup":"slager"},{"n":"Pitavlees varken gekruid","u":"g","pp":110,"sol":"pitavlees","sup":"sol"},{"n":"Kipfilet gemarineerd","u":"g","pp":120,"note":"in reepjes","sup":"super"},{"n":"Brood (pistolets)","u":"st","pp":1.5,"sup":"bakker"},{"n":"Mengslasalade","u":"g","pp":60,"sup":"super"},{"n":"Tomaten","u":"g","pp":55,"sol":"tomaten","sup":"sol"},{"n":"Komkommer","u":"g","pp":40,"sol":"komkommer","sup":"sol"},{"n":"Knoflooksaus","u":"ml","pp":25,"sol":"knoflooksaus","sup":"sol"},{"n":"Samuraësaus","u":"ml","pp":20,"sol":"samurai","sup":"sol"},{"n":"Mayonaise","u":"ml","pp":15,"sol":"mayonaise","sup":"sol"}]},{"id":"wraps","nm":"🌯 Wraps","tip":"Warm wraps 30 sec in droge pan. Zet ingrediënten apart zodat iedereen zelf samenstelt. 1 pak = 15 wraps (Poco Loco art.123003) ≈ 6 personen.","ing":[{"n":"Wraps natuur 25cm","u":"st","pp":2.5,"sol":"wraps","sup":"sol"},{"n":"Kipfilet gegrild","u":"g","pp":130,"note":"in reepjes","sup":"super"},{"n":"Emmamix / kaas gemalen","u":"g","pp":35,"sol":"kaas-gemalen","sup":"sol"},{"n":"Paprika (mix)","u":"g","pp":60,"sup":"super"},{"n":"IJsbergsla","u":"g","pp":40,"sup":"super"},{"n":"Tomaten","u":"g","pp":50,"sol":"tomaten","sup":"sol"},{"n":"Knoflooksaus","u":"ml","pp":30,"sol":"knoflooksaus","sup":"sol"},{"n":"Samuraësaus","u":"ml","pp":20,"sol":"samurai","sup":"sol"}]},{"id":"macaroni-bol","nm":"🍝 Macaroni bolognese","tip":"Kook pasta in ruim gezouten water. Gehakt varken-kalf (art.125569, ±2,5kg/verpakking). Emmamix gemalen (art.114488, 1kg ≈ 30 porties kaas).","ing":[{"n":"Macaroni droog","u":"g","pp":110,"sup":"super"},{"n":"Gemengd gehakt","u":"g","pp":130,"sol":"gehakt","sup":"sol"},{"n":"Tomatenpuree","u":"g","pp":25,"sup":"super"},{"n":"Passata / tomatensaus","u":"ml","pp":150,"sup":"super"},{"n":"Ui","u":"g","pp":35,"sup":"super"},{"n":"Emmamix / kaas gemalen","u":"g","pp":35,"sol":"kaas-gemalen","sup":"sol"}]},{"id":"volau","nm":"🥘 Vol-au-vent met frietjes","tip":"1 blik vol-au-vent (2,25kg, art.112622) ≈ 10 porties. Frietjes in oven (180°C, 25 min) voor grote groepen. 1 zak Lutosa (5kg, art.01308) ≈ 20 porties.","ing":[{"n":"Vol-au-vent bereiding","u":"g","pp":280,"sol":"vol-au-vent","sup":"sol","note":"kant-en-klaar"},{"n":"Frietjes","u":"g","pp":260,"sol":"frietjes","sup":"sol"},{"n":"Frituurolie","u":"ml","pp":20,"sol":"frituurolie","sup":"sol"},{"n":"Brood","u":"snee","pp":1,"sup":"bakker"}]},{"id":"worst-app","nm":"🌭 Worst, appelmoes & aardappelen","tip":"Vastkokende aardappelen (art.120130, 13kg/bak). Appelmousseline (art.73621, 710g ≈ 7 porties). Chipolataworsten bij de slager — reken 3-4 per persoon.","ing":[{"n":"Chipolataworsten","u":"g","pp":220,"note":"±3-4 stuks","sup":"slager"},{"n":"Vastkokende aardappelen","u":"g","pp":280,"sol":"aardappelen-vast","sup":"sol"},{"n":"Appelmousseline","u":"g","pp":120,"sol":"appelmoes","sup":"sol"},{"n":"Boter","u":"ml","pp":10,"sol":"boter","sup":"sol"}]},{"id":"fish","nm":"🐟 Fishsticks met wortelpuree","tip":"Wortelpuree: 1 bak wortelen (13kg, art.29890) ≈ 65 porties. Bloemige aardappelen toevoegen geeft vollere puree (art.120142). Fishsticks bij super.","ing":[{"n":"Fishsticks","u":"g","pp":200,"note":"±4-5 stuks","sup":"super"},{"n":"Wortelen","u":"g","pp":220,"sol":"wortelen","sup":"sol"},{"n":"Aardappelen bloemig (toevoeging)","u":"g","pp":100,"sol":"aardappelen-bloem","sup":"sol"},{"n":"Melk","u":"ml","pp":60,"sol":"melk","sup":"sol"},{"n":"Boter","u":"ml","pp":20,"sol":"boter","sup":"sol"},{"n":"Tartaarsaus","u":"ml","pp":40,"sup":"super"}]},{"id":"kip-curry","nm":"🍛 Kip met curry en rijst","tip":"Kip-currysalade Solucious (art.126885, 1,5kg ≈ 10 porties) als basis + room culinair (art.114720). Rijst: 1 deel rijst op 1,5 deel water, 18 min. 1kg droge rijst ≈ 10 porties.","ing":[{"n":"Kip-currysalade basis","u":"g","pp":80,"sol":"kip-curry-salade","sup":"sol"},{"n":"Kipfilet extra","u":"g","pp":70,"note":"optioneel","sup":"super"},{"n":"Rijst droog","u":"g","pp":90,"sup":"super"},{"n":"Room culinair 18%","u":"ml","pp":60,"sol":"room","sup":"sol"},{"n":"Curryketchup / -saus","u":"ml","pp":60,"sup":"super"},{"n":"Paprika","u":"g","pp":50,"sup":"super"}]},{"id":"ballen","nm":"🍝 Balletjes in tomatensaus","tip":"Voorgegaarde vleesballetjes (art.121851, 1kg ≈ 5 porties). Serveer met pasta of brood. Tomatenpuree + passata als saus.","ing":[{"n":"Vleesballetjes voorgegaard","u":"g","pp":200,"sol":"vleesballetjes","sup":"sol"},{"n":"Passata / tomatensaus","u":"ml","pp":180,"sup":"super"},{"n":"Pasta of rijst droog","u":"g","pp":100,"sup":"super"},{"n":"Ui","u":"g","pp":25,"sup":"super"},{"n":"Emmamix / kaas gemalen","u":"g","pp":25,"sol":"kaas-gemalen","sup":"sol"}]},{"id":"mac-bro","nm":"🥦 Macaroni met broccoli","tip":"Blancheer broccoli apart (3 min) zodat hij groen blijft. 1 pak broccoliroosjes (2,5kg, art.106258) ≈ 15 porties. Room culinair 1L (art.114720).","ing":[{"n":"Macaroni droog","u":"g","pp":110,"sup":"super"},{"n":"Hesp blokjes","u":"g","pp":50,"sol":"hesp","sup":"sol"},{"n":"Broccoliroosjes","u":"g","pp":160,"sol":"broccoli","sup":"sol"},{"n":"Room culinair 18%","u":"ml","pp":80,"sol":"room","sup":"sol"},{"n":"Emmamix / kaas gemalen","u":"g","pp":40,"sol":"kaas-gemalen","sup":"sol"},{"n":"Knoflook","u":"g","pp":4,"sup":"super"},{"n":"Boter","u":"ml","pp":12,"sol":"boter","sup":"sol"}]},{"id":"puree-fatale","nm":"🥔 Puree Fatale","tip":"Bloemige aardappelen (bak kal.4, art.120142). Spekblokjes (art.119207) eerst krokant bakken. Emmamix (art.114488) is de kaascomponent. Stamp iets grof voor karakter.","ing":[{"n":"Aardappelen bloemig","u":"g","pp":320,"sol":"aardappelen-bloem","sup":"sol"},{"n":"Spekblokjes gerookt","u":"g","pp":80,"sol":"spek","sup":"sol"},{"n":"Emmamix / kaas gemalen","u":"g","pp":55,"sol":"kaas-gemalen","sup":"sol"},{"n":"Room culinair 18%","u":"ml","pp":60,"sol":"room","sup":"sol"},{"n":"Melk","u":"ml","pp":70,"sol":"melk","sup":"sol"},{"n":"Boter","u":"ml","pp":25,"sol":"boter","sup":"sol"}]},{"id":"poke","nm":"🥗 Poké Bowl","tip":"Buffetstijl: zet alles apart zodat iedereen zelf een bowl samenstelt. Rijst 1 deel op 1,5 deel water (18 min). Let op de avocadokost — ±1/3 per persoon is ruim; een halve is luxe.","ing":[{"n":"Rijst (sushi/wit) droog","u":"g","pp":90,"sup":"super"},{"n":"Eiwit (zalm/kip/tofu)","u":"g","pp":100,"note":"keuze","sup":"super"},{"n":"Edamame","u":"g","pp":30,"sup":"super"},{"n":"Komkommer","u":"g","pp":40,"sol":"komkommer","sup":"sol"},{"n":"Wortel geraspt","u":"g","pp":30,"sol":"wortelen","sup":"sol"},{"n":"Maïs","u":"g","pp":30,"sup":"super"},{"n":"Avocado","u":"st","pp":0.34,"note":"±1/3 per persoon","sup":"super"},{"n":"Sojascheuten","u":"g","pp":20,"sup":"super"},{"n":"Sojasaus","u":"ml","pp":10,"sup":"super"},{"n":"Gefrituurde uitjes","u":"g","pp":5,"sup":"super"},{"n":"Watermeloen","u":"g","pp":80,"note":"ook als dessert","sup":"super"}]},{"id":"chili","nm":"🌶️ Chili Con Carne","tip":"Laat minstens 30 min sudderen. Kidneybonen en maïs uit blik. Serveer met rijst of brood. Pittigheid apart houden voor de kleinsten.","ing":[{"n":"Gemengd gehakt","u":"g","pp":120,"sol":"gehakt","sup":"sol"},{"n":"Kidneybonen (uitgelekt)","u":"g","pp":80,"sup":"super"},{"n":"Maïs","u":"g","pp":40,"sup":"super"},{"n":"Passata / tomatensaus","u":"ml","pp":150,"sup":"super"},{"n":"Tomatenpuree","u":"g","pp":20,"sup":"super"},{"n":"Ui","u":"g","pp":35,"sup":"super"},{"n":"Paprika","u":"g","pp":50,"sup":"super"},{"n":"Rijst droog","u":"g","pp":90,"sup":"super"}]},{"id":"thai-curry","nm":"🍲 Thaise Curry & Kip","tip":"Rode of groene currypasta naar smaak. Kokosmelk geeft de basis. 1 deel rijst op 1,5 deel water. Groentemix vrij te kiezen.","ing":[{"n":"Kipfilet","u":"g","pp":140,"sup":"super"},{"n":"Rijst droog","u":"g","pp":90,"sup":"super"},{"n":"Kokosmelk","u":"ml","pp":120,"sup":"super"},{"n":"Rode currypasta","u":"g","pp":15,"sup":"super"},{"n":"Paprika","u":"g","pp":60,"sup":"super"},{"n":"Wortel","u":"g","pp":50,"sol":"wortelen","sup":"sol"},{"n":"Ui","u":"g","pp":30,"sup":"super"},{"n":"Erwten / groentemix","u":"g","pp":50,"sup":"super"}]},{"id":"spaghetti-bistro","nm":"🍝 Spaghetti M-Bistro","tip":"Klassieke bolognese. Gehakt varken-kalf (art.125569). Wortel + selder fijngesneden in de saus geeft diepte. Emmamix als kaas (art.114488).","ing":[{"n":"Spaghetti droog","u":"g","pp":110,"sup":"super"},{"n":"Gemengd gehakt","u":"g","pp":130,"sol":"gehakt","sup":"sol"},{"n":"Passata / tomatensaus","u":"ml","pp":150,"sup":"super"},{"n":"Tomatenpuree","u":"g","pp":25,"sup":"super"},{"n":"Ui","u":"g","pp":35,"sup":"super"},{"n":"Wortel","u":"g","pp":30,"sol":"wortelen","sup":"sol"},{"n":"Emmamix / kaas gemalen","u":"g","pp":35,"sol":"kaas-gemalen","sup":"sol"}]},{"id":"gastros","nm":"🥖 Gastro's","tip":"Interpretatie: broodjesbuffet met warm en koud beleg. Pas dit recept aan naar jullie eigen invulling indien anders. Reken ruim brood.","ing":[{"n":"Pistolets / broodjes","u":"st","pp":2.5,"sup":"bakker"},{"n":"Beleg mix (kaas/hesp/salami)","u":"g","pp":90,"sup":"super"},{"n":"Garnituur (sla/tomaat/ei)","u":"g","pp":60,"sup":"super"},{"n":"Mayonaise","u":"ml","pp":20,"sol":"mayonaise","sup":"sol"}]},{"id":"des-chocomousse","nm":"🍫 Chocomousse","ing":[{"n":"Chocolademousse","u":"st","pp":1,"sol":"des-chocomousse","sup":"sol"}]},{"id":"des-flan","nm":"🍮 Flan caramel","ing":[{"n":"Flan caramel","u":"st","pp":1,"sol":"des-flan","sup":"sol"}]},{"id":"des-pudding","nm":"🍫 Pudding (crèmedessert)","ing":[{"n":"Crèmedessert","u":"st","pp":1,"sol":"des-creme","sup":"sol"}]},{"id":"des-liegeois","nm":"🍨 Liégeois","ing":[{"n":"Liégeois chocolade","u":"st","pp":1,"sol":"des-liegeois","sup":"sol"}]},{"id":"des-ijs","nm":"🍦 Roomijs","ing":[{"n":"Roomijs","u":"ml","pp":100,"sol":"des-roomijs","sup":"sol"}]},{"id":"des-wafel","nm":"🧇 Luikse wafel","ing":[{"n":"Luikse wafel","u":"st","pp":1,"sol":"des-wafel","sup":"sol"}]},{"id":"des-yoghurt","nm":"🥛 Fruityoghurt","ing":[{"n":"Fruityoghurt","u":"st","pp":1,"sol":"des-yoghurt","sup":"sol"}]},{"id":"ontbijt","nm":"🍞 Standaard ontbijt","tip":"Elke kampdag. Geboterde boterhammen met choco, confituur, hagelslag en speculoospasta, speculooskoekjes, cornflakes met melk, chocomelk (cacaopoeder + melk), sinaasappel- en appelsap. Brood via de bakker (€2/brood).","ing":[{"n":"Brood (sneden)","u":"st","pp":3,"sup":"bakker","prijs":0.1,"note":"€2/brood ≈ 20 sneden"},{"n":"Smeerboter","u":"g","pp":10,"sol":"smeerboter","sup":"sol"},{"n":"Choco","u":"g","pp":20,"sol":"choco","sup":"sol"},{"n":"Confituur","u":"g","pp":15,"sol":"confituur","sup":"sol"},{"n":"Hagelslag","u":"g","pp":10,"sol":"hagelslag","sup":"sol"},{"n":"Speculoospasta","u":"g","pp":15,"sol":"speculoospasta","sup":"sol"},{"n":"Speculooskoekjes","u":"g","pp":15,"sol":"speculoos-koek","sup":"sol"},{"n":"Cornflakes","u":"g","pp":30,"sol":"cornflakes","sup":"sol"},{"n":"Melk","u":"ml","pp":200,"sol":"melk","sup":"sol"},{"n":"Cacaopoeder","u":"g","pp":12,"sol":"cacao","sup":"sol"},{"n":"Sinaasappelsap","u":"ml","pp":100,"sol":"sinaasappelsap","sup":"sol"},{"n":"Appelsap","u":"ml","pp":100,"sol":"appelsap","sup":"sol"}]},{"id":"middag","nm":"🥪 Boterhammen middag","tip":"Elke kampdag. Geboterde boterhammen met kaas, hesp, salami + zoet beleg (choco, confituur, speculoospasta), speculooskoekjes. Altijd groentjes: komkommer, tomaat, wortel. Brood via de bakker (€2/brood).","ing":[{"n":"Brood (sneden)","u":"st","pp":4,"sup":"bakker","prijs":0.1,"note":"€2/brood ≈ 20 sneden"},{"n":"Smeerboter","u":"g","pp":10,"sol":"smeerboter","sup":"sol"},{"n":"Kaas","u":"g","pp":40,"sol":"kaas-belegen","sup":"sol"},{"n":"Hesp","u":"g","pp":40,"sol":"ham-sneden","sup":"sol"},{"n":"Salami","u":"g","pp":25,"sol":"salami-sneden","sup":"sol"},{"n":"Choco","u":"g","pp":15,"sol":"choco","sup":"sol"},{"n":"Confituur","u":"g","pp":12,"sol":"confituur","sup":"sol"},{"n":"Speculoospasta","u":"g","pp":12,"sol":"speculoospasta","sup":"sol"},{"n":"Speculooskoekjes","u":"g","pp":12,"sol":"speculoos-koek","sup":"sol"},{"n":"Komkommer","u":"g","pp":40,"sol":"komkommer","sup":"sol","note":"groentje"},{"n":"Tomaten","u":"g","pp":50,"sol":"tomaten","sup":"sol","note":"groentje"},{"n":"Wortel geraspt","u":"g","pp":30,"sol":"wortelen","sup":"sol","note":"groentje"}]},{"id":"vieruurtje","nm":"🍪 Vieruurtje","tip":"Elke kampdag. Een koek + een stuk fruit. Pas aan naar wat jullie geven.","ing":[{"n":"Koek","u":"st","pp":1,"sol":"koek-cake","sup":"sol"},{"n":"Fruit (appel)","u":"g","pp":150,"sol":"appel","sup":"sol"}]},{"id":"uu-koek","nm":"🍪 Koek","ing":[{"n":"Koek","u":"st","pp":1,"sol":"koek-cake","sup":"sol"}]},{"id":"uu-fruit","nm":"🍎 Stuk fruit","ing":[{"n":"Fruit (appel)","u":"g","pp":150,"sol":"appel","sup":"sol"}]},{"id":"uu-wafel","nm":"🧇 Wafel","ing":[{"n":"Luikse wafel","u":"st","pp":1,"sol":"des-wafel","sup":"sol"}]},{"id":"uu-yoghurt","nm":"🥛 Yoghurt","ing":[{"n":"Fruityoghurt","u":"st","pp":1,"sol":"des-yoghurt","sup":"sol"}]}];
+const MM=Object.fromEntries(MEALS.map(m=>[m.id,m]));
+const MMN=Object.fromEntries(MEALS.map(m=>[m.nm,m]));
+
+// ---- Recepten als bewerkbare data (geseed uit MEALS) ----
+function seedRecepten(){
+  if(!S.recepten||!S.recepten.length){
+    S.recepten=JSON.parse(JSON.stringify(MEALS));
+    // Vaste groentjes bij elke maaltijd, behalve Puree Fatale en de Macaroni's
+    const geen=['puree-fatale','macaroni-bol','mac-bro'];
+    const want=[
+      {k:'komkommer',ing:{n:'Komkommer',u:'g',pp:40,sol:'komkommer',sup:'sol',note:'groentje'}},
+      {k:'tomaten',ing:{n:'Tomaten',u:'g',pp:50,sol:'tomaten',sup:'sol',note:'groentje'}},
+      {k:'wortelgeraspt',ing:{n:'Wortel geraspt',u:'g',pp:30,sol:'wortelen',sup:'sol',note:'groentje'}},
+    ];
+    S.recepten.forEach(r=>{
+      if(recCat(r.id)!=='avond'||geen.indexOf(r.id)>=0)return;
+      want.forEach(w=>{if(!r.ing.some(i=>normName(i.n)===w.k))r.ing.push(JSON.parse(JSON.stringify(w.ing)));});
+    });
+  }
+}
+function allRecipes(){return (S.recepten&&S.recepten.length)?S.recepten:MEALS;}
+function normName(s){return String(s||'').toLowerCase().replace(/u[0-9a-f]{4,}/g,'').replace(/[^a-z0-9]/g,'');}
+function recById(id){return allRecipes().find(r=>r.id===id);}
+function recByName(nm){const n=normName(nm);return allRecipes().find(r=>normName(r.nm)===n)||MMN[nm];}
+function cleanName(nm){const r=recByName(nm);const base=r?r.nm:nm;return String(base||'').replace(/u[0-9a-f]{4,}/gi,'').replace(/\s+/g,' ').trim();}
+
+// ---- Prijscatalogus (per Solucious-artikelnummer, opgebouwd uit imports) ----
+// Catalogusprijzen zijn excl. BTW -> we tonen alles incl. BTW (6% voeding), want BTW wordt niet teruggevorderd.
+const BTW_VOEDING=1.06;
+function priceForSol(solKey){
+  if(!solKey||!SOL[solKey])return null;
+  const art=SOL[solKey].art;const rec=(S.prijzen||{})[art];
+  if(!rec||!rec.p)return null;
+  // €/recept-eenheid = (prijs per verpakking incl. BTW) / inhoud per verpakking
+  return {perUnit:(rec.p*BTW_VOEDING)/(SOL[solKey].vpv||1),vu:SOL[solKey].vu,datum:rec.datum,bron:SOL[solKey].nm};
+}
+// Kost per persoon voor één ingrediënt; null als prijs onbekend
+function ingCostPP(ing){
+  if(ing.prijs!=null&&ing.prijs!==''){return ing.pp*Number(ing.prijs);} // handmatige €/eenheid
+  const pr=ing.sol?priceForSol(ing.sol):null;
+  if(pr&&pr.vu===ing.u){return ing.pp*pr.perUnit;}
+  const ip=(S.ingprijzen||{})[normName(ing.n)]; // naam-prijslijst (€/recept-eenheid)
+  if(ip&&ip.u===ing.u){return ing.pp*ip.p;}
+  return null;
+}
+
+// Referentie vorig kamp (2025): enkel categorie-totalen.
+// Detailregels (winkel/datum/notities) zijn bewust verwijderd — geen persoons- of detailgegevens in publieke broncode.
+const REF_TOT={'Eten & drinken':5296.78,'Bakkerij':414,'Apotheek':198.86,'Materiaal':20.79,'Diversen':100};
+const REF_EET=6394;
+
+const DEF={
+  setup:{nm:'',st:'',ei:'',eb:10,ab:3,sp:3,ld:0,lb:0,
+    terrein:{r:1.5,min:150,borg:0,sub:0},
+    kookploeg:{tarief:10,max:50,leden:[]},
+    takken:[],
+    vk:[],
+    vark:[],
+  },
+  av:{},menu:{},aankopen:[],keuken:{},prikbord:[],archief:[],
+  ver:{
+    pv:[],
+    mv:[],
+  },
+};
+let S=JSON.parse(JSON.stringify(DEF));
+let saveTimer=null;
+
+function setSS(c,t){document.getElementById('sync-dot').className='sync-dot '+(c||'');document.getElementById('sync-txt').textContent=t||'';}
+async function generateAIBestellijst(){
+  const marge=+document.getElementById('ai-marge').value||10;
+  const res=document.getElementById('ai-result');
+  res.style.display='block';
+  res.innerHTML=`<div class="card"><div class="cb" style="padding:24px;text-align:center;color:#888;"><div style="font-size:24px;margin-bottom:8px;">⏳</div>Claude analyseert je menu en berekent de bestellijst...<br><small>Dit duurt 15-30 seconden</small></div></div>`;
+
+  // Verzamel ingrediënten uit maaltijden
+  const tots={};
+  getDays().forEach(d=>{
+    const mn=S.menu[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';const des=(mn.des&&mn.des.ma)||'';const on=(mn.on&&mn.on.ma)||'';const uu=(mn.uu&&mn.uu.ma)||'';
+    [on,mid,uu,avnd,des].forEach(nm=>{
+      const meal=recByName(nm);if(!meal)return;
+      meal.ing.forEach(i=>{
+        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',total:0};
+        tots[i.n].total+=i.pp*p;
+      });
+    });
+  });
+
+  // Menuoverzicht per dag
+  const menuLines=getDays().map(d=>{
+    const k=S.keuken[d]||{};const m=S.menu[d]||{};
+    const av=S.av[d]||{};let tot=0;
+    S.setup.takken.forEach(t=>tot+=av[t.id]||0);tot+=av['kp']||0;
+    if(tot<1)return null;
+    const mid=k.mid||'-';const avnd=k.av||'-';
+    const on=(m.on&&m.on.ma)||'Standaard ontbijt';
+    const uu=(m.uu&&m.uu.ma)||'';const des=(m.des&&m.des.ma)||'';
+    return `${fD(d)}: ${tot}p | Ontbijt: ${on} | Middag: ${mid} | Avond: ${avnd}${uu?' | 4u: '+uu:''}${des?' | Dessert: '+des:''}`;
+  }).filter(Boolean);
+
+  // Ingrediëntenlijst
+  const ingLines=Object.values(tots).map(i=>`${i.n}: ${fmtQ(i.total,i.u)} (${i.sup})`);
+
+  const prompt=`Je bent assistent voor een scoutskamp in Kasterlee (14-28 juli 2026) voor de 8ste FOS 't Vloedgat. Je helpt de kookverantwoordelijke een volledige bestellijst opmaken.
+
+MENU PER DAG (met aanwezigen):
+${menuLines.join('\n')}
+
+BEREKENDE INGREDIËNTEN (inclusief ${marge}% veiligheidsmarge, uit maaltijdrecepten):
+${ingLines.length?ingLines.join('\n'):'(geen maaltijden met ingrediënten ingepland)'}
+
+STANDAARD DAGELIJKSE ITEMS (niet in bovenstaande lijst):
+- Ontbijt: boterhammen (~3/persoon), choco/confituur/hagelslag (~50g/persoon/dag), cornflakes (~40g), melk (~0.25L), fruitsap (~0.15L), chocopoeder
+- Middag boterhammen: boterhammen (~4/persoon), kaas (~40g), hesp (~30g), salami (~20g), mayonaise, mosterd
+
+Maak een volledige, gestructureerde bestellijst in het Nederlands met deze secties:
+
+## 🟡 Solucious (online bestellen vóór het kamp)
+Artikelen die via Solucious besteld worden. Geef aantallen in verpakkingseenheden.
+
+## 🔴 Slager / lokaal
+Vers vlees, charcuterie. Geef per soort het totaal gewicht en wanneer op te halen.
+
+## 🟢 Supermarkt
+Zuivel, groenten, droge waren, brood. Groepeer per categorie. Geef bulktips waar zinvol.
+
+## 🍞 Bakkerij
+Brood per dag (aantal broden). Geef aan wanneer te bestellen.
+
+## 💡 Tips & aandachtspunten
+Max 5 praktische tips voor de inkoop (wat vooraf, wat ter plaatse, bulkvoordelen).
+
+Wees concreet met hoeveelheden. Gebruik de ${marge}% marge consequent.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const txt=data.content&&data.content[0]&&data.content[0].text;
+    if(!txt)throw new Error('Geen antwoord van AI');
+
+    // Render markdown
+    const html=txt
+      .replace(/^## (.+)$/gm,'<h3 style="color:#1b3a6b;margin:18px 0 8px;border-bottom:2px solid #c8a951;padding-bottom:4px;">$1</h3>')
+      .replace(/^### (.+)$/gm,'<h4 style="color:#1b3a6b;margin:12px 0 6px;">$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/^- (.+)$/gm,'<li style="margin:3px 0;padding-left:4px;">$1</li>')
+      .replace(/(<li.*<\/li>\n?)+/g,'<ul style="margin:6px 0 10px 16px;list-style:disc;">$&</ul>')
+      .replace(/\n\n/g,'<br>');
+
+    res.innerHTML=`<div class="card"><div class="ch" style="justify-content:space-between;">
+      <h3>🤖 AI Bestellijst — ${marge}% marge</h3>
+      <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('ai-raw').value);this.textContent='✓ Gekopieerd';setTimeout(()=>this.textContent='📋 Kopieer tekst',2000)">📋 Kopieer tekst</button>
+    </div>
+    <div class="cb" style="padding:16px 20px;line-height:1.7;font-size:14px;">${html}</div>
+    <textarea id="ai-raw" style="display:none;">${txt.replace(/</g,'&lt;')}</textarea></div>`;
+  }catch(e){
+    res.innerHTML=`<div class="card"><div class="cb" style="padding:16px;color:#dc2626;">⚠️ Fout bij genereren: ${e.message}</div></div>`;
+  }
+}
+
+async function sbLoad(){
+  setSS('busy','laden...');
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer?id=eq.${SB_ID}&select=data`,{headers:HDR});
+    if(!r.ok)throw new Error(r.status);
+    const rows=await r.json();
+    if(rows&&rows.length&&rows[0].data){
+      S=rows[0].data;
+      if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+      if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};seedRecepten();if(Object.keys(S.prijzen).length===0&&typeof SEED_PRIJZEN!=='undefined'){Object.entries(SEED_PRIJZEN).forEach(function(e){S.prijzen[e[0]]={p:e[1].p,datum:e[1].d,naam:''};});}if(!S.ingprijzen)S.ingprijzen={};if(typeof SEED_INGPRIJZEN!=='undefined'){Object.entries(SEED_INGPRIJZEN).forEach(function(e){if(!S.ingprijzen[e[0]])S.ingprijzen[e[0]]={p:e[1].p,u:e[1].u};});}
+      // Ontbijt & middag: standaard op elke kampdag (tenzij anders ingevuld) + propere namen
+      if(!S.menu)S.menu={};getDays().forEach(function(d){
+        if(!S.menu[d])S.menu[d]={};
+        if(S.menu[d].on===undefined)S.menu[d].on={ma:'🍞 Standaard ontbijt'};
+        if(S.menu[d].mi===undefined)S.menu[d].mi={ma:'🥪 Boterhammen middag'};
+        if(S.menu[d].uu===undefined)S.menu[d].uu={ma:'🍪 Vieruurtje'};
+        ['on','mi','uu'].forEach(function(k){var cur=S.menu[d][k]&&S.menu[d][k].ma;if(cur){var r=recByName(cur);if(r&&r.nm!==cur)S.menu[d][k].ma=r.nm;}});
+      });
+      localStorage.setItem('kamp26_cache',JSON.stringify(S)); // cache opslaan
+      setSS('ok','gesynchroniseerd');
+    } else await sbWrite();
+  }catch(e){
+    // Offline — probeer cache
+    const cached=localStorage.getItem('kamp26_cache');
+    if(cached){try{S=JSON.parse(cached);setSS('err','offline \u2014 cached data');}catch(_){setSS('err','offline \u2014 lokaal');}}
+    else{setSS('err','offline \u2014 lokaal');}
+  }
+  // Eenmalige sync menu→keuken voor bestaande data
+  if(S.menu){Object.keys(S.menu).forEach(d=>{const m=S.menu[d]||{};if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(m.av&&m.av.ma&&!S.keuken[d].av)S.keuken[d].av=m.av.ma;if(m.mi&&m.mi.ma&&!S.keuken[d].mid)S.keuken[d].mid=m.mi.ma;});}
+  loadSU();syncAVFromSetup(false);
+}
+async function sbWrite(){
+  setSS('busy','opslaan...');
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer`,{method:'POST',headers:{...HDR,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:SB_ID,data:S,updated_at:new Date().toISOString()})});
+    if(!r.ok)throw new Error(r.status);
+    setSS('ok','opgeslagen \u2713');setTimeout(()=>setSS('ok','gesynchroniseerd'),2000);
+  }catch(e){setSS('err','sync mislukt');}
+}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+
+const DNL=['zo','ma','di','wo','do','vr','za'];
+function fmt(n){if(n==null||isNaN(n))return'\u2014';return'\u20ac\u00a0'+Number(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtQ(v,u){
+  if(u==='st'||u==='snee')return Math.ceil(v)+'';
+  if(v>=1000&&(u==='g'||u==='ml'))return(v/1000).toLocaleString('nl-BE',{minimumFractionDigits:1,maximumFractionDigits:2}).replace(/,?0+$/, '')+(u==='g'?' kg':' L');
+  return Math.ceil(v)+(u==='g'?' g':u==='ml'?' ml':' '+u);
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function getDays(){if(!S.setup.st||!S.setup.ei)return[];const d=[],e=new Date(S.setup.ei);let c=new Date(S.setup.st);while(c<=e){d.push(c.toISOString().slice(0,10));c=new Date(c);c.setDate(c.getDate()+1);}return d;}
+function fD(iso){const d=new Date(iso+'T12:00:00');return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
+function nights(a,b){if(!a||!b)return 0;return Math.max(0,(new Date(b)-new Date(a))/86400000);}
+function refCat(c){return REF_TOT[c]||0;}
+function getPorties(d,marge){
+  const av=S.av[d]||{};let p=0;
+  S.setup.takken.forEach(t=>{p+=(av[t.id]||0)*getTF(t.id);});
+  p+=(av['kp']||0)*1.05; // kookploeg factor zelfde als leiding
+  return p*(1+(marge||0)/100);
+}
+function calcTerrein(){
+  const tr=S.setup.terrein||{};let tot=0;const rows=[];
+  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,eff,useMin});});
+  return{rows,dagtot:tot,netto:tot+(tr.borg||0)-(tr.sub||0),borg:tr.borg||0,sub:tr.sub||0};
+}
+function updateTerreinPreview(){
+  const r=S.setup.terrein||{},res=calcTerrein();const empty=res.rows.every(r=>r.tot===0);
+  document.getElementById('terr-preview').innerHTML=empty?`Formule: max(${fmt(r.r)} \xd7 aanwezigen, ${fmt(r.min)}) per dag \u2212 subsidie ${fmt(r.sub)}`:`<strong>Berekende terreinprijs:</strong> ${res.rows.length} dagen = ${fmt(res.dagtot)} \u2212 subsidie ${fmt(res.sub)} = <strong>${fmt(res.dagtot-res.sub)}</strong> <span style="font-size:11px;color:#888;">(borg ${fmt(res.borg)} terugbetaalbaar, niet meegerekend)</span>`;
+}
+
+const TAB_GROUPS={
+  administratie:{children:[['budget','💰 Budget'],['av','👥 Aanwezigheden'],['aankopen','🛒 Aankopen'],['vervoer','🚗 Vervoerskosten']]},
+  kampkost:{children:[['keuken','🍳 Keuken'],['menu','📋 Menu'],['recepten','🍲 Recepten']]}
+};
+function tabGroupOf(tab){for(const g in TAB_GROUPS){if(TAB_GROUPS[g].children.some(c=>c[0]===tab))return g;}return null;}
+function activateTab(tab){
+  const group=tabGroupOf(tab);
+  document.querySelectorAll('#tabs .tb').forEach(b=>b.classList.toggle('act',(b.dataset.tab&&b.dataset.tab===tab)||(b.dataset.group&&b.dataset.group===group)));
+  const sub=document.getElementById('subtabs');
+  if(group){sub.style.display='flex';sub.innerHTML=TAB_GROUPS[group].children.map(c=>`<button class="stb${c[0]===tab?' act':''}" data-tab="${c[0]}">${c[1]}</button>`).join('');TAB_GROUPS[group].last=tab;}
+  else{sub.style.display='none';sub.innerHTML='';}
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('act',p.id==='p-'+tab));
+  if(tab==='av')renderAV();if(tab==='menu')renderMenu();if(tab==='keuken'){renderKeuken();renderBak();}
+  if(tab==='recepten')renderRecepten();
+  if(tab==='prikbord')renderPrikbord();
+  if(tab==='aankopen'){renderAankopen();renderRef();}if(tab==='vervoer')renderVer();if(tab==='budget')renderBudget();
+}
+function activateGroup(group){const g=TAB_GROUPS[group];activateTab(g.last||g.children[0][0]);}
+document.getElementById('tabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.tb');if(!btn)return;
+  if(btn.dataset.group)activateGroup(btn.dataset.group);
+  else if(btn.dataset.tab)activateTab(btn.dataset.tab);
+});
+document.getElementById('subtabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.stb');if(!btn)return;activateTab(btn.dataset.tab);
+});
+
+function loadSU(){
+  const s=S.setup;
+  document.getElementById('s-nm').value=s.nm||'';document.getElementById('s-st').value=s.st||'';document.getElementById('s-ei').value=s.ei||'';
+  document.getElementById('s-eb').value=s.eb;document.getElementById('s-sp').value=s.sp;document.getElementById('s-ld').value=s.ld;document.getElementById('s-lb').value=s.lb;
+  const tr=s.terrein||{};document.getElementById('tr-r').value=tr.r;document.getElementById('tr-m').value=tr.min;document.getElementById('tr-b').value=tr.borg;document.getElementById('tr-s').value=tr.sub;
+  const _hnm=document.getElementById('hnm');if(_hnm)_hnm.textContent=s.nm||'';rTk();rVK();rVarK();rKP();updateTerreinPreview();
+}
+function saveSU(){
+  const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
+  s.eb=+document.getElementById('s-eb').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
+  s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
+  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';updateTerreinPreview();syncAVFromSetup(false);
+  if(document.getElementById('p-budget').classList.contains('act'))renderBudget();
+  save();
+}
+function rTk(){
+  const tb=document.getElementById('tk-body');tb.innerHTML='';let tT=0,iT=0;
+  S.setup.takken.forEach((t,i)=>{tT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${t.nm}" onchange="uTk(${i},'nm',this.value)"></td><td><input type="number" value="${t.tot||0}" onchange="uTk(${i},'tot',+this.value)"></td><td><input type="number" value="${t.ins||0}" onchange="uTk(${i},'ins',+this.value)"></td><td style="color:${clr};font-weight:600;font-size:12px;">${t.tot?dp+'%':'\u2014'}</td><td><input type="date" value="${t.aa}" style="width:130px" onchange="uTk(${i},'aa',this.value)"></td><td><input type="date" value="${t.vt}" style="width:130px" onchange="uTk(${i},'vt',this.value)"></td><td><input type="number" value="${t.kp}" step="5" style="width:75px" onchange="uTk(${i},'kp',+this.value)"></td><td style="text-align:center;"><input type="checkbox" ${t.sg!==false?'checked':''} onchange="uTk(${i},'sg',this.checked)" title="Ontvangt speelgeld"></td><td style="text-align:center;"><input type="checkbox" ${t.eet!==false?'checked':''} onchange="uTk(${i},'eet',this.checked)" title="Telt mee in eetbudget"></td><td><button class="btn btn-bad" onclick="dTk(${i})">&#x2715;</button></td>`;
+    tb.appendChild(tr);});
+  const tp=tT?Math.round(iT/tT*100):0;
+  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${tT}</td><td class="tr">${iT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="4"></td>`;
+}
+function syncTakAV(t){
+  getDays().forEach(function(d){
+    if(!S.av[d])S.av[d]={};
+    var inRange=(t.aa&&t.vt)?(d>=t.aa&&d<=t.vt):true;
+    S.av[d][t.id]=inRange?(parseInt(t.ins)||0):0;
+  });
+  if(document.getElementById('p-av').classList.contains('act'))renderAV();
+}
+function uTk(i,f,v){S.setup.takken[i][f]=v;if(f==='ins'||f==='aa'||f==='vt'){syncTakAV(S.setup.takken[i]);}else{syncAVFromSetup(false);}rTk();if(document.getElementById('p-budget').classList.contains('act'))renderBudget();save();}
+function addTak(){S.setup.takken.push({id:uid(),nm:'Nieuwe tak',tot:0,ins:0,aa:S.setup.st,vt:S.setup.ei,kp:0});rTk();save();}
+function dTk(i){if(!confirm('Tak verwijderen?'))return;S.setup.takken.splice(i,1);rTk();save();}
+function rVK(){
+  const tb=document.getElementById('vk-body');tb.innerHTML='';let b=0,s=0;
+  S.setup.vk.forEach((k,i)=>{b+=k.b||0;s+=k.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVK(${i},'om',this.value)" style="min-width:150px"></td><td class="tr"><input type="number" value="${k.b}" step="10" onchange="uVK(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${k.s}" step="10" onchange="uVK(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((k.b||0)-(k.s||0))}</td><td><button class="btn btn-bad" onclick="dVK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
+  document.getElementById('vk-b').textContent=fmt(b);document.getElementById('vk-s').textContent=fmt(s);document.getElementById('vk-n').textContent=fmt(b-s);
+}
+function uVK(i,f,v){S.setup.vk[i][f]=v;rVK();save();}function addVK(){S.setup.vk.push({id:uid(),om:'',b:0,s:0});rVK();save();}function dVK(i){S.setup.vk.splice(i,1);rVK();save();}
+function rVarK(){
+  const tb=document.getElementById('vark-body');tb.innerHTML='';let t=0;
+  S.setup.vark.forEach((k,i)=>{t+=k.r||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVarK(${i},'om',this.value)" style="min-width:180px"></td><td class="tr"><input type="number" value="${k.r}" step="10" onchange="uVarK(${i},'r',+this.value)"></td><td><button class="btn btn-bad" onclick="dVarK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
+  document.getElementById('vark-t').textContent=fmt(t);
+}
+function uVarK(i,f,v){S.setup.vark[i][f]=v;rVarK();save();}function addVarK(){S.setup.vark.push({id:uid(),om:'',r:0});rVarK();save();}function dVarK(i){S.setup.vark.splice(i,1);rVarK();save();}
+
+// Auto-sync aanwezigen vanuit setup
+// force=false: vult alleen lege cellen; force=true: overschrijft alles
+function syncAVFromSetup(force){
+  const days=getDays();
+  days.forEach(d=>{
+    if(!S.av[d])S.av[d]={};
+    S.setup.takken.forEach(t=>{
+      // Dag valt binnen aankomst-vertrek van deze tak?
+      const inRange=t.aa&&t.vt&&d>=t.aa&&d<=t.vt;
+      const isEmpty=!S.av[d][t.id]&&S.av[d][t.id]!==0||(S.av[d][t.id]===0&&!force);
+      // Zet waarde als: in range én (leeg of force)
+      if(inRange&&(force||S.av[d][t.id]==null||S.av[d][t.id]===undefined)){
+        S.av[d][t.id]=t.ins||0;
+      } else if(!inRange&&force){
+        // Buiten range: op 0 zetten bij force reset
+        S.av[d][t.id]=0;
+      }
+    });
+    // kookploeg — altijd herberekenen want volledig afgeleid uit setup
+    const kpAanwezig=(S.setup.kookploeg&&S.setup.kookploeg.leden||[]).filter(k=>k.aa&&k.vt&&d>=k.aa&&d<=k.vt).length;
+    S.av[d]['kp']=kpAanwezig;
+  });
+  if(document.getElementById('p-av').classList.contains('act'))renderAV();
+}
+function kpDagen(k){if(!k.aa||!k.vt)return 0;return Math.max(0,Math.round((new Date(k.vt)-new Date(k.aa))/86400000)+1);}
+function kpBijdrage(k){const kpCfg=S.setup.kookploeg||{tarief:10,max:50};return Math.min(kpDagen(k)*(kpCfg.tarief||10),(kpCfg.max||50));}
+function saveKP(){
+  if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+  S.setup.kookploeg.tarief=+document.getElementById('kp-tarief').value||10;
+  S.setup.kookploeg.max=+document.getElementById('kp-max').value||50;
+  rKP();syncAVFromSetup(false);save();
+}
+function rKP(){
+  if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+  const kp=S.setup.kookploeg;
+  document.getElementById('kp-tarief').value=kp.tarief||10;
+  document.getElementById('kp-max').value=kp.max||50;
+  const tb=document.getElementById('kp-body');tb.innerHTML='';let tot=0;
+  const len=(kp.leden||[]).length;
+  (kp.leden||[]).forEach((k,i)=>{
+    const d=kpDagen(k),b=kpBijdrage(k);tot+=b;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${k.naam||''}" placeholder="Naam" style="min-width:120px" onchange="uKP(${i},'naam',this.value)"></td><td><input type="date" value="${k.aa||''}" style="width:130px" onchange="uKP(${i},'aa',this.value)"></td><td><input type="date" value="${k.vt||''}" style="width:130px" onchange="uKP(${i},'vt',this.value)"></td><td class="tr">${d}</td><td class="tr tw5">${fmt(b)}</td><td style="white-space:nowrap;"><button class="btn lockhide" onclick="kpMove(${i},-1)" title="Omhoog"${i===0?' disabled':''}>&#x25B2;</button> <button class="btn lockhide" onclick="kpMove(${i},1)" title="Omlaag"${i===len-1?' disabled':''}>&#x25BC;</button> <button class="btn btn-bad" onclick="dKP(${i})">&#x2715;</button></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('kp-tot').textContent=fmt(tot);
+}
+function uKP(i,f,v){S.setup.kookploeg.leden[i][f]=v;rKP();syncAVFromSetup(false);save();}
+function kpInsertSorted(p){var L=S.setup.kookploeg.leden;var i=L.indexOf(p);if(i>=0)L.splice(i,1);var aa=p.aa||'';var pos=L.findIndex(function(k){return String(k.aa||'')>aa;});if(pos<0)pos=L.length;L.splice(pos,0,p);}
+function kpSort(){var L=S.setup.kookploeg.leden||[];L.sort(function(a,b){return String(a.aa||'').localeCompare(String(b.aa||''));});rKP();save();}
+function kpMove(i,dir){var L=S.setup.kookploeg.leden;var j=i+dir;if(j<0||j>=L.length)return;var t=L[i];L[i]=L[j];L[j]=t;rKP();save();}
+function addKP(){if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};var p={id:uid(),naam:'',aa:S.setup.st,vt:S.setup.ei};S.setup.kookploeg.leden.push(p);kpInsertSorted(p);rKP();save();}
+function dKP(i){S.setup.kookploeg.leden.splice(i,1);rKP();syncAVFromSetup(false);save();}
+function renderAV(){
+  const days=getDays(),tak=S.setup.takken;
+  document.getElementById('av-hd').innerHTML='<th>Dag</th>'+tak.map(t=>`<th>${t.nm}</th>`).join('')+'<th>Kookploeg</th><th class="tr">Totaal</th>';
+  const bd=document.getElementById('av-bd');bd.innerHTML='';const tots={tt:0};tak.forEach(t=>tots[t.id]=0);
+  days.forEach(d=>{const av=S.av[d]||{};let dt=0;let cells=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td>`;
+    tak.forEach(t=>{const v=av[t.id]||0;dt+=v;tots[t.id]+=v;cells+=`<td><input type="number" min="0" value="${v}" style="width:55px" onchange="uAV('${d}','${t.id}',+this.value)"></td>`;});
+    const kpv=av['kp']||0;dt+=kpv;tots['kp']=(tots['kp']||0)+kpv;
+    cells+=`<td><input type="number" min="0" value="${kpv}" style="width:55px" onchange="uAV('${d}','kp',+this.value)"></td>`;
+    tots.tt+=dt;cells+=`<td class="tr tw5">${dt}</td>`;const tr=document.createElement('tr');tr.innerHTML=cells;bd.appendChild(tr);});
+  document.getElementById('av-ft').innerHTML='<td><strong>Totaal</strong></td>'+tak.map(t=>`<td class="tr">${tots[t.id]}</td>`).join('')+`<td class="tr">${tots['kp']||0}</td><td class="tr tw5">${tots.tt}</td>`;
+  updateTerreinPreview();
+}
+function uAV(d,f,v){if(!S.av[d])S.av[d]={};S.av[d][f]=v;save();renderAV();}
+// ---- Printbare overzichten (aanwezigheden + menu) ----
+function printDoc(title,inner,landscape){
+  var css='@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:12mm;}'
+    +'*{box-sizing:border-box;}body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;}'
+    +'h1{font-size:18px;margin:0 0 2px;}.sub{color:#555;font-size:12px;margin:0 0 12px;}'
+    +'table{border-collapse:collapse;width:100%;font-size:12px;}'
+    +'th,td{border:1px solid #999;padding:5px 7px;text-align:center;vertical-align:top;}'
+    +'th{background:#eee;}td.l,th.l{text-align:left;}tr.tot td{font-weight:bold;background:#f5f5f5;}'
+    +'.tot-col{font-weight:bold;}.note{color:#666;font-size:10px;margin-top:3px;line-height:1.3;font-weight:normal;}';
+  var doc='<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+css+'</style></head><body>'+inner+'</body></html>';
+  var ifr=document.createElement('iframe');ifr.setAttribute('aria-hidden','true');
+  ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(ifr);
+  var d=ifr.contentWindow.document;d.open();d.write(doc);d.close();
+  setTimeout(function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){alert('Afdrukken kon niet automatisch starten.');}
+    setTimeout(function(){if(ifr.parentNode)ifr.parentNode.removeChild(ifr);},3000);},350);
+}
+var NLDAG=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+function wkdag(iso){return NLDAG[new Date(iso+'T12:00:00').getDay()];}
+function printAV(){
+  var days=getDays(),tak=S.setup.takken||[];
+  if(!days.length){alert('Stel eerst de start- en einddatum van het kamp in (Setup).');return;}
+  var head='<tr><th class="l">Dag</th>'+tak.map(function(t){return '<th>'+esc(t.nm)+'</th>';}).join('')+'<th>Kookploeg</th><th>Totaal</th></tr>';
+  var tots={tt:0,kp:0};tak.forEach(function(t){tots[t.id]=0;});
+  var body=days.map(function(d){
+    var av=S.av[d]||{},dt=0,cells='<td class="l">'+wkdag(d)+' '+fD(d)+'</td>';
+    tak.forEach(function(t){var v=av[t.id]||0;dt+=v;tots[t.id]+=v;cells+='<td>'+(v||'')+'</td>';});
+    var kpv=av.kp||0;dt+=kpv;tots.kp+=kpv;tots.tt+=dt;
+    cells+='<td>'+(kpv||'')+'</td><td class="tot-col">'+dt+'</td>';
+    return '<tr>'+cells+'</tr>';
+  }).join('');
+  var foot='<tr class="tot"><td class="l">Totaal</td>'+tak.map(function(t){return '<td>'+tots[t.id]+'</td>';}).join('')+'<td>'+tots.kp+'</td><td>'+tots.tt+'</td></tr>';
+  var title=(S.setup.nm||'Kamp')+' \u2014 Overzicht aanwezigheden';
+  var sub='Aantal aanwezigen per dag (incl. leiding en kookploeg) \u00b7 '+fD(S.setup.st)+' \u2013 '+fD(S.setup.ei);
+  printDoc(title,'<h1>'+esc(title)+'</h1><p class="sub">'+esc(sub)+'</p><table><thead>'+head+'</thead><tbody>'+body+foot+'</tbody></table>',true);
+}
+function printMenu(){
+  var days=getDays();
+  if(!days.length){alert('Stel eerst de start- en einddatum van het kamp in (Setup).');return;}
+  function meal(m,k){var o=m&&m[k];return o&&o.ma?esc(cleanName(o.ma)):'';}
+  var body=days.map(function(d){
+    var m=S.menu[d]||{};
+    var avNote=(m.av&&m.av.nt)?'<div class="note">'+esc(m.av.nt).replace(/\n/g,'<br>')+'</div>':'';
+    return '<tr><td class="l"><strong>'+wkdag(d)+'</strong><br>'+fD(d)+'</td>'
+      +'<td class="l">'+meal(m,'on')+'</td><td class="l">'+meal(m,'mi')+'</td>'
+      +'<td class="l">'+meal(m,'uu')+'</td><td class="l">'+meal(m,'av')+avNote+'</td>'
+      +'<td class="l">'+meal(m,'des')+'</td></tr>';
+  }).join('');
+  var title=(S.setup.nm||'Kamp')+' \u2014 Menu';
+  var sub=fD(S.setup.st)+' \u2013 '+fD(S.setup.ei);
+  printDoc(title,'<h1>'+esc(title)+'</h1><p class="sub">'+esc(sub)+'</p><table><thead><tr><th class="l">Dag</th><th class="l">Ontbijt</th><th class="l">Middag</th><th class="l">Vieruurtje</th><th class="l">Avond</th><th class="l">Dessert</th></tr></thead><tbody>'+body+'</tbody></table>',false);
+}
+
+// KEUKEN
+function renderKeuken(){
+  if(!S.keuken)S.keuken={};
+  const days=getDays();
+  const bd=document.getElementById('k-plan-bd');bd.innerHTML='';
+  days.forEach(d=>{
+    const m=S.menu[d]||{};const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);n+=(av['kp']||0);
+    const avnd=(m.av&&m.av.ma)||'';const uu=(m.uu&&m.uu.ma)||'';const des=(m.des&&m.des.ma)||'';
+    const chip=v=>v?`<span style="background:#e8edf5;padding:3px 8px;border-radius:4px;font-size:12px;color:#1b3a6b;">${cleanName(v)}</span>`:`<span style="color:#bbb;font-size:12px;">—</span>`;
+    const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.onclick=function(){var ds=document.getElementById('k-sel-dag');ds.value=d;renderKD();var det=document.getElementById('k-detail-cb');if(det)det.scrollIntoView({behavior:'smooth',block:'nearest'});bd.querySelectorAll('tr').forEach(function(x){x.style.background='';});tr.style.background='#eff6ff';};
+    tr.innerHTML=`<td style="white-space:nowrap;font-weight:600;">${fD(d)}</td><td class="tr">${n||'—'}</td><td>${chip(avnd)}</td><td>${chip(uu)}</td><td>${chip(des)}</td>`;
+    bd.appendChild(tr);
+  });
+  // dag selector — toon dagen met menu
+  const ds=document.getElementById('k-sel-dag');const prev=ds.value;
+  ds.innerHTML='<option value="">Kies dag</option>';
+  days.forEach(d=>{const m=S.menu[d]||{};if((m.mi&&m.mi.ma)||(m.av&&m.av.ma))ds.innerHTML+=`<option value="${d}">${fD(d)}</option>`;});
+  if(prev)ds.value=prev;
+  renderKD();renderSL();
+  const ds2=document.getElementById('k-day-sel');const prev2=ds2.value;
+  ds2.innerHTML='<option value="">— kies dag —</option>';
+  getDays().forEach(d=>ds2.innerHTML+=`<option value="${d}">${fD(d)}</option>`);
+  if(prev2)ds2.value=prev2;
+  renderDaySL();
+}
+function uK(d,slot,val){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};S.keuken[d][slot]=val;
+  // Sync naar menu
+  if(!S.menu[d])S.menu[d]={};const meal=slot==='av'?'av':'mi';if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal]['ma']=val;
+  save();renderKeuken();}
+
+function renderKD(){
+  const d=document.getElementById('k-sel-dag').value;
+  const marge=+document.getElementById('k-marge').value||0;
+  const cb=document.getElementById('k-detail-cb');
+  if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Selecteer een dag.</p>';return;}
+  const m=S.menu[d]||{};
+  const mid=(m.mi&&m.mi.ma)||'';const avnd=(m.av&&m.av.ma)||'';const des=(m.des&&m.des.ma)||'';const on=(m.on&&m.on.ma)||'';const uu=(m.uu&&m.uu.ma)||'';
+  const slots=[{s:'on',l:'Ontbijt',nm:on},{s:'mid',l:'Middag',nm:mid},{s:'uu',l:'4-uurtje',nm:uu},{s:'av',l:'Avond',nm:avnd},{s:'des',l:'Dessert',nm:des}].filter(x=>x.nm);
+  if(!slots.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Geen maaltijden gepland op deze dag.</p>';return;}
+  const p=getPorties(d,marge);const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);n+=(av['kp']||0);
+  const eb=Number(S.setup.eb)||10;
+  if(!S.evaluatie)S.evaluatie={};if(!S.evaluatie[d])S.evaluatie[d]={};
+  let html=`<div class="portie-bar">📅 ${fD(d)} \u2014 <strong>${n} aanwezigen</strong> \u2192 <strong>${p.toFixed(1)} gewogen porties</strong> <span style="color:#666;font-size:12px;">(+${marge}% marge \u2022 kleintjes 65% \u2022 middenbouw 80% \u2022 groot/leiding 100-105%)</span></div>`;
+  let dagKostPP=0,dagVolledig=true;const overantw=[];
+  slots.forEach(({s,l,nm})=>{
+    const meal=recByName(nm);
+    if(!meal){
+      dagVolledig=false;
+      html+=`<div class="kd-meal"><div class="kd-meal-hd slot-lbl" onclick="this.parentElement.classList.toggle('open')"><span>${l}: ${cleanName(nm)} <span style="font-weight:400;color:#b45309;text-transform:none;letter-spacing:0;">\u2014 geen recept, prijs onbekend</span></span><span class="kd-chev">\u25be</span></div><div class="kd-meal-body"><div class="tip-box" style="background:#fffbeb;border-color:#fde68a;">Geen recept gekoppeld aan "${cleanName(nm)}". Kies een dessert uit de lijst in de Menu-tab, of voeg "${cleanName(nm)}" toe in de Recepten-tab \u2014 dan tellen de hoeveelheden en de kost mee.</div></div></div>`;
+      return;
+    }
+    let mealPP=0,known=0;const total=meal.ing.length;
+    meal.ing.forEach(i=>{const c=ingCostPP(i);if(c!=null){mealPP+=c;known++;}});
+    dagKostPP+=mealPP;if(known<total)dagVolledig=false;
+    html+=`<div class="kd-meal"><div class="kd-meal-hd slot-lbl" onclick="this.parentElement.classList.toggle('open')"><span>${l}: ${cleanName(nm)}${known?` <span style="font-weight:400;color:#1b3a6b;text-transform:none;letter-spacing:0;">\u2248 ${fmt(mealPP)}/pers${known<total?` <span style="color:#999;">(${known}/${total} geprijsd)</span>`:''}</span>`:''}</span><span class="kd-chev">\u25be</span></div><div class="kd-meal-body">`;
+    if(meal.tip)html+=`<div class="tip-box">💡 ${meal.tip}</div>`;
+    html+='<div class="ing-grid">';
+    meal.ing.forEach(i=>{
+      const amt=i.pp*p;const si=i.sol?SOL[i.sol]:null;
+      let sh='';
+      if(si){const pkgs=Math.ceil(amt/si.vpv);sh=`<div class="ing-sol">art.${si.art} \u2014 ${pkgs}\u00d7 ${si.nm}</div>`;}
+      const cpp=ingCostPP(i);
+      if(cpp!=null){
+        const tot=cpp*p;const share=mealPP?cpp/mealPP:0;const cov=total?known/total:0;
+        const over=cpp>0.5&&share>0&&share<0.40&&cov>=0.5;
+        if(over)overantw.push(`${i.n} (${fmt(tot)})`);
+        sh+=`<div class="ing-cost${over?' ing-cost-warn':''}">${over?'\u26a0\ufe0f ':''}${fmt(cpp)}/pers \u2192 ${fmt(tot)}${share?` \u2022 ${Math.round(share*100)}%`:''}</div>`;
+      }else{
+        sh+=`<div class="ing-cost ing-cost-unknown">prijs onbekend</div>`;
+      }
+      html+=`<div class="ing-card"><div class="ing-nm">${i.n}</div><div><span class="ing-am">${fmtQ(amt,i.u)}</span></div>${sh}${i.note?`<div class="ing-note">${i.note}</div>`:''}</div>`;
+    });
+    html+='</div>';
+    const ev=S.evaluatie[d][meal.id]||{};
+    html+=`<div class="eval-box"><div class="eval-h">📝 Na de maaltijd \u2014 wat bleef over / kwam tekort?</div><textarea class="eval-note" placeholder="bv. 7 worsten over, appelmoes net tekort" onchange="uEval('${d}','${meal.id}',this.value)">${(ev.note||'').replace(/</g,'&lt;')}</textarea></div>`;
+    html+='</div></div>';
+  });
+  const cls=dagKostPP>eb?'day-cost-warn':'day-cost-ok';
+  let banner=`<div class="${cls}">💶 Geschatte foodkost deze dag: <strong>${fmt(dagKostPP)}/persoon</strong> ${dagVolledig?'':'<span style="opacity:.75;">(onvolledig \u2014 nog niet alles geprijsd; importeer Solucious-bestellingen om de prijzen aan te vullen)</span>'} \u2014 richtbudget ${fmt(eb)}/persoon. ${dagKostPP>eb?'\u26a0\ufe0f boven budget':'\u2713 binnen budget'}`;
+  if(overantw.length)banner+=`<div style="margin-top:6px;font-size:12px;">\u26a0\ufe0f Overantwoorde kost: ${overantw.join(', ')} \u2014 overweeg minder of te schrappen.</div>`;
+  banner+='</div>';
+  cb.innerHTML=banner+html;
+}
+function uEval(d,rid,note){
+  if(!S.evaluatie)S.evaluatie={};if(!S.evaluatie[d])S.evaluatie[d]={};
+  const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);n+=(av['kp']||0);
+  S.evaluatie[d][rid]={...(S.evaluatie[d][rid]||{}),note:note,aanwezigen:n};
+  save();
+}
+
+// ---- Bewerkbare recepten ----
+const REC_CATS=[
+  {key:'ontbijt',label:'🍞 Ontbijt'},
+  {key:'middag',label:'🥪 Middag'},
+  {key:'vieruurtje',label:'🍪 4-uurtje'},
+  {key:'avond',label:'🍽️ Avond'},
+  {key:'dessert',label:'🍰 Dessert'},
+];
+const REC_UNITS=['g','ml','st'];
+function recipeCostPP(r){let s=0;r.ing.forEach(i=>{const c=ingCostPP(i);if(c!=null)s+=c;});return s;}
+function renderRecepten(){
+  seedRecepten();
+  const bd=document.getElementById('rec-bd');if(!bd)return;
+  const open=Array.prototype.map.call(bd.querySelectorAll('.rec-card.open'),c=>c.getAttribute('data-rid'));
+  let html='<div class="rec-tools"><span style="font-size:13px;color:#555;margin-right:4px;">Nieuw recept toevoegen:</span>';
+  REC_CATS.forEach(c=>{html+=`<button class="rec-add-btn" onclick="addRec('${c.key}')">+ ${c.label}</button>`;});
+  html+='</div>';
+  REC_CATS.forEach(cat=>{
+    const recs=S.recepten.filter(r=>recCat(r.id)===cat.key);
+    if(!recs.length)return;
+    html+=`<div class="rec-cat-h">${cat.label} <span style="color:#aaa;font-weight:400;">(${recs.length})</span></div>`;
+    recs.forEach(r=>{html+=recipeCard(r);});
+  });
+  bd.innerHTML=html;
+  open.forEach(id=>{const c=bd.querySelector('.rec-card[data-rid="'+id+'"]');if(c)c.classList.add('open');});
+}
+function recipeCard(r){
+  const esc=s=>String(s||'').replace(/"/g,'&quot;');
+  let h='<div class="rec-card" data-rid="'+r.id+'"><div class="rec-hd" onclick="this.parentElement.classList.toggle(\'open\')">';
+  h+=`<span class="rec-hd-nm">${cleanName(r.nm)}</span><span class="rec-meta">${r.ing.length} ingr. \u00b7 \u2248 ${fmt(recipeCostPP(r))}/pers</span></div>`;
+  h+='<div class="rec-body">';
+  h+=`<label class="rec-lbl">Naam</label><input class="rec-in" value="${esc(r.nm)}" onchange="uRec('${r.id}','nm',this.value)">`;
+  h+=`<label class="rec-lbl">Tip / bereiding</label><textarea class="rec-ta" onchange="uRec('${r.id}','tip',this.value)">${String(r.tip||'').replace(/</g,'&lt;')}</textarea>`;
+  h+='<label class="rec-lbl">Ingredi\u00ebnten (hoeveelheid per persoon)</label>';
+  h+='<div class="rec-tbl-w"><table class="rec-tbl"><thead><tr><th>Ingredi\u00ebnt</th><th>Per pers.</th><th>Eenheid</th><th>\u20ac/pers</th><th></th></tr></thead><tbody>';
+  r.ing.forEach((i,idx)=>{
+    const cpp=ingCostPP(i);
+    h+=`<tr><td><input class="rec-in2" value="${esc(i.n)}" onchange="uRecIng('${r.id}',${idx},'n',this.value)"></td>`+
+       `<td><input class="rec-in2 rec-num" type="number" step="any" min="0" value="${i.pp}" onchange="uRecIng('${r.id}',${idx},'pp',this.value)"></td>`+
+       `<td><select class="rec-in2" onchange="uRecIng('${r.id}',${idx},'u',this.value)">`+REC_UNITS.map(x=>`<option value="${x}"${x===i.u?' selected':''}>${x}</option>`).join('')+`</select></td>`+
+       `<td class="rec-cost">${cpp!=null?fmt(cpp):'<span class="rec-unknown">geen prijs</span>'}</td>`+
+       `<td><button class="rec-del" title="verwijder" onclick="delRecIng('${r.id}',${idx})">\u2715</button></td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  h+=`<button class="rec-add-ing" onclick="addRecIng('${r.id}')">+ ingredi\u00ebnt</button>`;
+  h+=`<div class="rec-actions"><button class="rec-dup" onclick="dupRec('${r.id}')">\u29c9 Dupliceren</button><button class="rec-delrec" onclick="delRec('${r.id}')">🗑️ Recept verwijderen</button></div>`;
+  h+='</div></div>';
+  return h;
+}
+function uRec(id,field,val){const r=recById(id);if(!r)return;r[field]=val;save();renderRecepten();}
+function uRecIng(id,idx,field,val){const r=recById(id);if(!r||!r.ing[idx])return;if(field==='pp')val=parseFloat(val)||0;r.ing[idx][field]=val;save();if(field!=='n')renderRecepten();}
+function addRecIng(id){const r=recById(id);if(!r)return;r.ing.push({n:'Nieuw ingredi\u00ebnt',u:'g',pp:0,sup:'super'});save();renderRecepten();}
+function delRecIng(id,idx){const r=recById(id);if(!r)return;r.ing.splice(idx,1);save();renderRecepten();}
+function addRec(cat){
+  const stamp=Date.now().toString(36);
+  const pre={ontbijt:'ontbijt-',middag:'middag-',vieruurtje:'uu-',dessert:'des-',avond:'avond-'}[cat]||'avond-';
+  const emo={ontbijt:'🍞',middag:'🥪',vieruurtje:'🍪',dessert:'🍰',avond:'🍽️'}[cat]||'🍽️';
+  S.recepten.push({id:pre+stamp,nm:emo+' Nieuw recept',tip:'',ing:[{n:'Ingredi\u00ebnt',u:'g',pp:0,sup:'super'}]});
+  save();renderRecepten();
+}
+function delRec(id){if(!confirm('Recept definitief verwijderen?'))return;const i=S.recepten.findIndex(r=>r.id===id);if(i>=0)S.recepten.splice(i,1);save();renderRecepten();}
+function dupRec(id){const r=recById(id);if(!r)return;const pre=(r.id.match(/^(des-|uu-|ontbijt-|middag-|avond-)/)||['',''])[1]||'avond-';const c=JSON.parse(JSON.stringify(r));c.id=pre+'kopie-'+Date.now().toString(36);c.nm=cleanName(r.nm)+' (kopie)';S.recepten.push(c);save();renderRecepten();}
+
+
+function renderSL(){
+  const marge=+document.getElementById('k-shop-marge').value||0;
+  const cb=document.getElementById('k-shop-cb');
+  const tots={};
+  getDays().forEach(d=>{
+    const mn=S.menu[d]||{};const p=getPorties(d,marge);if(p<0.1)return;
+    const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';const des=(mn.des&&mn.des.ma)||'';const on=(mn.on&&mn.on.ma)||'';const uu=(mn.uu&&mn.uu.ma)||'';
+    [on,mid,uu,avnd,des].forEach(nm=>{
+      const meal=recByName(nm);if(!meal)return;
+      meal.ing.forEach(i=>{
+        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};
+        tots[i.n].total+=i.pp*p;
+      });
+    });
+  });
+  const items=Object.values(tots);
+  if(!items.length){cb.innerHTML='<p style="color:#888;font-size:13px;">Plan eerst maaltijden in via de dagplanning.</p>';return;}
+  const g={sol:[],slager:[],super:[],bakker:[]};
+  items.forEach(it=>{(g[it.sup]||g.super).push(it);});
+  const lbl={sol:'🟡 Solucious (bestelling)',slager:'🔴 Slager / lokaal',super:'🟢 Supermarkt',bakker:'🍞 Bakkerij'};
+  let html='';
+  ['sol','slager','super','bakker'].forEach(sup=>{
+    const list=g[sup];if(!list||!list.length)return;
+    html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
+    list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      const si=it.sol?SOL[it.sol]:null;
+      let artH='',pkgH='';
+      if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
+      html+=`<div class="shop-row"><span class="shop-nm">${it.n}${artH}</span><span class="shop-amt">${fmtQ(it.total,it.u)}${pkgH}</span></div>`;
+    });
+    html+='</div>';
+  });
+  cb.innerHTML=html;
+}
+
+function renderDaySL(){
+  const d=document.getElementById('k-day-sel').value;
+  const cb=document.getElementById('k-day-cb');
+  if(!d){cb.innerHTML='<p style="color:#888;font-size:13px;">Kies een dag om de bestellijst te zien.</p>';return;}
+  const marge=+document.getElementById('k-day-marge').value||0;
+  const mn=S.menu[d]||{};
+  const mid=(mn.mi&&mn.mi.ma)||'';const avnd=(mn.av&&mn.av.ma)||'';const des=(mn.des&&mn.des.ma)||'';const on=(mn.on&&mn.on.ma)||'';const uu=(mn.uu&&mn.uu.ma)||'';
+  const p=getPorties(d,marge);
+  const tots={};
+  [on,mid,uu,avnd,des].forEach(nm=>{
+    const meal=recByName(nm);if(!meal)return;
+    meal.ing.forEach(i=>{
+      if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,meals:[]};
+      tots[i.n].total+=i.pp*p;
+      if(!tots[i.n].meals.includes(meal.nm))tots[i.n].meals.push(meal.nm);
+    });
+  });
+  const items=Object.values(tots);
+  // Toon maaltijden van de dag
+  const meals=[];
+  if(mid)meals.push({slot:'Middag',nm:cleanName(mid)});
+  if(avnd)meals.push({slot:'Avond',nm:cleanName(avnd)});
+  if(uu)meals.push({slot:'4-uurtje',nm:cleanName(uu)});
+  if(des)meals.push({slot:'Dessert',nm:cleanName(des)});
+  if(on)meals.unshift({slot:'Ontbijt',nm:cleanName(on)});
+  let html='';
+  if(meals.length){
+    html+='<div style="margin-bottom:12px;">';
+    meals.forEach(m=>html+=`<span style="display:inline-block;background:#e8edf5;color:#1b3a6b;border-radius:4px;padding:3px 10px;font-size:12px;margin-right:6px;font-weight:600;">${m.slot}: ${m.nm}</span>`);
+    html+='</div>';
+  }
+  if(!items.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Geen maaltijden gepland voor deze dag, of maaltijden zonder ingrediënten.</p>';return;}
+  const g={sol:[],slager:[],super:[],bakker:[]};
+  items.forEach(it=>{(g[it.sup]||g.super).push(it);});
+  const lbl={sol:'🟡 Solucious',slager:'🔴 Slager / lokaal',super:'🟢 Supermarkt',bakker:'🍞 Bakkerij'};
+  ['sol','slager','super','bakker'].forEach(sup=>{
+    const list=g[sup];if(!list||!list.length)return;
+    html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
+    list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      const si=it.sol?SOL[it.sol]:null;
+      let artH='',pkgH='';
+      if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
+      html+=`<div class="shop-row"><span class="shop-nm">${it.n}${artH}</span><span class="shop-amt">${fmtQ(it.total,it.u)}${pkgH}</span></div>`;
+    });
+    html+='</div>';
+  });
+  cb.innerHTML=html;
+}
+
+const VASTE_MENUS={
+  on:[],
+  mi:[],
+};
+function recCat(id){
+  id=String(id||'');
+  if(id==='ontbijt'||id.indexOf('ontbijt-')===0)return 'ontbijt';
+  if(id==='middag'||id.indexOf('middag-')===0)return 'middag';
+  if(id==='vieruurtje'||id.indexOf('uu-')===0)return 'vieruurtje';
+  if(id.indexOf('des-')===0)return 'dessert';
+  return 'avond';
+}
+function buildMenuOpts(k){
+  var opts='<option value="">\u2014 vrije keuze \u2014</option>';
+  if(VASTE_MENUS[k])VASTE_MENUS[k].forEach(function(v){opts+='<option value="'+v.nm+'">'+v.nm+'</option>';});
+  var catFor={on:'ontbijt',mi:'middag',uu:'vieruurtje',des:'dessert',av:'avond'}[k];
+  if(catFor)allRecipes().forEach(function(mx){if(recCat(mx.id)===catFor)opts+='<option value="'+mx.nm+'">'+mx.nm+'</option>';});
+  return opts;
+}
+function menuSlotHtml(d,k,l,m){
+  var opts=buildMenuOpts(k);
+  var cur=(m[k]&&m[k].ma)||'';
+  var inDropdown=allRecipes().some(function(mx){return mx.nm===cur;})||(VASTE_MENUS[k]&&VASTE_MENUS[k].some(function(v){return v.nm===cur;}));
+  var sel='<select style="width:100%;margin-bottom:4px;border:1px solid #ddd;border-radius:5px;padding:6px 8px;font-size:13px;font-family:inherit;" onchange="uMenuSel(this,\''+d+'\',\''+k+'\')">'+opts+'</select>';
+  var txt='<input type="text" placeholder="Of typ vrije naam..." value="'+(inDropdown?'':cur.replace(/"/g,'&quot;'))+'" style="width:100%;margin-bottom:6px;border:1px solid #ddd;border-radius:5px;padding:5px 8px;font-size:12px;font-family:inherit;" onchange="uMenu(\''+d+'\',\''+k+'\',\'ma\',this.value)">';
+  var nt=(m[k]&&m[k].nt)||'';
+  var ta='<textarea placeholder="Notities / ingredi\u00ebnten..." style="width:100%;border:1px solid #ddd;border-radius:5px;padding:6px 8px;font-size:12px;font-family:inherit;min-height:60px;resize:vertical;" onchange="uMenu(\''+d+'\',\''+k+'\',\'nt\',this.value)">'+nt+'</textarea>';
+  return '<div class="menu-slot"><div class="ml2">'+l+'</div>'+sel+txt+ta+'</div>';
+}
+function renderMenu(){
+  const bd=document.getElementById('menu-bd');bd.innerHTML='';
+  const GANG=[['on','🍞 Ontbijt'],['mi','🥪 Middag'],['uu','🍪 4-uurtje'],['av','🍽️ Avond'],['des','🍰 Dessert']];
+  getDays().forEach(d=>{
+    const m=S.menu[d]||{};const av=S.av[d]||{};let tot=0;S.setup.takken.forEach(t=>tot+=av[t.id]||0);tot+=(av['kp']||0);
+    const avNm=(m.av&&m.av.ma)?cleanName(m.av.ma):'';
+    const div=document.createElement('div');div.className='db';
+    const inner=GANG.map(([k,l])=>menuSlotHtml(d,k,l,m)).join('');
+    const chip=avNm?`<span class="menu-av-chip">${avNm}</span>`:`<span class="menu-av-empty">nog geen avondmaal</span>`;
+    div.innerHTML='<div class="dh" onclick="this.parentElement.classList.toggle(\'mopen\');this.nextElementSibling.classList.toggle(\'open\')"><span class="menu-dh-l"><span class="menu-dh-date">'+fD(d)+'</span>'+chip+'</span><span class="menu-dh-r">'+(tot||'geen')+' aanwezigen <span class="menu-chev">▾</span></span></div><div class="dbody">'+inner+'</div>';
+    bd.appendChild(div);
+    div.querySelectorAll('.dbody select').forEach((sel,idx)=>{
+      const k=GANG[idx][0];const cur=(m[k]&&m[k].ma)||'';
+      const inDropdown=allRecipes().some(mx=>mx.nm===cur)||(VASTE_MENUS[k]&&VASTE_MENUS[k].some(v=>v.nm===cur));
+      if(inDropdown)sel.value=cur;
+    });
+  });
+}
+function uMenuSel(sel,d,k){
+  const val=sel.value;
+  if(!val)return;
+  uMenu(d,k,'ma',val);
+  sel.nextElementSibling.value='';
+  // auto-fill notities voor vaste menu's
+  const vm=VASTE_MENUS[k]&&VASTE_MENUS[k].find(v=>v.nm===val);
+  if(vm){
+    const ta=sel.parentElement.querySelector('textarea');
+    if(ta&&!ta.value){ta.value=vm.nt;uMenu(d,k,'nt',vm.nt);}
+  }
+}function uMenu(d,meal,f,v){if(!S.menu[d])S.menu[d]={};if(!S.menu[d][meal])S.menu[d][meal]={};S.menu[d][meal][f]=v;
+  // Sync naar keuken
+  if(f==='ma'){if(!S.keuken)S.keuken={};if(!S.keuken[d])S.keuken[d]={};if(meal==='av')S.keuken[d]['av']=v;if(meal==='mi')S.keuken[d]['mid']=v;}
+  save();}
+
+function _solNum(v){
+  if(typeof v==='number')return v;
+  let s=String(v).trim();if(!s)return 0;
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');
+  else if(s.includes(','))s=s.replace(',','.');
+  const n=parseFloat(s);return isNaN(n)?0:n;
+}
+function _solISO(d){
+  const m=String(d).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(!m)return '';return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+}
+function parseSolucious(rows){
+  const norm=s=>String(s||'').trim().toLowerCase();
+  let leverdatum='',besteldatum='',totaal=0,subtotaal=0,leverkosten=0,btw=0,headerRow=-1;
+  rows.forEach((r,i)=>{r.forEach((cell,j)=>{
+    const c=norm(cell);
+    if(c==='leveringsdatum')leverdatum=_solISO(r[j+1]);
+    if(c==='besteldatum')besteldatum=_solISO(r[j+1]);
+    if(c==='artikelnr')headerRow=i;
+  });});
+  if(headerRow<0)return null;
+  const H=rows[headerRow]||[];
+  const col=name=>H.findIndex(c=>norm(c).startsWith(norm(name)));
+  const ci={naam:col('Artikelnaam'),nr:col('Artikelnr'),aantal:col('Aantal'),eenheid:col('Eenheid'),prijs:col('Prijs per eenheid'),lijntot:col('Lijntotaal'),cat:col('Categories')};
+  const lijnen=[];
+  for(let i=headerRow+1;i<rows.length;i++){
+    const r=rows[i];const nr=String(r[ci.nr]||'').trim();
+    if(!/^\d+$/.test(nr))continue;
+    lijnen.push({artikelnr:nr,naam:String(r[ci.naam]||'').trim(),aantal:_solNum(r[ci.aantal]),eenheid:String(r[ci.eenheid]||'').trim(),prijs_per_eenheid:_solNum(r[ci.prijs]),lijntotaal:_solNum(r[ci.lijntot]),categorie:String(r[ci.cat]||'').trim()});
+  }
+  rows.forEach(r=>{r.forEach((cell,j)=>{
+    const c=norm(cell);
+    if(c==='totaal')totaal=_solNum(r[j+1]);
+    else if(c==='subtotaal')subtotaal=_solNum(r[j+1]);
+    else if(c==='leverkosten')leverkosten=_solNum(r[j+1]);
+    else if(c.startsWith('btw'))btw=_solNum(r[j+1]);
+  });});
+  return {leverdatum,besteldatum,subtotaal,btw,leverkosten,totaal,lijnen};
+}
+async function importSolucious(input){
+  const file=input.files[0];if(!file)return;input.value='';
+  const pv=document.getElementById('sol-preview');pv.style.display='block';
+  pv.innerHTML='<div class="card"><div class="cb" style="padding:20px;text-align:center;color:#888;">⏳ Bestand inlezen...</div></div>';
+  if(typeof XLSX==='undefined'){pv.innerHTML='<div class="card"><div class="cb" style="padding:16px;color:#dc2626;">\u26a0\ufe0f Inleesbibliotheek niet geladen. Herlaad de pagina en probeer opnieuw.</div></div>';return;}
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array'});
+    const sh=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(sh,{header:1,raw:true,defval:''});
+    const f=parseSolucious(rows);
+    if(!f){pv.innerHTML='<div class="card"><div class="cb" style="padding:16px;color:#dc2626;">\u26a0\ufe0f Dit lijkt geen Solucious-orderbevestiging. Controleer het bestand of voer de aankoop handmatig in.</div></div>';return;}
+    window._sol=f;
+    const SOLCATS=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];
+    let lijnHtml='';
+    if(f.lijnen.length){
+      lijnHtml='<div class="tw" style="margin-top:10px;"><table><thead><tr><th>Art.nr</th><th>Artikel</th><th class="tr">Aantal</th><th>Eenh.</th><th class="tr">Lijntotaal</th><th>Budgetcategorie</th></tr></thead><tbody>';
+      f.lijnen.forEach((l,i)=>{const ac=solClassify(l.naam,l.categorie);const opts=SOLCATS.map(c=>`<option ${c===ac?'selected':''}>${c}</option>`).join('');lijnHtml+=`<tr><td class="muted" style="font-size:12px;">${l.artikelnr}</td><td>${l.naam}</td><td class="tr">${l.aantal}</td><td class="muted">${l.eenheid}</td><td class="tr">${fmt(l.lijntotaal)}</td><td><select id="solcat-${i}" onchange="solRecalc()" style="font-size:12px;padding:2px 4px;">${opts}</select></td></tr>`;});
+      lijnHtml+='</tbody></table></div>';
+    }
+    pv.innerHTML=`<div class="card"><div class="ch"><h3>\u2705 Bestelling herkend \u2014 controleer en bevestig</h3></div><div class="cb">
+      <div class="fgrid">
+        <div class="fg"><label>Datum (levering)</label><input type="date" id="sol-datum" value="${f.leverdatum||f.besteldatum||''}"></div>
+      </div>
+      <div style="background:#f4f6fa;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:13px;color:#444;">
+        Subtotaal incl. BTW: <strong>${fmt(f.subtotaal)}</strong> &nbsp;\u2022&nbsp; Leverkosten: <strong>${fmt(f.leverkosten)}</strong> &nbsp;\u2022&nbsp; <span style="color:#1b3a6b;">TOTAAL: <strong>${fmt(f.totaal)}</strong></span><br>
+        <span style="font-size:12px;color:#888;">${f.lijnen.length} artikel(s) ingelezen. Elke lijn krijgt een budgetcategorie (automatisch ingeschat \u2014 pas aan waar nodig). Zo telt non-food correct als echte kost.</span>
+      </div>
+      ${lijnHtml}
+      <div style="background:#eef3fb;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:13px;"><div style="font-weight:600;margin-bottom:4px;">Verdeling per categorie</div><div id="sol-split"></div></div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="btn btn-ok" onclick="confirmSolucious()">\u2713 Toevoegen aan aankopen</button>
+        <button class="btn" onclick="document.getElementById('sol-preview').style.display='none'">Annuleren</button>
+      </div>
+    </div></div>`;
+    solRecalc();
+  }catch(e){
+    pv.innerHTML=`<div class="card"><div class="cb" style="padding:16px;color:#dc2626;">\u26a0\ufe0f Kon het bestand niet lezen (${e.message}). Controleer of het een geldig XLS/CSV-bestand is.</div></div>`;
+  }
+}
+function solClassify(naam,scat){
+  var s=((naam||'')+' '+(scat||'')).toLowerCase();
+  if(/(ehbo|pleister|verband|ontsmet|desinfect|paracetamol|verzorg|wonde|kompres|hansaplast)/.test(s))return 'Apotheek';
+  if(/(keukenrol|handdoek|vuilzak|vuilniszak|afvalzak|huisvuil|handschoen|reiniger|reinig|schoonmaak|detergent|afwas|spons|vaatdoek|dweil|aluminium|alufolie|folie|vershoud|bakpapier|servet|tissue|zakdoek|beker|bordje|bestek|vork|lepel|rietje|kaars|theelicht|batterij|lucifer|aansteker|zeep|handgel|toiletpapier|wc-papier|emmer|borstel|vuilbak)/.test(s))return 'Materiaal';
+  return 'Eten & drinken';
+}
+function solRecalc(){
+  var f=window._sol||{};var lijnen=f.lijnen||[];var sums={};var totLijn=0;
+  lijnen.forEach(function(l,i){var sel=document.getElementById('solcat-'+i);var cat=sel?sel.value:'Eten & drinken';var v=+l.lijntotaal||0;totLijn+=v;sums[cat]=(sums[cat]||0)+v;});
+  var rest=(+f.totaal||0)-totLijn;
+  if(Math.abs(rest)>0.005){sums['Eten & drinken']=(sums['Eten & drinken']||0)+rest;}
+  var order=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];var html='';var grand=0;
+  order.forEach(function(c){if(sums[c]){grand+=sums[c];html+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span>'+c+'</span><strong>'+fmt(sums[c])+'</strong></div>';}});
+  html+='<div style="display:flex;justify-content:space-between;border-top:1px solid #ccd;margin-top:4px;padding-top:4px;"><span>Totaal (= bestelling)</span><strong>'+fmt(grand)+'</strong></div>';
+  if(Math.abs(rest)>0.005)html+='<div style="font-size:11px;color:#888;margin-top:3px;">Incl. leverkosten/afronding ('+fmt(rest)+') toegewezen aan Eten &amp; drinken.</div>';
+  var el=document.getElementById('sol-split');if(el)el.innerHTML=html;
+}
+function confirmSolucious(){
+  const f=window._sol||{};
+  const d=document.getElementById('sol-datum').value;
+  if(!d){alert('Datum is verplicht.');return;}
+  if(!S.prijzen)S.prijzen={};
+  (f.lijnen||[]).forEach(l=>{
+    if(l.artikelnr&&l.prijs_per_eenheid){
+      const cur=S.prijzen[l.artikelnr];
+      if(!cur||!cur.datum||(d>=cur.datum)){S.prijzen[l.artikelnr]={p:l.prijs_per_eenheid,datum:d,naam:l.naam||''};}
+    }
+  });
+  const groups={};let totLijn=0;
+  (f.lijnen||[]).forEach((l,i)=>{const sel=document.getElementById('solcat-'+i);const cat=sel?sel.value:'Eten & drinken';const v=+l.lijntotaal||0;totLijn+=v;if(!groups[cat])groups[cat]={b:0,lijnen:[]};groups[cat].b+=v;groups[cat].lijnen.push(l);});
+  const rest=(+f.totaal||0)-totLijn;
+  if(Math.abs(rest)>0.005){if(!groups['Eten & drinken'])groups['Eten & drinken']={b:0,lijnen:[]};groups['Eten & drinken'].b+=rest;}
+  let added=0,totB=0;
+  Object.keys(groups).forEach(cat=>{const g=groups[cat];if(Math.abs(g.b)<0.005)return;S.aankopen.push({id:uid(),d,w:'Solucious',l:'',b:Math.round(g.b*100)/100,c:cat,p:'',n:'Solucious-import ('+g.lijnen.length+' art.)',lijnen:g.lijnen});added++;totB+=g.b;});
+  save();renderAankopen();
+  document.getElementById('sol-preview').innerHTML='<div class="card"><div class="cb" style="padding:16px;color:#16a34a;font-weight:600;">\u2713 Bestelling toegevoegd in '+added+' categorie(\u00ebn) \u2014 totaal \u20ac'+totB.toFixed(2)+'. Prijzen bijgewerkt in de catalogus.</div></div>';
+}
+function addAankoop(){
+  const a={id:uid(),d:document.getElementById('a-d').value,w:document.getElementById('a-w').value,l:document.getElementById('a-l').value,b:parseFloat(document.getElementById('a-b').value)||0,c:document.getElementById('a-c').value,p:document.getElementById('a-p').value,n:document.getElementById('a-n').value};
+  if(!a.d||!a.b){alert('Datum en bedrag zijn verplicht.');return;}
+  S.aankopen.push(a);['a-w','a-l','a-b','a-n','a-p'].forEach(id=>document.getElementById(id).value='');save();renderAankopen();
+}
+function dAankoop(id){S.aankopen=S.aankopen.filter(a=>a.id!==id);save();renderAankopen();}
+function renderAankopen(){
+  const f=document.getElementById('a-f').value;const items=(f?S.aankopen.filter(a=>a.c===f):S.aankopen).slice().sort((a,b)=>a.d.localeCompare(b.d));
+  const bd=document.getElementById('a-bd');bd.innerHTML='';let tot=0;
+  items.forEach(a=>{tot+=a.b;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${a.d?fD(a.d):'\u2014'}</td><td>${a.w||'\u2014'}</td><td class="muted">${a.l||'\u2014'}</td><td><span class="pill">${a.c}</span></td><td class="muted">${a.p||'\u2014'}</td><td class="tr tw5">${fmt(a.b)}</td><td style="font-size:12px;color:#888">${a.n||''}</td><td><button class="btn btn-bad" onclick="dAankoop('${a.id}')">&#x2715;</button></td>`;bd.appendChild(tr);});
+  document.getElementById('a-tot').textContent=fmt(tot);
+  const cats=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];const met=document.getElementById('a-met');met.innerHTML='';
+  cats.forEach(c=>{const t=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0);met.innerHTML+=`<div class="met"><div class="ml">${c}</div><div class="mv">${fmt(t)}</div></div>`;});
+  met.innerHTML+=`<div class="met met-ok"><div class="ml">Totaal huidig kamp</div><div class="mv">${fmt(S.aankopen.reduce((s,a)=>s+a.b,0))}</div></div>`;
+}
+function renderRef(){
+  const bd=document.getElementById('ref-bd');bd.innerHTML='';let tot=0;
+  ['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'].forEach(c=>{
+    const t=refCat(c);if(t<=0)return;tot+=t;
+    const tr=document.createElement('tr');tr.className='ref-row';
+    tr.innerHTML=`<td><span class="pill pill-ref">${c}</span></td><td class="tr">${fmt(t)}</td>`;
+    bd.appendChild(tr);
+  });
+  document.getElementById('ref-tot').textContent=fmt(tot);
+  const met=document.getElementById('ref-met');met.innerHTML='';
+  ['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'].forEach(c=>{const t=refCat(c);if(t>0)met.innerHTML+=`<div class="met"><div class="ml">${c}</div><div class="mv">${fmt(t)}</div></div>`;});
+  met.innerHTML+=`<div class="met met-info"><div class="ml">Totaal 2025</div><div class="mv">${fmt(tot)}</div></div>`;
+}
+
+function renderVer(){
+  const pvb=document.getElementById('pv-bd');pvb.innerHTML='';let pvt=0;
+  S.ver.pv.forEach((v,i)=>{pvt+=v.b||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${v.tak}" style="width:80px" onchange="uPV(${i},'tak',this.value)"></td><td><select onchange="uPV(${i},'tp',this.value)">${['Trein','Bus','Bestelwagen','Auto','Andere'].map(t=>`<option${v.tp===t?' selected':''}>${t}</option>`).join('')}</select></td><td class="tr"><input type="number" value="${v.b}" step="0.5" style="width:90px" onchange="uPV(${i},'b',+this.value)"></td><td><input type="text" value="${v.nt||''}" onchange="uPV(${i},'nt',this.value)"></td><td><button class="btn btn-bad" onclick="dPV(${i})">&#x2715;</button></td>`;pvb.appendChild(tr);});
+  document.getElementById('pv-t').textContent=fmt(pvt);
+  const mvb=document.getElementById('mv-bd');mvb.innerHTML='';let mvB=0,mvS=0;
+  S.ver.mv.forEach((v,i)=>{mvB+=v.b||0;mvS+=v.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${v.om}" style="min-width:200px" onchange="uMV(${i},'om',this.value)"></td><td class="tr"><input type="number" value="${v.b}" step="50" style="width:90px" onchange="uMV(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${v.s}" step="50" style="width:90px" onchange="uMV(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((v.b||0)-(v.s||0))}</td><td><button class="btn btn-bad" onclick="dMV(${i})">&#x2715;</button></td>`;mvb.appendChild(tr);});
+  document.getElementById('mv-b').textContent=fmt(mvB);document.getElementById('mv-s').textContent=fmt(mvS);document.getElementById('mv-n').textContent=fmt(mvB-mvS);
+}
+function uPV(i,f,v){S.ver.pv[i][f]=v;renderVer();save();}function addPV(){S.ver.pv.push({id:uid(),tak:'',tp:'Trein',b:0,nt:''});renderVer();save();}function dPV(i){S.ver.pv.splice(i,1);renderVer();save();}
+function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.mv.push({id:uid(),om:'',b:0,s:0});renderVer();save();}function dMV(i){S.ver.mv.splice(i,1);renderVer();save();}
+
+function renderBudget(){
+  const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
+  let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
+  inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');
+  s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});
+  const kp=s.kookploeg||{tarief:10,max:50,leden:[]};
+  if(kp.leden&&kp.leden.length){
+    inR.push('<tr class="bsec"><td colspan="3">Bijdrage kookploeg</td></tr>');
+    kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpDagen(k)} dagen \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});
+  }
+  // Speelgeld is geen inkomst maar een uitgave (uitbetaald aan groepen)
+  outR.push('<tr class="bsec"><td colspan="3">Speelgeld (uitbetaald aan groepen)</td></tr>');
+  let spTot=0;
+  s.takken.forEach(t=>{
+    if(t.sg===false)return; // geen speelgeld voor leiding/seniors
+    const n=nights(t.aa,t.vt),b=t.ins*n*s.sp;
+    if(b===0)return;
+    spTot+=b;to+=b;
+    outR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${n} nachten \xd7 ${fmt(s.sp)}</td><td class="tr">${fmt(b)}</td></tr>`);
+  });
+  if(spTot===0)outR.push('<tr><td colspan="3" class="muted">Geen speelgeld ingecalculeerd</td></tr>');
+  const terrRes=calcTerrein();
+  outR.push('<tr class="bsec"><td colspan="3">Huur kampterrein</td></tr>');
+  outR.push(`<tr><td>Dagvergoeding (${getDays().length} dagen)</td><td class="muted">variabel</td><td class="tr">${fmt(terrRes.dagtot)}</td></tr>`);
+  outR.push(`<tr><td>Subsidie</td><td></td><td class="tr muted">\u2212 ${fmt(terrRes.sub)}</td></tr>`);
+  to+=terrRes.dagtot-terrRes.sub;
+  outR.push(`<tr><td style="color:#888;font-size:12px;">Borg (terugbetaalbare waarborg)</td><td></td><td class="tr muted" style="font-size:12px;">${fmt(terrRes.borg)} <em>niet meegerekend</em></td></tr>`);
+  outR.push('<tr class="bsec"><td colspan="3">Vaste kosten</td></tr>');
+  s.vk.forEach(k=>{const n=(k.b||0)-(k.s||0);to+=n;outR.push(`<tr><td>${k.om}</td><td class="muted">${fmt(k.b)}${k.s?' \u2212 '+fmt(k.s):''}</td><td class="tr">${fmt(n)}</td></tr>`);});
+  outR.push('<tr class="bsec"><td colspan="3">Variabele kosten (raming)</td></tr>');
+  s.vark.forEach(k=>{to+=k.r||0;outR.push(`<tr><td>${k.om}</td><td></td><td class="tr">${fmt(k.r)}</td></tr>`);});
+  const pvT=S.ver.pv.reduce((a,v)=>a+(v.b||0),0),mvN=S.ver.mv.reduce((a,v)=>a+(v.b||0)-(v.s||0),0);
+  if(pvT+mvN>0){outR.push('<tr class="bsec"><td colspan="3">Vervoer</td></tr>');if(pvT>0){to+=pvT;outR.push(`<tr><td>Personenvervoer</td><td></td><td class="tr">${fmt(pvT)}</td></tr>`);}if(mvN>0){to+=mvN;outR.push(`<tr><td>Materiaalvervoer</td><td></td><td class="tr">${fmt(mvN)}</td></tr>`);}}
+  // Voeding = VAST budget: €10/dag × aanwezige takleden. De kinderen-bijdrage dekt al het eten,
+  // ook voor leiding & kookploeg. Werkelijke aankopen verhogen dit budget NIET automatisch —
+  // ze worden enkel ter controle getoond. Non-food aankopen tellen wel apart als echte kost.
+  const FOOD_CATS=['Eten & drinken','Bakkerij'];
+  let aFood=0;const aNon={};
+  S.aankopen.forEach(a=>{if(FOOD_CATS.indexOf(a.c)>=0)aFood+=(a.b||0);else aNon[a.c]=(aNon[a.c]||0)+(a.b||0);});
+  to+=gep;
+  outR.push('<tr class="bsec"><td colspan="3">Voeding (vast budget — €'+s.eb+'/p/dag)</td></tr>');
+  outR.push(`<tr><td>Voedingsbudget (aanwezigen × €${s.eb}/dag)</td><td class="muted">telt mee in saldo</td><td class="tr">${fmt(gep)}</td></tr>`);
+  if(aFood>0){const over=aFood>gep;outR.push(`<tr><td style="font-size:12px"><em>Werkelijke aankopen (eten &amp; drinken + bakkerij) — enkel controle, verandert het saldo niet</em></td><td class="${over?'bad':'ok'}" style="font-size:12px">${over?'⚠️ boven budget':'✓ binnen budget'}</td><td class="tr muted">${fmt(aFood)}</td></tr>`);}
+  const nonKeys=Object.keys(aNon);
+  if(nonKeys.length){
+    outR.push('<tr class="bsec"><td colspan="3">Non-food aankopen (apart van het eetbudget)</td></tr>');
+    nonKeys.forEach(c=>{to+=aNon[c];outR.push(`<tr><td>${c}</td><td></td><td class="tr">${fmt(aNon[c])}</td></tr>`);});
+  }
+  document.getElementById('b-in').innerHTML=inR.join('');document.getElementById('b-int').textContent=fmt(ti);
+  document.getElementById('b-out').innerHTML=outR.join('');document.getElementById('b-outt').textContent=fmt(to);
+  const cats=['Eten & drinken','Bakkerij','Apotheek','Materiaal','Diversen'];const cmpR=[];let cH=0,cR=0;
+  cats.forEach(c=>{const h=S.aankopen.filter(a=>a.c===c).reduce((s,a)=>s+a.b,0),r=refCat(c);cH+=h;cR+=r;const dc=h===0?'muted':h-r<=0?'ok':'bad';cmpR.push(`<tr><td>${c}</td><td class="tr">${fmt(h)}</td><td class="tr muted">${fmt(r)}</td><td class="tr ${dc}">${h>0?fmt(h-r):'\u2014'}</td></tr>`);});
+  document.getElementById('b-cmp').innerHTML=cmpR.join('');const tD=cH-cR;
+  document.getElementById('b-cmp-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${fmt(cH)}</td><td class="tr muted">${fmt(cR)}</td><td class="tr tw5 ${tD<=0?'ok':'bad'}">${cH>0?fmt(tD):'\u2014'}</td>`;
+  const wE=S.aankopen.filter(a=>a.c==='Eten & drinken').reduce((s,a)=>s+a.b,0);
+  const wB=S.aankopen.filter(a=>a.c==='Bakkerij').reduce((s,a)=>s+a.b,0);
+  document.getElementById('b-eet').innerHTML=`<tr><td>Gepland (aanwezigen \xd7 ${fmt(s.eb)}/dag)</td><td class="tr">${fmt(gep)}</td><td class="tr muted">${fmt(REF_EET)}</td></tr><tr><td>Werkelijk eten &amp; drinken</td><td class="tr">${fmt(wE)}</td><td class="tr muted">${fmt(refCat('Eten & drinken'))}</td></tr><tr><td>Werkelijk bakkerij</td><td class="tr">${fmt(wB)}</td><td class="tr muted">${fmt(refCat('Bakkerij'))}</td></tr><tr class="tfoot"><td><strong>Totaal eten + bakkerij</strong></td><td class="tr tw5 ${(wE+wB)<=gep?'ok':'bad'}">${fmt(wE+wB)}</td><td class="tr muted">${fmt(refCat('Eten & drinken')+refCat('Bakkerij'))}</td></tr>`;
+  let wiT=0,oiT=0,lT=0,iT=0;const optR=[];
+  s.takken.forEach(t=>{const n=nights(t.aa,t.vt),wi=t.ins*t.kp,oi=t.tot*t.kp,diff=oi-wi;wiT+=wi;oiT+=oi;lT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';optR.push(`<tr><td>${t.nm}</td><td class="tr">${t.tot||0}</td><td class="tr">${t.ins||0}</td><td class="tr" style="color:${clr};font-weight:600">${t.tot?dp+'%':'\u2014'}</td><td class="tr">${fmt(wi)}</td><td class="tr">${fmt(oi)}</td><td class="tr ${diff>0?'ok':'muted'}">${fmt(diff)}</td></tr>`);});
+  document.getElementById('b-opt').innerHTML=optR.join('');
+  // Prijsscenario's
+  const betTak=s.takken.filter(t=>t.sg!==false&&t.kp>0);
+  const scR=[];let ext10=0,ext15=0;
+  betTak.forEach(t=>{
+    const e10=t.ins*10,e15=t.ins*15;ext10+=e10;ext15+=e15;
+    scR.push(`<tr><td>${t.nm}</td><td class="tr">€${t.kp}</td><td class="tr tw5">€${t.kp+10}</td><td class="tr tw5">€${t.kp+15}</td><td class="tr">${t.ins}</td><td class="tr ok">+${fmt(e10)}</td><td class="tr ok">+${fmt(e15)}</td></tr>`);
+  });
+  const bufTot=ti-to;
+  document.getElementById('b-scenario').innerHTML=scR.join('')+
+    `<tr style="border-top:2px solid #e5e5e5"><td style="font-size:12px;color:#444;padding-top:10px"><strong>Saldo na alle kosten</strong><br><span style="font-size:11px;color:#888;font-weight:400">inkomsten − infrastructuur (voeding gedekt via kampprijs)</span></td><td class="tr tw5 ${bufTot>=0?'ok':'bad'}">${fmt(bufTot)}</td><td class="tr tw5 ${(bufTot+ext10)>=0?'ok':'bad'}">${fmt(bufTot+ext10)}</td><td class="tr tw5 ${(bufTot+ext15)>=0?'ok':'bad'}">${fmt(bufTot+ext15)}</td><td colspan="3"></td></tr>`;
+  document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal extra inkomsten</strong></td><td colspan="4"></td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
+  document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
+  const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
+  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
+  document.getElementById('b-terr-t').textContent=fmt(terrT);
+  const saldo=ti-to;
+  document.getElementById('b-met').innerHTML=`<div class="met met-ok"><div class="ml">Totaal inkomsten</div><div class="mv">${fmt(ti)}</div></div><div class="met met-bad"><div class="ml">Totaal uitgaven</div><div class="mv">${fmt(to)}</div></div><div class="met ${saldo>=0?'met-ok':'met-bad'}"><div class="ml">Saldo</div><div class="mv ${saldo>=0?'ok':'bad'}">${fmt(saldo)}</div></div><div class="met met-info"><div class="ml">Gemiste inkomsten</div><div class="mv">${fmt(oiT-wiT)}</div></div>`;
+}
+
+function addBericht(){
+  const naam=document.getElementById('pb-naam').value.trim();
+  const cat=document.getElementById('pb-cat').value;
+  const msg=document.getElementById('pb-msg').value.trim();
+  if(!naam||!msg){alert('Naam en bericht zijn verplicht.');return;}
+  if(!S.prikbord)S.prikbord=[];
+  S.prikbord.unshift({id:uid(),naam,cat,msg,ts:new Date().toISOString()});
+  document.getElementById('pb-msg').value='';
+  save();renderPrikbord();
+}
+function deleteBericht(id){
+  if(!confirm('Bericht verwijderen?'))return;
+  S.prikbord=S.prikbord.filter(b=>b.id!==id);
+  save();renderPrikbord();
+}
+function renderPrikbord(){
+  if(!S.prikbord)S.prikbord=[];
+  const bd=document.getElementById('pb-berichten');
+  if(!S.prikbord.length){bd.innerHTML='<div class="pb-empty">Nog geen berichten. Wees de eerste!</div>';return;}
+  bd.innerHTML=S.prikbord.map(b=>{
+    const d=new Date(b.ts);
+    const ts=d.getDate()+'/'+(d.getMonth()+1)+' '+d.getHours()+':'+(d.getMinutes()+'').padStart(2,'0');
+    return `<div class="pb-card">
+      <div class="pb-hdr"><span class="pb-naam">${b.naam}</span><span class="pb-cat">${b.cat}</span><span class="pb-ts">${ts}</span></div>
+      <div class="pb-msg">${b.msg.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+      <div style="text-align:right;"><button class="pb-del" onclick="deleteBericht('${b.id}')">verwijderen</button></div>
+    </div>`;
+  }).join('');
+}
+function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Kampbeheer_2026_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);try{localStorage.setItem('kamp26_lastbackup',Date.now());}catch(e){}if(typeof updateBackupAge==='function')updateBackupAge();}
+function updateBackupAge(){var el=document.getElementById('bk-age');if(!el)return;var t=localStorage.getItem('kamp26_lastbackup');if(!t){el.textContent='nog geen backup';el.style.color='#c0392b';el.title='Maak een backup met de knop ↓ backup';return;}var d=Math.floor((Date.now()-(+t))/86400000);el.textContent=d<=0?'backup: vandaag':'backup: '+d+'d geleden';el.style.color=d>=7?'#c0392b':'#888';el.title='Laatste backup op dit toestel';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function _shiftDate(d,n){if(!d)return d;var dt=new Date(d+'T00:00:00');if(isNaN(dt))return d;dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
+function _daysOf(st,ei){var out=[];if(!st||!ei)return out;var d=new Date(st+'T00:00:00'),e=new Date(ei+'T00:00:00');if(isNaN(d)||isNaN(e))return out;while(d<=e){out.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}return out;}
+// ---- Verdeling per bak (eetgroepen) ----
+function bakCfg(){
+  var tk=S.setup.takken||[];
+  function bn(n){return tk.find(function(t){return String(t.nm||'').toLowerCase()===n;})||null;}
+  return {jw:bn('jongwelpen'),w:bn('welpen'),jv:bn('jongverkenners'),sg:bn('scouts & guides'),se:bn('seniors'),ld:bn('leiding')};
+}
+function bakBaseL(t){
+  if(!t)return 0;
+  if(S.setup.bakLeiding&&S.setup.bakLeiding[t.id]!=null)return +S.setup.bakLeiding[t.id];
+  var c=bakCfg();
+  if(c.jw&&t.id===c.jw.id)return 5;
+  if(c.w&&t.id===c.w.id)return 4;
+  if(c.jv&&t.id===c.jv.id)return 4;
+  if(c.sg&&t.id===c.sg.id)return 5;
+  return 0;
+}
+function bakDefL(d,t){
+  if(!t)return 0;
+  var c=bakCfg();
+  if(c.se&&t.id===c.se.id){
+    var ld=(c.ld&&S.av[d]&&S.av[d][c.ld.id])||0;
+    var base=bakBaseL(c.jw)+bakBaseL(c.w)+bakBaseL(c.jv)+bakBaseL(c.sg);
+    return Math.max(0,ld-base);
+  }
+  return bakBaseL(t);
+}
+function bakOv(d,t){
+  var o=t&&S.bakleiding&&S.bakleiding[d]&&S.bakleiding[d][t.id];
+  return (o==null||o==='')?null:(+o);
+}
+function bakL(d,t){
+  if(!t)return 0;
+  var o=bakOv(d,t);if(o!=null)return o;
+  return bakDefL(d,t);
+}
+function bakRow(d){
+  var c=bakCfg(),av=S.av[d]||{};
+  function k(t){return t?((av[t.id])||0):0;}
+  var ljw=bakL(d,c.jw),lw=bakL(d,c.w),ljv=bakL(d,c.jv),lsg=bakL(d,c.sg),lse=bakL(d,c.se);
+  var bJW=k(c.jw)+ljw,bW=k(c.w)+lw,bJV=k(c.jv)+ljv,bSG=k(c.sg)+lsg,bSE=k(c.se)+lse;
+  var kook=(av['kp'])||0,ldTot=k(c.ld),assigned=ljw+lw+ljv+lsg+lse;
+  var att=k(c.jw)+k(c.w)+k(c.jv)+k(c.sg)+k(c.se)+ldTot+kook;
+  return {c:c,av:av,ljw:ljw,lw:lw,ljv:ljv,lsg:lsg,lse:lse,bJW:bJW,bW:bW,bJV:bJV,bSG:bSG,bSE:bSE,kook:kook,tot:bJW+bW+bJV+bSG+bSE+kook,ldTot:ldTot,assigned:assigned,att:att,over:assigned>ldTot};
+}
+function renderBak(){
+  if(!document.getElementById('bak-bd'))return;
+  var cfg=document.getElementById('bak-cfg');
+  if(cfg)cfg.innerHTML='<span style="color:#888;">Kids komen automatisch uit de aanwezigheden. De <strong>leiding</strong> is per tak <strong>voorgevuld op alle kampdagen</strong> (ook de opbouwdagen) en blijft <strong>aanpasbaar</strong> \u2014 pas het L-veld aan op een dag dat leiding naar huis gaat. Seniors krijgt automatisch de <strong>overige aanwezige leiding</strong> (alles boven de vaste verdeling van de andere takken). Onder \u201cTotaal\u201d staat <em>leiding verdeeld / aanwezig</em>; rood = meer verdeeld dan aanwezig.</span>';
+  document.getElementById('bak-hd').innerHTML='<th class="l">Dag</th><th>Jongwelpen</th><th>Welpen</th><th>Jongverkenners</th><th>Scouts &amp; Guides</th><th>Seniors</th><th>Kookploeg</th><th class="tr">Totaal</th>';
+  var bd=document.getElementById('bak-bd');bd.innerHTML='';
+  var days=getDays();
+  function Lin(d,t){if(!t)return '\u2014';var o=bakOv(d,t);var def=bakDefL(d,t);var disp=(o!=null)?o:(def>0?def:'');return '<input type="number" min="0" value="'+disp+'" style="width:42px" title="leiding" onchange="uBakL(\''+d+'\',\''+t.id+'\',this.value)">';}
+  function cell(kids,Lhtml,b){return '<div style="font-weight:700;">'+b+'</div><div style="font-size:11px;color:#777;">kids '+kids+' \u00b7 L '+Lhtml+'</div>';}
+  days.forEach(function(d){
+    var r=bakRow(d);if(r.att<1)return;var c=r.c;
+    var ref='<div style="font-size:10px;color:'+(r.over?'#c0392b':'#999')+';margin-top:2px;">leiding '+r.assigned+'/'+r.ldTot+(r.over?' \u26a0\ufe0f':'')+'</div>';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td class="l" style="white-space:nowrap;font-weight:600;">'+wkdag(d).slice(0,2)+' '+fD(d)+'</td>'
+      +'<td>'+cell((r.av[c.jw&&c.jw.id])||0,Lin(d,c.jw),r.bJW)+'</td>'
+      +'<td>'+cell((r.av[c.w&&c.w.id])||0,Lin(d,c.w),r.bW)+'</td>'
+      +'<td>'+cell((r.av[c.jv&&c.jv.id])||0,Lin(d,c.jv),r.bJV)+'</td>'
+      +'<td>'+cell((r.av[c.sg&&c.sg.id])||0,Lin(d,c.sg),r.bSG)+'</td>'
+      +'<td>'+cell((r.av[c.se&&c.se.id])||0,Lin(d,c.se),r.bSE)+'</td>'
+      +'<td><div style="font-weight:700;">'+r.kook+'</div><div style="font-size:11px;color:#777;">kookploeg</div></td>'
+      +'<td class="tr" style="font-weight:700;">'+r.tot+ref+'</td>';
+    bd.appendChild(tr);
+  });
+  var note=document.getElementById('bak-note');
+  if(note)note.innerHTML='Tip: \u201cleiding 18/18\u201d = je verdeelde 18 van de 18 aanwezige leiding over de takken. Het wordt rood als je er m\u00e9\u00e9r verdeelt dan er die dag aanwezig zijn.';
+}
+function uBakL(d,takId,v){if(!S.bakleiding)S.bakleiding={};if(!S.bakleiding[d])S.bakleiding[d]={};if(v===''||v==null)delete S.bakleiding[d][takId];else S.bakleiding[d][takId]=+v;save();renderBak();}
+function bakResetLeiding(){if(!confirm('Alle handmatige leiding-aanpassingen wissen en terug naar voorgevuld?'))return;S.bakleiding={};save();renderBak();}
+function printBak(){
+  var days=getDays();
+  if(!days.length){alert('Stel eerst de start- en einddatum van het kamp in (Setup).');return;}
+  var head='<tr><th class="l">Dag</th><th>Jongwelpen</th><th>Welpen</th><th>Jongverkenners</th><th>Scouts &amp; Guides</th><th>Seniors</th><th>Kookploeg</th><th>Totaal</th></tr>';
+  var T={jwk:0,jwl:0,wk:0,wl:0,jvk:0,jvl:0,sgk:0,sgl:0,sek:0,sel:0,kook:0,tt:0};
+  function cell(kids,led,tot){return '<td><strong>'+tot+'</strong><div class="note">kids '+kids+' \u00b7 L '+led+'</div></td>';}
+  function ftd(kids,led){return '<td>'+(kids+led)+'<div class="note">kids '+kids+' \u00b7 L '+led+'</div></td>';}
+  var body=days.map(function(d){var r=bakRow(d);if(r.att<1)return '';var c=r.c;
+    function kk(t){return t?((r.av[t.id])||0):0;}
+    var jwk=kk(c.jw),wk=kk(c.w),jvk=kk(c.jv),sgk=kk(c.sg),sek=kk(c.se);
+    T.jwk+=jwk;T.jwl+=r.ljw;T.wk+=wk;T.wl+=r.lw;T.jvk+=jvk;T.jvl+=r.ljv;T.sgk+=sgk;T.sgl+=r.lsg;T.sek+=sek;T.sel+=r.lse;T.kook+=r.kook;T.tt+=r.tot;
+    return '<tr><td class="l">'+wkdag(d)+' '+fD(d)+'</td>'+cell(jwk,r.ljw,r.bJW)+cell(wk,r.lw,r.bW)+cell(jvk,r.ljv,r.bJV)+cell(sgk,r.lsg,r.bSG)+cell(sek,r.lse,r.bSE)+'<td><strong>'+r.kook+'</strong><div class="note">kookploeg</div></td><td class="tot-col">'+r.tot+'</td></tr>';
+  }).join('');
+  var foot='<tr class="tot"><td class="l">Totaal</td>'+ftd(T.jwk,T.jwl)+ftd(T.wk,T.wl)+ftd(T.jvk,T.jvl)+ftd(T.sgk,T.sgl)+ftd(T.sek,T.sel)+'<td>'+T.kook+'</td><td>'+T.tt+'</td></tr>';
+  var title=(S.setup.nm||'Kamp')+' \u2014 Verdeling per bak';
+  var sub='Aantal eters per bak per dag \u00b7 per tak opgesplitst in kinderen en leiding \u00b7 '+fD(S.setup.st)+' \u2013 '+fD(S.setup.ei);
+  printDoc(title,'<h1>'+esc(title)+'</h1><p class="sub">'+esc(sub)+'</p><table><thead>'+head+'</thead><tbody>'+body+foot+'</tbody></table>',true);
+}function normalizeState(){
+  if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup)S.setup={};if(!S.bakleiding)S.bakleiding={};if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
+  if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};if(!S.ingprijzen)S.ingprijzen={};if(!S.archief)S.archief=[];
+  if(typeof seedRecepten==='function')seedRecepten();
+  if(!S.menu)S.menu={};getDays().forEach(function(d){if(!S.menu[d])S.menu[d]={};if(S.menu[d].on===undefined)S.menu[d].on={ma:'\uD83C\uDF5E Standaard ontbijt'};if(S.menu[d].mi===undefined)S.menu[d].mi={ma:'\uD83E\uDD6A Boterhammen middag'};if(S.menu[d].uu===undefined)S.menu[d].uu={ma:'\uD83C\uDF6A Vieruurtje'};});
+}
+function refreshAll(){
+  try{if(typeof loadSU==='function')loadSU();}catch(e){}
+  ['rTk','renderAV','renderMenu','renderKeuken','renderBudget','renderAankopen','renderRecepten','renderPrikbord','updateBackupAge'].forEach(function(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
+  var h=document.querySelector('#hdr h1');if(h&&S.setup&&S.setup.nm)h.textContent='\u2693 '+S.setup.nm;
+}
+function archiveCurrent(){var snap=JSON.parse(JSON.stringify(S));delete snap.archief;return {aid:uid(),nm:(S.setup&&S.setup.nm)||'Kamp',st:(S.setup&&S.setup.st)||'',ei:(S.setup&&S.setup.ei)||'',archivedAt:new Date().toISOString(),snap:snap};}
+function nieuwKamp(){
+  if(!confirm('NIEUW KAMP AANMAKEN\n\nHet huidige kamp "'+((S.setup&&S.setup.nm)||'')+'" wordt GEARCHIVEERD en blijft raadpleegbaar onder \uD83D\uDDC4 Archief (rechtsboven), alleen-lezen.\n\nHet nieuwe kamp start als VOLLEDIGE KOPIE van het huidige (zelfde takken, menu, aankopen\u2026) die je daarna aanpast.\n\nEr wordt eerst een backup gedownload. Doorgaan?'))return;
+  try{exportData();}catch(e){}
+  var nm=prompt('Naam van het nieuwe kamp:','Kamp '+(new Date().getFullYear()+1));if(nm===null)return;
+  var st=prompt('Begindatum nieuw kamp (JJJJ-MM-DD):','');if(st===null)return;
+  var ei=prompt('Einddatum nieuw kamp (JJJJ-MM-DD):','');if(ei===null)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(st)||!/^\d{4}-\d{2}-\d{2}$/.test(ei)){alert('Ongeldige datum (JJJJ-MM-DD). Er is niets gewijzigd.');return;}
+  if(ei<st){alert('Einddatum ligt vóór begindatum. Er is niets gewijzigd.');return;}
+  var c=prompt('LAATSTE BEVESTIGING.\nTyp NIEUW (in hoofdletters) om het huidige kamp te archiveren en een nieuw kamp te starten als kopie:');
+  if(c===null||String(c).trim().toUpperCase()!=='NIEUW'){alert('Niet bevestigd \u2014 er is niets gewijzigd.');return;}
+  if(!S.archief)S.archief=[];
+  S.archief.push(archiveCurrent());
+  var oldSt=(S.setup&&S.setup.st)||st;var oldDays=getDays();
+  var offset=Math.round((new Date(st+'T00:00:00')-new Date(oldSt+'T00:00:00'))/86400000)||0;
+  if(Array.isArray(S.setup.takken))S.setup.takken.forEach(function(t){if(t.aa)t.aa=_shiftDate(t.aa,offset);if(t.vt)t.vt=_shiftDate(t.vt,offset);if(t.aa&&t.aa<st)t.aa=st;if(t.vt&&t.vt>ei)t.vt=ei;if(!t.aa)t.aa=st;if(!t.vt)t.vt=ei;});
+  S.setup.nm=nm;S.setup.st=st;S.setup.ei=ei;
+  var newDays=getDays();var oM=S.menu||{},oA=S.av||{},oE=S.evaluatie||{},nM={},nA={},nE={};
+  for(var i=0;i<newDays.length;i++){var od=oldDays[i];if(od!==undefined){if(oM[od])nM[newDays[i]]=oM[od];if(oA[od])nA[newDays[i]]=oA[od];if(oE[od])nE[newDays[i]]=oE[od];}}
+  S.menu=nM;S.av=nA;S.evaluatie=nE;S.keuken={};
+  normalizeState();save();refreshAll();
+  if(typeof closeArchief==='function')closeArchief();
+  if(typeof activateTab==='function')activateTab('setup');
+  alert('Nieuw kamp "'+nm+'" aangemaakt als kopie ('+st+' \u2192 '+ei+').\n\nHet vorige kamp staat nu onder \uD83D\uDDC4 Archief (rechtsboven), alleen-lezen. Pas waar nodig de ingeschreven aantallen, aankomst/vertrek, aankopen en het menu aan.');
+}
+function openArchief(){renderArchiefList();var ov=document.getElementById('arch-overlay');if(ov)ov.style.display='flex';}
+function closeArchief(){var ov=document.getElementById('arch-overlay');if(ov)ov.style.display='none';var dt=document.getElementById('arch-detail');if(dt)dt.innerHTML='';}
+function renderArchiefList(){
+  var box=document.getElementById('arch-list');if(!box)return;
+  var arr=(S.archief||[]).slice().reverse();
+  if(!arr.length){box.innerHTML='<p style="color:#888;">Nog geen gearchiveerde kampen. Gebruik "Nieuw kamp starten" onderaan Setup om het huidige kamp te archiveren en een nieuw te beginnen.</p>';return;}
+  box.innerHTML=arr.map(function(a){return '<div class="arch-item"><div><strong>'+esc(a.nm)+'</strong><br><span style="font-size:12px;color:#888;">'+(a.st||'?')+' \u2192 '+(a.ei||'?')+' \u00b7 gearchiveerd '+String(a.archivedAt||'').slice(0,10)+'</span></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn" onclick="bekijkArchief(\''+a.aid+'\')">Bekijk</button><button class="btn btn-bad" onclick="bewerkArchief(\''+a.aid+'\')">🔓 Ontgrendelen\u2026</button></div></div>';}).join('');
+}
+function bekijkArchief(aid){
+  var a=(S.archief||[]).find(function(x){return x.aid===aid;});if(!a)return;var s=a.snap||{};var setup=s.setup||{};var takken=setup.takken||[];
+  var days=_daysOf(setup.st,setup.ei);
+  var html='<h3 style="margin:0 0 4px;">'+esc(a.nm)+' <span style="font-weight:400;font-size:13px;color:#888;">('+(setup.st||'?')+' \u2192 '+(setup.ei||'?')+' \u00b7 alleen-lezen)</span></h3>';
+  html+='<p style="font-size:12px;color:#888;margin:0 0 10px;">Dit kamp is alleen-lezen. Gebruik <strong>🔓 Ontgrendelen</strong> bij dit kamp in de lijst hierboven om het weer bewerkbaar te maken (je typt dan de kampnaam ter bevestiging).</p>';
+  html+='<div class="arch-sec"><strong>Takken</strong><table class="arch-tbl"><tr><th>Tak</th><th>Ingeschreven</th></tr>'+takken.map(function(t){return '<tr><td>'+esc(t.nm)+'</td><td>'+(t.ins||0)+'</td></tr>';}).join('')+'</table></div>';
+  var aank=s.aankopen||[];var perCat={};aank.forEach(function(x){perCat[x.c]=(perCat[x.c]||0)+(+x.b||0);});var totA=aank.reduce(function(q,x){return q+(+x.b||0);},0);
+  html+='<div class="arch-sec"><strong>Aankopen</strong><table class="arch-tbl">'+Object.keys(perCat).map(function(c){return '<tr><td>'+esc(c)+'</td><td>'+fmt(perCat[c])+'</td></tr>';}).join('')+'<tr><td><strong>Totaal</strong></td><td><strong>'+fmt(totA)+'</strong></td></tr></table></div>';
+  var menu=s.menu||{};
+  html+='<div class="arch-sec"><strong>Menu (avond \u00b7 4-uurtje \u00b7 dessert)</strong><table class="arch-tbl"><tr><th>Dag</th><th>Avond</th><th>4-uurtje</th><th>Dessert</th></tr>'+days.map(function(d){var m=menu[d]||{};var f=function(x){return x&&x.ma?esc(typeof cleanName==='function'?cleanName(x.ma):x.ma):'\u2014';};return '<tr><td>'+d.slice(8,10)+'/'+d.slice(5,7)+'</td><td>'+f(m.av)+'</td><td>'+f(m.uu)+'</td><td>'+f(m.des)+'</td></tr>';}).join('')+'</table></div>';
+  var dt=document.getElementById('arch-detail');if(dt){dt.innerHTML=html;dt.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+function bewerkArchief(aid){
+  var idx=(S.archief||[]).findIndex(function(x){return x.aid===aid;});if(idx<0)return;var a=S.archief[idx];
+  var bevel=prompt('Dit kamp staat op ALLEEN-LEZEN.\n\nOm het te ONTGRENDELEN en weer te kunnen bewerken, typ je hieronder exact de naam van het kamp:\n\n    '+a.nm+'\n\nHet huidige actieve kamp wordt dan veilig gearchiveerd (alleen-lezen) en er wordt eerst een backup gedownload.');
+  if(bevel===null)return;
+  if(String(bevel).trim()!==String(a.nm).trim()){alert('De ingetypte naam komt niet overeen \u2014 er is niets gewijzigd. "'+a.nm+'" blijft alleen-lezen.');return;}
+  try{exportData();}catch(e){}
+  var cur=archiveCurrent();
+  var lijst=S.archief.slice();lijst.splice(idx,1);lijst.push(cur);
+  var snap=JSON.parse(JSON.stringify(a.snap));snap.archief=lijst;
+  S=snap;normalizeState();save();closeArchief();refreshAll();
+  if(typeof activateTab==='function')activateTab('setup');
+  alert('"'+a.nm+'" is ONTGRENDELD en is nu het actieve kamp \u2014 je kan het weer bewerken.\nHet vorige actieve kamp staat nu onder \uD83D\uDDC4 Archief (alleen-lezen). Je kan het later op dezelfde manier terug ontgrendelen.');
+}
+function importFile(inp){
+  const file=inp.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    let data;
+    try{data=JSON.parse(e.target.result);}catch(err){alert('Ongeldig bestand: dit kon niet gelezen worden als een backup. Herstel geannuleerd.');inp.value='';return;}
+    if(!data||typeof data!=='object'||Array.isArray(data)||!data.setup||!data.menu){
+      alert('Dit lijkt geen geldige Kampbeheer-backup (verwachte gegevens ontbreken). Herstel geannuleerd om je data te beschermen.');inp.value='';return;
+    }
+    if(!confirm('\u26a0\ufe0f HERSTELLEN overschrijft ALLE huidige gegevens met de inhoud van dit bestand.\n\nEr wordt nu eerst automatisch een backup van je HUIDIGE gegevens gedownload.\n\nDoorgaan?')){inp.value='';return;}
+    exportData();
+    if(!confirm('Een backup van je huidige gegevens is gedownload.\n\nKlik OK om het herstel nu DEFINITIEF uit te voeren \u2014 alles wordt overschreven.')){inp.value='';return;}
+    S=data;if(!S.keuken)S.keuken={};
+    loadSU();sbWrite();
+    alert('\u2713 Herstel voltooid. De gegevens uit het bestand zijn ingeladen.');
+    inp.value='';
+  };
+  r.readAsText(file);
+}
+const _kh='23363565840879c01d226e0aa3615d97b1428ee7238c9f23558a0ff034bd7496'; // SHA-256 van het wachtwoord — het wachtwoord zelf staat niet in de code
+async function _hash(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+function isLoggedIn(){return localStorage.getItem('kamp26')==='1';}
+function setLocked(locked){
+  document.body.classList.toggle('locked',locked);
+  document.getElementById('readonly-banner').classList.toggle('show',locked);
+  const btn=document.getElementById('login-btn');
+  if(locked){btn.textContent='🔒 Aanmelden';btn.className='';}
+  else{btn.textContent='✓ Aangemeld';btn.className='logged';}
+  // logout optie
+  btn.onclick=locked?toggleLoginPopup:()=>{if(confirm('Afmelden?')){localStorage.removeItem('kamp26');setLocked(true);}};
+}
+function toggleLoginPopup(){
+  const p=document.getElementById('login-popup');
+  p.classList.toggle('open');
+  if(p.classList.contains('open'))setTimeout(()=>document.getElementById('pw-input').focus(),50);
+}
+async function checkPW(){
+  const v=document.getElementById('pw-input').value;
+  if(await _hash(v)===_kh){
+    localStorage.setItem('kamp26','1');
+    document.getElementById('login-popup').classList.remove('open');
+    document.getElementById('pw-input').value='';
+    document.getElementById('login-err').textContent='';
+    setLocked(false);
+  } else {
+    document.getElementById('login-err').textContent='Fout wachtwoord.';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+// Sluit popup bij klik buiten
+document.addEventListener('click',e=>{
+  const p=document.getElementById('login-popup');
+  const btn=document.getElementById('login-btn');
+  if(p.classList.contains('open')&&!p.contains(e.target)&&e.target!==btn)p.classList.remove('open');
+});
+setLocked(!isLoggedIn());
+sbLoad();
+updateBackupAge();
+
+</script>
+
+</body>
+</html>
