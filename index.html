@@ -72,7 +72,8 @@ td input[type=number]{width:70px;}td input[type=text]{min-width:80px;}
 .menu-chev{display:inline-block;transition:transform .2s;}
 .db.mopen .menu-chev{transform:rotate(180deg);}
 .db.mopen .dh{background:#eff6ff;}
-.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f1f4fa;padding-top:12px;}tr.bsec:hover td{background:#f1f4fa;}
+.bsec td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#f1f4fa;padding-top:12px;}
+.bsub td{font-weight:700;border-top:1px solid #d9e2f2;padding-top:8px;}.bsub td.tr{color:#1b3a6b;}tr.bsec:hover td{background:#f1f4fa;}
 .tr{text-align:right;}.tw5{font-weight:600;}.muted{color:#888;}.ok{color:#16a34a;}.bad{color:#dc2626;}
 .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:#f0f0f0;color:#666;}
 .pill-ref{background:#dbeafe;color:#1d4ed8;}
@@ -1721,13 +1722,13 @@ function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.
 function renderBudget(){
   const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
   let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
-  {let _st=0;const _i=inR.length;inR.push('');s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;_st+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});inR[_i]=`<tr class="bsec"><td>Kampprijs</td><td></td><td class="tr">${fmt(_st)}</td></tr>`;}
+  inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');{let _st=0;s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;_st+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});inR.push(`<tr class="bsub"><td>Totaal kampprijs</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   const kp=s.kookploeg||{tarief:10,max:50,leden:[]};
   if(kp.leden&&kp.leden.length){
-    {let _st=0;const _i=inR.length;inR.push('');kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;_st+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpDagen(k)} dagen \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});inR[_i]=`<tr class="bsec"><td>Bijdrage kookploeg</td><td></td><td class="tr">${fmt(_st)}</td></tr>`;}
+    inR.push('<tr class="bsec"><td colspan="3">Bijdrage kookploeg</td></tr>');{let _st=0;kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;_st+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpDagen(k)} dagen \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});inR.push(`<tr class="bsub"><td>Totaal bijdrage kookploeg</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   }
   // Speelgeld is geen inkomst maar een uitgave (uitbetaald aan groepen)
-  const _spi=outR.length;outR.push('');
+  outR.push('<tr class="bsec"><td colspan="3">Speelgeld (uitbetaald aan groepen)</td></tr>');
   let spTot=0;
   s.takken.forEach(t=>{
     if(t.sg===false)return; // geen speelgeld voor leiding/seniors
@@ -1736,18 +1737,19 @@ function renderBudget(){
     spTot+=b;to+=b;
     outR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${n} nachten \xd7 ${fmt(s.sp)}</td><td class="tr">${fmt(b)}</td></tr>`);
   });
-  outR[_spi]=`<tr class="bsec"><td>Speelgeld (uitbetaald aan groepen)</td><td></td><td class="tr">${fmt(spTot)}</td></tr>`;
   if(spTot===0)outR.push('<tr><td colspan="3" class="muted">Geen speelgeld ingecalculeerd</td></tr>');
+  else outR.push(`<tr class="bsub"><td>Totaal speelgeld</td><td></td><td class="tr">${fmt(spTot)}</td></tr>`);
   const terrRes=calcTerrein();
-  outR.push(`<tr class="bsec"><td>Huur kampterrein</td><td></td><td class="tr">${fmt(terrRes.dagtot-terrRes.sub)}</td></tr>`);
+  outR.push('<tr class="bsec"><td colspan="3">Huur kampterrein</td></tr>');
   outR.push(`<tr><td>Dagvergoeding (${getDays().length} dagen)</td><td class="muted">variabel</td><td class="tr">${fmt(terrRes.dagtot)}</td></tr>`);
   outR.push(`<tr><td>Subsidie</td><td></td><td class="tr muted">\u2212 ${fmt(terrRes.sub)}</td></tr>`);
   to+=terrRes.dagtot-terrRes.sub;
   outR.push(`<tr><td style="color:#888;font-size:12px;">Borg (terugbetaalbare waarborg)</td><td></td><td class="tr muted" style="font-size:12px;">${fmt(terrRes.borg)} <em>niet meegerekend</em></td></tr>`);
-  {let _st=0;const _i=outR.length;outR.push('');s.vk.forEach(k=>{const n=(k.b||0)-(k.s||0);to+=n;_st+=n;outR.push(`<tr><td>${k.om}</td><td class="muted">${fmt(k.b)}${k.s?' \u2212 '+fmt(k.s):''}</td><td class="tr">${fmt(n)}</td></tr>`);});outR[_i]=`<tr class="bsec"><td>Vaste kosten</td><td></td><td class="tr">${fmt(_st)}</td></tr>`;}
-  {let _st=0;const _i=outR.length;outR.push('');s.vark.forEach(k=>{to+=k.r||0;_st+=k.r||0;outR.push(`<tr><td>${k.om}</td><td></td><td class="tr">${fmt(k.r)}</td></tr>`);});outR[_i]=`<tr class="bsec"><td>Variabele kosten (raming)</td><td></td><td class="tr">${fmt(_st)}</td></tr>`;}
+  outR.push(`<tr class="bsub"><td>Totaal huur (excl. borg)</td><td></td><td class="tr">${fmt(terrRes.dagtot-terrRes.sub)}</td></tr>`);
+  outR.push('<tr class="bsec"><td colspan="3">Vaste kosten</td></tr>');{let _st=0;s.vk.forEach(k=>{const n=(k.b||0)-(k.s||0);to+=n;_st+=n;outR.push(`<tr><td>${k.om}</td><td class="muted">${fmt(k.b)}${k.s?' \u2212 '+fmt(k.s):''}</td><td class="tr">${fmt(n)}</td></tr>`);});outR.push(`<tr class="bsub"><td>Totaal vaste kosten</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
+  outR.push('<tr class="bsec"><td colspan="3">Variabele kosten (raming)</td></tr>');{let _st=0;s.vark.forEach(k=>{to+=k.r||0;_st+=k.r||0;outR.push(`<tr><td>${k.om}</td><td></td><td class="tr">${fmt(k.r)}</td></tr>`);});outR.push(`<tr class="bsub"><td>Totaal variabele kosten</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   const pvT=S.ver.pv.reduce((a,v)=>a+(v.b||0),0),mvN=S.ver.mv.reduce((a,v)=>a+(v.b||0)-(v.s||0),0);
-  if(pvT+mvN>0){outR.push(`<tr class="bsec"><td>Vervoer</td><td></td><td class="tr">${fmt(pvT+mvN)}</td></tr>`);if(pvT>0){to+=pvT;outR.push(`<tr><td>Personenvervoer</td><td></td><td class="tr">${fmt(pvT)}</td></tr>`);}if(mvN>0){to+=mvN;outR.push(`<tr><td>Materiaalvervoer</td><td></td><td class="tr">${fmt(mvN)}</td></tr>`);}}
+  if(pvT+mvN>0){outR.push('<tr class="bsec"><td colspan="3">Vervoer</td></tr>');if(pvT>0){to+=pvT;outR.push(`<tr><td>Personenvervoer</td><td></td><td class="tr">${fmt(pvT)}</td></tr>`);}if(mvN>0){to+=mvN;outR.push(`<tr><td>Materiaalvervoer</td><td></td><td class="tr">${fmt(mvN)}</td></tr>`);}outR.push(`<tr class="bsub"><td>Totaal vervoer</td><td></td><td class="tr">${fmt(pvT+mvN)}</td></tr>`);}
   // Voeding = VAST budget: €10/dag × aanwezige takleden. De kinderen-bijdrage dekt al het eten,
   // ook voor leiding & kookploeg. Werkelijke aankopen verhogen dit budget NIET automatisch —
   // ze worden enkel ter controle getoond. Non-food aankopen tellen wel apart als echte kost.
@@ -1755,12 +1757,13 @@ function renderBudget(){
   let aFood=0;const aNon={};
   S.aankopen.forEach(a=>{if(FOOD_CATS.indexOf(a.c)>=0)aFood+=(a.b||0);else aNon[a.c]=(aNon[a.c]||0)+(a.b||0);});
   to+=gep;
-  outR.push(`<tr class="bsec"><td>Voeding (vast budget — €${s.eb}/p/dag)</td><td></td><td class="tr">${fmt(gep)}</td></tr>`);
+  outR.push(`<tr class="bsec"><td colspan="3">Voeding (vast budget — €${s.eb}/p/dag)</td></tr>`);
   outR.push(`<tr><td>Voedingsbudget (aanwezigen × €${s.eb}/dag)</td><td class="muted">telt mee in saldo</td><td class="tr">${fmt(gep)}</td></tr>`);
   if(aFood>0){const over=aFood>gep;outR.push(`<tr><td style="font-size:12px"><em>Werkelijke aankopen (eten &amp; drinken + bakkerij) — enkel controle, verandert het saldo niet</em></td><td class="${over?'bad':'ok'}" style="font-size:12px">${over?'⚠️ boven budget':'✓ binnen budget'}</td><td class="tr muted">${fmt(aFood)}</td></tr>`);}
+  outR.push(`<tr class="bsub"><td>Totaal voeding</td><td></td><td class="tr">${fmt(gep)}</td></tr>`);
   const nonKeys=Object.keys(aNon);
   if(nonKeys.length){
-    {let _st=0;const _i=outR.length;outR.push('');nonKeys.forEach(c=>{to+=aNon[c];_st+=aNon[c];outR.push(`<tr><td>${c}</td><td></td><td class="tr">${fmt(aNon[c])}</td></tr>`);});outR[_i]=`<tr class="bsec"><td>Non-food aankopen (apart van het eetbudget)</td><td></td><td class="tr">${fmt(_st)}</td></tr>`;}
+    outR.push('<tr class="bsec"><td colspan="3">Non-food aankopen (apart van het eetbudget)</td></tr>');{let _st=0;nonKeys.forEach(c=>{to+=aNon[c];_st+=aNon[c];outR.push(`<tr><td>${c}</td><td></td><td class="tr">${fmt(aNon[c])}</td></tr>`);});outR.push(`<tr class="bsub"><td>Totaal non-food</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   }
   document.getElementById('b-in').innerHTML=inR.join('');document.getElementById('b-int').textContent=fmt(ti);
   document.getElementById('b-out').innerHTML=outR.join('');document.getElementById('b-outt').textContent=fmt(to);
