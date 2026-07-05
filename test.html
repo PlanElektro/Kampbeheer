@@ -228,7 +228,6 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   <button class="tb act" data-tab="setup">⚙ Setup</button>
   <button class="tb" data-group="administratie">🗂️ Administratie</button>
   <button class="tb" data-group="kampkost">🍽️ Kampkost</button>
-  <button class="tb" data-tab="bestellingen">📦 Bestellingen</button>
   <button class="tb" data-tab="prikbord">📌 Prikbord</button>
   <button class="tb" data-tab="handleiding">ℹ️ Handleiding</button>
 </div>
@@ -1096,7 +1095,7 @@ function updateTerreinPreview(){
 
 const TAB_GROUPS={
   administratie:{children:[['budget','💰 Budget'],['av','👥 Aanwezigheden'],['aankopen','🛒 Aankopen'],['vervoer','🚗 Vervoerskosten']]},
-  kampkost:{children:[['keuken','🍳 Keuken'],['menu','📋 Menu'],['recepten','🍲 Recepten']]}
+  kampkost:{children:[['keuken','🍳 Keuken'],['menu','📋 Menu'],['recepten','🍲 Recepten'],['bestellingen','📦 Bestellingen']]}
 };
 function tabGroupOf(tab){for(const g in TAB_GROUPS){if(TAB_GROUPS[g].children.some(c=>c[0]===tab))return g;}return null;}
 function activateTab(tab){
