@@ -228,6 +228,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   <button class="tb act" data-tab="setup">⚙ Setup</button>
   <button class="tb" data-group="administratie">🗂️ Administratie</button>
   <button class="tb" data-group="kampkost">🍽️ Kampkost</button>
+  <button class="tb" data-tab="bestellingen">📦 Bestellingen</button>
   <button class="tb" data-tab="prikbord">📌 Prikbord</button>
   <button class="tb" data-tab="handleiding">ℹ️ Handleiding</button>
 </div>
@@ -342,6 +343,12 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   <div class="card"><div class="ch"><h3>🍲 Recepten bewerken</h3><span style="font-size:11px;color:#888;">hoeveelheden, prijzen &amp; ingrediënten — wijzigingen werken meteen door in Keuken &amp; bestellijst</span></div><div class="cb" id="rec-bd"></div></div>
 </div>
 
+<div class="panel" id="p-bestellingen">
+  <div class="card">
+    <div class="ch"><h3>📦 Bestellingen per leverdag</h3><select id="bs-marge" class="plan-sel" style="max-width:120px;" onchange="renderBestellingen()"><option value="0">Geen marge</option><option value="10" selected>+10%</option><option value="15">+15%</option><option value="20">+20%</option></select></div>
+    <div class="cb" id="bs-bd"><p style="color:#888;font-size:13px;">Laden…</p></div>
+  </div>
+</div>
 <div class="panel" id="p-prikbord">
   <div class="card"><div class="ch"><h3>Nieuw bericht</h3></div><div class="cb">
     <div class="fgrid">
@@ -1102,6 +1109,7 @@ function activateTab(tab){
   if(tab==='av')renderAV();if(tab==='menu')renderMenu();if(tab==='keuken'){renderKeuken();renderBak();}
   if(tab==='recepten')renderRecepten();
   if(tab==='prikbord')renderPrikbord();
+  if(tab==='bestellingen')renderBestellingen();
   if(tab==='aankopen'){renderAankopen();renderRef();}if(tab==='vervoer')renderVer();if(tab==='budget')renderBudget();
 }
 function activateGroup(group){const g=TAB_GROUPS[group];activateTab(g.last||g.children[0][0]);}
@@ -1534,6 +1542,64 @@ function renderDaySL(){
   cb.innerHTML=html;
 }
 
+function _leverList(){return (S.leverdata||[]).filter(function(x){return x&&x.d;}).slice().sort(function(a,b){return a.d.localeCompare(b.d);});}
+function uLeverSet(idx,f,v){if(!S.leverdata||!S.leverdata[idx])return;S.leverdata[idx][f]=v;save();renderBestellingen();}
+function uLeverDel(idx){if(!S.leverdata)return;S.leverdata.splice(idx,1);save();renderBestellingen();}
+function uLeverAdd(){if(!S.leverdata)S.leverdata=[];S.leverdata.push({d:'',dl:''});save();renderBestellingen();}
+function toggleBesteld(date,name,checked,qty){if(!S.besteld)S.besteld={};if(!S.besteld[date])S.besteld[date]={};if(checked)S.besteld[date][name]={done:true,q:qty};else delete S.besteld[date][name];save();renderBestellingen();}
+function renderBestellingen(){
+  if(!S.leverdata)S.leverdata=[];if(!S.besteld)S.besteld={};
+  var cb=document.getElementById('bs-bd');if(!cb)return;
+  var marge=+((document.getElementById('bs-marge')||{}).value)||0;
+  var html='<div style="background:#f7f9fc;border:1px solid #e3e8f0;border-radius:8px;padding:10px 12px;margin-bottom:14px;">';
+  html+='<div style="font-weight:600;margin-bottom:6px;">Leverdata <span style="font-weight:400;color:#888;font-size:12px;">\u2014 bepalen de opsplitsing per besteldag</span></div>';
+  (S.leverdata||[]).forEach(function(L,idx){
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;"><input type="date" value="'+(L.d||'')+'" onchange="uLeverSet('+idx+',\'d\',this.value)"><span style="color:#888;font-size:12px;">wijzigbaar tot</span><input type="date" value="'+(L.dl||'')+'" onchange="uLeverSet('+idx+',\'dl\',this.value)"><button class="rec-del" title="verwijder" onclick="uLeverDel('+idx+')">\u2715</button></div>';
+  });
+  html+='<button class="rec-add-ing" onclick="uLeverAdd()">+ leverdatum</button></div>';
+  var dates=_leverList();
+  if(!dates.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Voeg minstens \u00e9\u00e9n leverdatum toe om de bestellijst op te splitsen.</p>';return;}
+  var days=getDays();
+  if(!days.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Stel eerst de kampdata in bij Setup.</p>';return;}
+  var wins=dates.map(function(L,k){return {d:L.d,dl:L.dl,days:[],tots:{}};});
+  days.forEach(function(dd){var idx=0;for(var k=0;k<dates.length;k++){if(dates[k].d<=dd)idx=k;}wins[idx].days.push(dd);});
+  wins.forEach(function(w){
+    w.days.forEach(function(dd){
+      var mn=S.menu[dd]||{};var p=getPorties(dd,marge);if(p<0.1)return;
+      [(mn.on&&mn.on.ma)||'',(mn.mi&&mn.mi.ma)||'',(mn.uu&&mn.uu.ma)||'',(mn.av&&mn.av.ma)||'',(mn.des&&mn.des.ma)||''].forEach(function(nm){
+        var meal=recByName(nm);if(!meal)return;
+        meal.ing.forEach(function(i){if(!w.tots[i.n])w.tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};w.tots[i.n].total+=i.pp*p;});
+      });
+    });
+  });
+  var lbl={sol:'\ud83d\udfe1 Solucious',slager:'\ud83d\udd34 Slager / lokaal',super:'\ud83d\udfe2 Supermarkt',bakker:'\ud83c\udf5e Bakkerij'};
+  var order=['sol','slager','super','bakker'];
+  wins.forEach(function(w){
+    var items=Object.values(w.tots);
+    var store=S.besteld[w.d]||{};
+    var doneCount=items.filter(function(it){return store[it.n]&&store[it.n].done;}).length;
+    var dl=w.dl?' <span style="font-weight:400;color:#b45309;font-size:12px;">\u2014 wijzigbaar tot '+fD(w.dl)+'</span>':'';
+    var range=w.days.length?fD(w.days[0])+(w.days.length>1?' \u2192 '+fD(w.days[w.days.length-1]):''):'geen dagen';
+    html+='<div style="margin-bottom:20px;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden;"><div style="background:#eef2f8;padding:8px 12px;font-weight:700;color:#1b3a6b;">\ud83d\udce6 Levering '+fD(w.d)+dl+' <span style="font-weight:400;color:#888;font-size:12px;">\u00b7 dekt '+range+' \u00b7 '+doneCount+'/'+items.length+' afgevinkt</span></div><div style="padding:8px 12px;">';
+    if(!items.length){html+='<p style="color:#888;font-size:13px;">Geen ingredi\u00ebnten in dit venster.</p></div></div>';return;}
+    var g={sol:[],slager:[],super:[],bakker:[]};
+    items.forEach(function(it){(g[it.sup]||g.super).push(it);});
+    order.forEach(function(sup){
+      var list=g[sup];if(!list||!list.length)return;
+      html+='<div class="shop-sec"><h4>'+lbl[sup]+'</h4>';
+      list.sort(function(a,b){return a.n.localeCompare(b.n);}).forEach(function(it){
+        var si=it.sol?SOL[it.sol]:null;var artH='',pkgH='';
+        if(si){var pk=Math.ceil(it.total/si.vpv);artH=' <span class="shop-art">art.'+si.art+'</span>';pkgH=' <span class="shop-pkg">\u2192 '+pk+' stuk'+(pk!==1?'s':'')+' ('+si.nm+')</span>';}
+        var rec=store[it.n]||{};var done=!!rec.done;var changed=done&&rec.q!=null&&Math.abs(rec.q-it.total)>0.001;
+        var nEsc=String(it.n).replace(/"/g,'&quot;');
+        html+='<div class="shop-row" style="'+(done?'opacity:.5;':'')+'"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;"><input type="checkbox" '+(done?'checked':'')+' onchange="toggleBesteld(\''+w.d+'\',\''+nEsc+'\',this.checked,'+it.total+')"><span class="shop-nm">'+it.n+artH+'</span></label><span class="shop-amt">'+fmtQ(it.total,it.u)+pkgH+(changed?' <span style="color:#b45309;">\ud83d\udd04 gewijzigd</span>':'')+'</span></div>';
+      });
+      html+='</div>';
+    });
+    html+='</div></div>';
+  });
+  cb.innerHTML=html;
+}
 const VASTE_MENUS={
   on:[],
   mi:[],
