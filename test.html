@@ -1333,8 +1333,9 @@ function renderKD(){
       html+=`<div class="kd-meal"><div class="kd-meal-hd slot-lbl" onclick="this.parentElement.classList.toggle('open')"><span>${l}: ${cleanName(nm)} <span style="font-weight:400;color:#b45309;text-transform:none;letter-spacing:0;">\u2014 geen recept, prijs onbekend</span></span><span class="kd-chev">\u25be</span></div><div class="kd-meal-body"><div class="tip-box" style="background:#fffbeb;border-color:#fde68a;">Geen recept gekoppeld aan "${cleanName(nm)}". Kies een dessert uit de lijst in de Menu-tab, of voeg "${cleanName(nm)}" toe in de Recepten-tab \u2014 dan tellen de hoeveelheden en de kost mee.</div></div></div>`;
       return;
     }
-    let mealPP=0,known=0;const total=meal.ing.length;
-    meal.ing.forEach(i=>{const c=ingCostPP(i);if(c!=null){mealPP+=c;known++;}});
+    const _mIng=meal.ing.filter(i=>!ingSponsored(meal,i));
+    let mealPP=0,known=0;const total=_mIng.length;
+    _mIng.forEach(i=>{const c=ingCostPP(i);if(c!=null){mealPP+=c;known++;}});
     dagKostPP+=mealPP;if(known<total)dagVolledig=false;
     html+=`<div class="kd-meal"><div class="kd-meal-hd slot-lbl" onclick="this.parentElement.classList.toggle('open')"><span>${l}: ${cleanName(nm)}${known?` <span style="font-weight:400;color:#1b3a6b;text-transform:none;letter-spacing:0;">\u2248 ${fmt(mealPP)}/pers${known<total?` <span style="color:#999;">(${known}/${total} geprijsd)</span>`:''}</span>`:''}</span><span class="kd-chev">\u25be</span></div><div class="kd-meal-body">`;
     if(meal.tip)html+=`<div class="tip-box">💡 ${meal.tip}</div>`;
@@ -1342,6 +1343,7 @@ function renderKD(){
     meal.ing.forEach(i=>{
       const amt=i.pp*p;const si=i.sol?SOL[i.sol]:null;
       let sh='';
+      if(ingSponsored(meal,i)){html+=`<div class="ing-card"><div class="ing-nm">${i.n}</div><div><span class="ing-am">${fmtQ(amt,i.u)}</span></div><div class="ing-cost" style="color:#7c3aed;">🎁 gesponsord — €0</div>${i.note?`<div class="ing-note">${i.note}</div>`:''}</div>`;return;}
       if(si){const pkgs=Math.ceil(amt/si.vpv);sh=`<div class="ing-sol">art.${si.art} \u2014 ${pkgs}\u00d7 ${si.nm}</div>`;}
       const cpp=ingCostPP(i);
       if(cpp!=null){
@@ -1381,7 +1383,8 @@ const REC_CATS=[
   {key:'dessert',label:'🍰 Dessert'},
 ];
 const REC_UNITS=['g','ml','st'];
-function recipeCostPP(r){let s=0;r.ing.forEach(i=>{const c=ingCostPP(i);if(c!=null)s+=c;});return s;}
+function ingSponsored(r,i){return !!(r&&r.gesp&&!i.zelf);}
+function recipeCostPP(r){let s=0;r.ing.forEach(i=>{if(ingSponsored(r,i))return;const c=ingCostPP(i);if(c!=null)s+=c;});return s;}
 function renderRecepten(){
   seedRecepten();
   const bd=document.getElementById('rec-bd');if(!bd)return;
@@ -1405,15 +1408,19 @@ function recipeCard(r){
   h+='<div class="rec-body">';
   h+=`<label class="rec-lbl">Naam</label><input class="rec-in" value="${esc(r.nm)}" onchange="uRec('${r.id}','nm',this.value)">`;
   h+=`<label class="rec-lbl">Tip / bereiding</label><textarea class="rec-ta" onchange="uRec('${r.id}','tip',this.value)">${String(r.tip||'').replace(/</g,'&lt;')}</textarea>`;
+  h+=`<label class="rec-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;"><input type="checkbox" ${r.gesp?'checked':''} onchange="uRecGesp('${r.id}',this.checked)"> 🎁 Gesponsord gerecht${r.gesp?' — vink aan wat je zélf koopt':''}</label>`;
   h+='<label class="rec-lbl">Ingredi\u00ebnten (hoeveelheid per persoon)</label>';
-  h+='<div class="rec-tbl-w"><table class="rec-tbl"><thead><tr><th>Ingredi\u00ebnt</th><th>Per pers.</th><th>Eenheid</th><th>\u20ac/pers</th><th></th></tr></thead><tbody>';
+  h+='<div class="rec-tbl-w"><table class="rec-tbl"><thead><tr><th>Ingredi\u00ebnt</th><th>Per pers.</th><th>Eenheid</th>'+(r.gesp?'<th>Zelf</th>':'')+'<th>\u20ac/pers</th><th></th></tr></thead><tbody>';
   r.ing.forEach((i,idx)=>{
-    const cpp=ingCostPP(i);
+    const _sp=ingSponsored(r,i);
+    const cpp=_sp?null:ingCostPP(i);
+    const zelfCell=r.gesp?`<td style="text-align:center;"><input type="checkbox" ${i.zelf?'checked':''} title="zelf kopen" onchange="uRecZelf('${r.id}',${idx},this.checked)"></td>`:'';
+    const costCell=_sp?`<td class="rec-cost" style="color:#7c3aed;font-size:12px;white-space:nowrap;">🎁 gesponsord</td>`:`<td class="rec-cost"><input class="rec-in2 rec-num" type="number" step="any" min="0" value="${cpp!=null?(Math.round(cpp*10000)/10000):''}" placeholder="geen prijs" title="Prijs per persoon — invullen zet een handmatige prijs" onchange="uRecCost('${r.id}',${idx},this.value)"></td>`;
     h+=`<tr><td><input class="rec-in2" value="${esc(i.n)}" onchange="uRecIng('${r.id}',${idx},'n',this.value)"></td>`+
        `<td><input class="rec-in2 rec-num" type="number" step="any" min="0" value="${i.pp}" onchange="uRecIng('${r.id}',${idx},'pp',this.value)"></td>`+
        `<td><select class="rec-in2" onchange="uRecIng('${r.id}',${idx},'u',this.value)">`+REC_UNITS.map(x=>`<option value="${x}"${x===i.u?' selected':''}>${x}</option>`).join('')+`</select></td>`+
-       `<td class="rec-cost"><input class="rec-in2 rec-num" type="number" step="any" min="0" value="${cpp!=null?(Math.round(cpp*10000)/10000):''}" placeholder="geen prijs" title="Prijs per persoon \u2014 invullen zet een handmatige prijs" onchange="uRecCost('${r.id}',${idx},this.value)"></td>`+
-       `<td><button class="rec-del" title="verwijder" onclick="delRecIng('${r.id}',${idx})">\u2715</button></td></tr>`;
+       zelfCell+costCell+
+       `<td><button class="rec-del" title="verwijder" onclick="delRecIng('${r.id}',${idx})">✕</button></td></tr>`;
   });
   h+='</tbody></table></div>';
   h+=`<button class="rec-add-ing" onclick="addRecIng('${r.id}')">+ ingredi\u00ebnt</button>`;
@@ -1423,6 +1430,8 @@ function recipeCard(r){
 }
 function uRec(id,field,val){const r=recById(id);if(!r)return;r[field]=val;save();renderRecepten();}
 function uRecIng(id,idx,field,val){const r=recById(id);if(!r||!r.ing[idx])return;if(field==='pp')val=parseFloat(val)||0;r.ing[idx][field]=val;save();if(field!=='n')renderRecepten();}
+function uRecGesp(id,checked){const r=recById(id);if(!r)return;if(checked)r.gesp=true;else{delete r.gesp;r.ing.forEach(x=>{delete x.zelf;});}save();renderRecepten();}
+function uRecZelf(id,idx,checked){const r=recById(id);if(!r||!r.ing[idx])return;if(checked)r.ing[idx].zelf=true;else delete r.ing[idx].zelf;save();renderRecepten();}
 function uRecCost(id,idx,val){var r=recById(id);if(!r||!r.ing[idx])return;var ing=r.ing[idx];val=String(val).trim().replace(',','.');if(val===''){delete ing.prijs;}else{var v=parseFloat(val);if(isNaN(v)||v<0){renderRecepten();return;}var pp=Number(ing.pp)||0;ing.prijs=pp>0?v/pp:v;}save();renderRecepten();}
 function addRecIng(id){const r=recById(id);if(!r)return;r.ing.push({n:'Nieuw ingredi\u00ebnt',u:'g',pp:0,sup:'super'});save();renderRecepten();}
 function delRecIng(id,idx){const r=recById(id);if(!r)return;r.ing.splice(idx,1);save();renderRecepten();}
@@ -1447,7 +1456,8 @@ function renderSL(){
     [on,mid,uu,avnd,des].forEach(nm=>{
       const meal=recByName(nm);if(!meal)return;
       meal.ing.forEach(i=>{
-        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};
+        if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,anySp:false};
+        if(ingSponsored(meal,i)){tots[i.n].anySp=true;return;}
         tots[i.n].total+=i.pp*p;
       });
     });
@@ -1462,6 +1472,7 @@ function renderSL(){
     const list=g[sup];if(!list||!list.length)return;
     html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
     list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      if(it.total<=0){if(it.anySp)html+=`<div class="shop-row" style="opacity:.6;"><span class="shop-nm">${it.n}</span><span class="shop-amt" style="color:#7c3aed;">🎁 gesponsord — niet bestellen</span></div>`;return;}
       const si=it.sol?SOL[it.sol]:null;
       let artH='',pkgH='';
       if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
@@ -1484,7 +1495,8 @@ function renderDaySL(){
   [on,mid,uu,avnd,des].forEach(nm=>{
     const meal=recByName(nm);if(!meal)return;
     meal.ing.forEach(i=>{
-      if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,meals:[]};
+      if(!tots[i.n])tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,meals:[],anySp:false};
+      if(ingSponsored(meal,i)){tots[i.n].anySp=true;if(!tots[i.n].meals.includes(meal.nm))tots[i.n].meals.push(meal.nm);return;}
       tots[i.n].total+=i.pp*p;
       if(!tots[i.n].meals.includes(meal.nm))tots[i.n].meals.push(meal.nm);
     });
@@ -1511,6 +1523,7 @@ function renderDaySL(){
     const list=g[sup];if(!list||!list.length)return;
     html+=`<div class="shop-sec"><h4>${lbl[sup]}</h4>`;
     list.sort((a,b)=>a.n.localeCompare(b.n)).forEach(it=>{
+      if(it.total<=0){if(it.anySp)html+=`<div class="shop-row" style="opacity:.6;"><span class="shop-nm">${it.n}</span><span class="shop-amt" style="color:#7c3aed;">🎁 gesponsord — niet bestellen</span></div>`;return;}
       const si=it.sol?SOL[it.sol]:null;
       let artH='',pkgH='';
       if(si){const pk=Math.ceil(it.total/si.vpv);artH=`<span class="shop-art">art.${si.art}</span>`;pkgH=`<span class="shop-pkg">\u2192 ${pk} stuk${pk!==1?'s':''} (${si.nm})</span>`;}
