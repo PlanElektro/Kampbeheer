@@ -1574,14 +1574,23 @@ function renderBestellingen(){
   if(!dates.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Voeg minstens \u00e9\u00e9n leverdatum toe om de bestellijst op te splitsen.</p>';return;}
   var days=getDays();
   if(!days.length){cb.innerHTML=html+'<p style="color:#888;font-size:13px;">Stel eerst de kampdata in bij Setup.</p>';return;}
-  var wins=dates.map(function(L,k){return {d:L.d,dl:L.dl,days:[],tots:{}};});
+  var SLOTS=[['on','\ud83c\udf5e Ontbijt'],['mi','\ud83e\udd6a Lunch'],['uu','\ud83c\udf6a 4-uurtje'],['av','\ud83c\udf7d\ufe0f Avondmaal'],['des','\ud83c\udf6e Dessert']];
+  var wins=dates.map(function(L){return {d:L.d,dl:L.dl,days:[],tots:{},meals:{}};});
   days.forEach(function(dd){var idx=0;for(var k=0;k<dates.length;k++){if(dates[k].d<=dd)idx=k;}wins[idx].days.push(dd);});
   wins.forEach(function(w){
+    SLOTS.forEach(function(sl){w.meals[sl[0]]={};});
     w.days.forEach(function(dd){
       var mn=S.menu[dd]||{};var p=getPorties(dd,marge);if(p<0.1)return;
-      [(mn.on&&mn.on.ma)||'',(mn.mi&&mn.mi.ma)||'',(mn.uu&&mn.uu.ma)||'',(mn.av&&mn.av.ma)||'',(mn.des&&mn.des.ma)||''].forEach(function(nm){
-        var meal=recByName(nm);if(!meal)return;
-        meal.ing.forEach(function(i){if(!w.tots[i.n])w.tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0};w.tots[i.n].total+=i.pp*p;});
+      SLOTS.forEach(function(sl){
+        var nm=(mn[sl[0]]&&mn[sl[0]].ma)||'';var meal=recByName(nm);if(!meal)return;
+        meal.ing.forEach(function(i){
+          var sp=(typeof ingSponsored==='function')&&ingSponsored(meal,i);
+          if(!w.tots[i.n])w.tots[i.n]={n:i.n,u:i.u,sup:i.sup||'super',sol:i.sol||null,total:0,anySp:false};
+          var mt=w.meals[sl[0]];
+          if(!mt[i.n])mt[i.n]={n:i.n,u:i.u,total:0,anySp:false};
+          if(sp){w.tots[i.n].anySp=true;mt[i.n].anySp=true;return;}
+          w.tots[i.n].total+=i.pp*p;mt[i.n].total+=i.pp*p;
+        });
       });
     });
   });
@@ -1590,17 +1599,20 @@ function renderBestellingen(){
   wins.forEach(function(w){
     var items=Object.values(w.tots);
     var store=S.besteld[w.d]||{};
-    var doneCount=items.filter(function(it){return store[it.n]&&store[it.n].done;}).length;
+    var doneCount=items.filter(function(it){return it.total>0&&store[it.n]&&store[it.n].done;}).length;
+    var totalCount=items.filter(function(it){return it.total>0;}).length;
     var dl=w.dl?' <span style="font-weight:400;color:#b45309;font-size:12px;">\u2014 wijzigbaar tot '+fD(w.dl)+'</span>':'';
     var range=w.days.length?fD(w.days[0])+(w.days.length>1?' \u2192 '+fD(w.days[w.days.length-1]):''):'geen dagen';
-    html+='<div style="margin-bottom:20px;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden;"><div style="background:#eef2f8;padding:8px 12px;font-weight:700;color:#1b3a6b;">\ud83d\udce6 Levering '+fD(w.d)+dl+' <span style="font-weight:400;color:#888;font-size:12px;">\u00b7 dekt '+range+' \u00b7 '+doneCount+'/'+items.length+' afgevinkt</span></div><div style="padding:8px 12px;">';
+    html+='<div style="margin-bottom:20px;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden;"><div style="background:#eef2f8;padding:8px 12px;font-weight:700;color:#1b3a6b;">\ud83d\udce6 Levering '+fD(w.d)+dl+' <span style="font-weight:400;color:#888;font-size:12px;">\u00b7 dekt '+range+' \u00b7 '+doneCount+'/'+totalCount+' afgevinkt</span></div><div style="padding:8px 12px;">';
     if(!items.length){html+='<p style="color:#888;font-size:13px;">Geen ingredi\u00ebnten in dit venster.</p></div></div>';return;}
+    // 1) Bestelbare per-artikel lijst per leverancier (met afvinkjes)
     var g={sol:[],slager:[],super:[],bakker:[]};
     items.forEach(function(it){(g[it.sup]||g.super).push(it);});
     order.forEach(function(sup){
       var list=g[sup];if(!list||!list.length)return;
       html+='<div class="shop-sec"><h4>'+lbl[sup]+'</h4>';
       list.sort(function(a,b){return a.n.localeCompare(b.n);}).forEach(function(it){
+        if(it.total<=0){if(it.anySp)html+='<div class="shop-row" style="opacity:.6;"><span class="shop-nm">'+it.n+'</span><span class="shop-amt" style="color:#7c3aed;">\ud83c\udf81 gesponsord \u2014 niet bestellen</span></div>';return;}
         var si=it.sol?SOL[it.sol]:null;var artH='',pkgH='';
         if(si){var pk=Math.ceil(it.total/si.vpv);artH=' <span class="shop-art">art.'+si.art+'</span>';pkgH=' <span class="shop-pkg">\u2192 '+pk+' stuk'+(pk!==1?'s':'')+' ('+si.nm+')</span>';}
         var rec=store[it.n]||{};var done=!!rec.done;var changed=done&&rec.q!=null&&Math.abs(rec.q-it.total)>0.001;
@@ -1609,7 +1621,18 @@ function renderBestellingen(){
       });
       html+='</div>';
     });
-    html+='</div></div>';
+    // 2) Uitklapbare maaltijdsecties (read-only overzicht, totalen over dit venster)
+    html+='<div style="margin-top:10px;border-top:1px dashed #d6dde8;padding-top:8px;"><div style="font-size:12px;color:#888;margin-bottom:4px;">Overzicht per maaltijd (alleen-lezen \u2014 afvinken doe je hierboven per artikel)</div>';
+    SLOTS.forEach(function(sl){
+      var mt=Object.values(w.meals[sl[0]]).filter(function(x){return x.total>0||x.anySp;});
+      if(!mt.length)return;
+      html+='<details style="margin-bottom:6px;border:1px solid #e8edf4;border-radius:6px;background:#fbfcfe;"><summary style="cursor:pointer;padding:6px 10px;font-weight:600;color:#1b3a6b;font-size:13px;">'+sl[1]+' <span style="font-weight:400;color:#888;">('+mt.length+' ingredi\u00ebnten)</span></summary><div style="padding:2px 10px 8px;">';
+      mt.sort(function(a,b){return a.n.localeCompare(b.n);}).forEach(function(x){
+        html+='<div class="shop-row">'+ '<span class="shop-nm">'+x.n+'</span><span class="shop-amt">'+(x.total>0?fmtQ(x.total,x.u):'')+(x.anySp?' <span style="color:#7c3aed;font-size:12px;">\ud83c\udf81 (deels) gesponsord</span>':'')+'</span></div>';
+      });
+      html+='</div></details>';
+    });
+    html+='</div></div></div>';
   });
   cb.innerHTML=html;
 }
