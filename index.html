@@ -1074,7 +1074,7 @@ async function sbWrite(){
     try{
       const c=await fetch(`${SB_URL}/rest/v1/kampbeheer?id=eq.${SB_ID}&select=updated_at`,{headers:HDR});
       if(c.ok){const cr=await c.json();const srv=(cr&&cr.length&&cr[0].updated_at)||null;
-        if(srv&&_srvTs&&srv!==_srvTs){
+        if(srv&&_srvTs&&(new Date(srv).getTime()!==new Date(_srvTs).getTime())){
           setSS('err','conflict');
           const kies=confirm('\u26A0\uFE0F OPGELET \u2014 de gegevens op de server zijn intussen gewijzigd (ander toestel of tabblad).\n\nOK = TOCH OPSLAAN: jouw versie overschrijft die wijzigingen.\nAnnuleren = HERLADEN: de pagina laadt de nieuwste versie (jouw laatste, nog niet opgeslagen aanpassing gaat verloren).');
           if(!kies){location.reload();return;}
@@ -1082,9 +1082,9 @@ async function sbWrite(){
       }
     }catch(_){/* check onbereikbaar (offline) \u2014 gewoon proberen op te slaan zoals voorheen */}
     const ts=new Date().toISOString();
-    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer`,{method:'POST',headers:{...HDR,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:SB_ID,data:S,updated_at:ts})});
+    const r=await fetch(`${SB_URL}/rest/v1/kampbeheer`,{method:'POST',headers:{...HDR,'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({id:SB_ID,data:S,updated_at:ts})});
     if(!r.ok)throw new Error(r.status);
-    _srvTs=ts;
+    try{const rw=await r.json();_srvTs=(rw&&rw.length&&rw[0].updated_at)||ts;}catch(_){_srvTs=ts;}
     setSS('ok','opgeslagen \u2713');setTimeout(()=>setSS('ok','gesynchroniseerd'),2000);
   }catch(e){setSS('err','sync mislukt');}
 }
