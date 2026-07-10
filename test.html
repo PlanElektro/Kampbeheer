@@ -1572,6 +1572,14 @@ function uLeverSet(idx,f,v){if(!S.leverdata||!S.leverdata[idx])return;S.leverdat
 function uLeverDel(idx){if(!S.leverdata)return;S.leverdata.splice(idx,1);save();renderBestellingen();}
 function uLeverAdd(){if(!S.leverdata)S.leverdata=[];S.leverdata.push({d:'',dl:''});save();renderBestellingen();}
 function toggleBesteld(date,name,checked,qty){if(!S.besteld)S.besteld={};if(!S.besteld[date])S.besteld[date]={};if(checked)S.besteld[date][name]={done:true,q:qty};else delete S.besteld[date][name];save();renderBestellingen();}
+function bsCat(n){
+  var x=String(n||'').toLowerCase();
+  if(/(roomijs|ijsje|frieten|frietjes|friet\b|kroket|diepvries|visstick|fishstick|pizza)/.test(x))return 'diepvries';
+  if(/(sap\b|sinaasappelsap|appelsap|fruitsap|water|frisdrank|cola|limonade|ice ?tea|siroop|chocomelk)/.test(x))return 'drank';
+  if(/(tomat|komkommer|wortel|sla\b|salade|groent|fruit|appel|banaan|peer\b|ei\b|eieren|kaas|hesp|ham\b|salami|vlees|gehakt|kip|worst|chipolata|spek|vis\b|mascarpone|yoghurt|boter|melk|room\b|pudding|mousse|flan|liegeois|li\u00e9geois|charcuterie|brood|pistolet|sandwich|croque)/.test(x))return 'vers';
+  if(/(bloem|suiker|pasta|spaghetti|macaroni|rijst|cornflakes|choco\b|confituur|speculoos|koek|chips|hagelslag|smeerboter|margarine|puree|saus|mayonaise|ketchup|olie|azijn|zout|peper|kruiden|bakmix|puddingpoeder|cacao|boudoir|chocolade|snoep|conserv|blik)/.test(x))return 'droog';
+  return 'overig';
+}
 function renderBestellingen(){
   if(!S.leverdata)S.leverdata=[];if(!S.besteld)S.besteld={};
   var cb=document.getElementById('bs-bd');if(!cb)return;
@@ -1617,19 +1625,21 @@ function renderBestellingen(){
     var range=w.days.length?fD(w.days[0])+(w.days.length>1?' \u2192 '+fD(w.days[w.days.length-1]):''):'geen dagen';
     html+='<div style="margin-bottom:20px;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden;"><div style="background:#eef2f8;padding:8px 12px;font-weight:700;color:#1b3a6b;">\ud83d\udce6 Levering '+fD(w.d)+dl+' <span style="font-weight:400;color:#888;font-size:12px;">\u00b7 dekt '+range+' \u00b7 '+doneCount+'/'+totalCount+' afgevinkt</span></div><div style="padding:8px 12px;">';
     if(!items.length){html+='<p style="color:#888;font-size:13px;">Geen ingredi\u00ebnten in dit venster.</p></div></div>';return;}
-    // 1) Bestelbare per-artikel lijst per leverancier (met afvinkjes)
-    var g={sol:[],slager:[],super:[],bakker:[]};
-    items.forEach(function(it){(g[it.sup]||g.super).push(it);});
-    order.forEach(function(sup){
-      var list=g[sup];if(!list||!list.length)return;
-      html+='<div class="shop-sec"><h4>'+lbl[sup]+'</h4>';
-      list.sort(function(a,b){return a.n.localeCompare(b.n);}).forEach(function(it){
+    // 1) Bestelbare per-artikel lijst per categorie (met afvinkjes; leverancier als label per regel)
+    var CATS=[['vers','\ud83e\udd6c Verse voeding'],['diepvries','\u2744\ufe0f Diepvries'],['droog','\ud83e\udd6b Droge voeding'],['drank','\ud83e\udd64 Dranken'],['overig','\ud83d\udce6 Overige']];
+    var supRank={sol:0,slager:1,super:2,bakker:3};
+    var g={vers:[],diepvries:[],droog:[],drank:[],overig:[]};
+    items.forEach(function(it){(g[bsCat(it.n)]||g.overig).push(it);});
+    CATS.forEach(function(cat){
+      var list=g[cat[0]];if(!list||!list.length)return;
+      html+='<div class="shop-sec"><h4>'+cat[1]+'</h4>';
+      list.sort(function(a,b){var r=(supRank[a.sup]||0)-(supRank[b.sup]||0);return r!==0?r:a.n.localeCompare(b.n);}).forEach(function(it){
         if(it.total<=0){if(it.anySp)html+='<div class="shop-row" style="opacity:.6;"><span class="shop-nm">'+it.n+'</span><span class="shop-amt" style="color:#7c3aed;">\ud83c\udf81 gesponsord \u2014 niet bestellen</span></div>';return;}
         var si=it.sol?SOL[it.sol]:null;var artH='',pkgH='';
         if(si){var pk=Math.ceil(it.total/si.vpv);artH=' <span class="shop-art">art.'+si.art+'</span>';pkgH=' <span class="shop-pkg">\u2192 '+pk+' stuk'+(pk!==1?'s':'')+' ('+si.nm+')</span>';}
         var rec=store[it.n]||{};var done=!!rec.done;var changed=done&&rec.q!=null&&Math.abs(rec.q-it.total)>0.001;
         var nEsc=String(it.n).replace(/"/g,'&quot;');
-        html+='<div class="shop-row" style="'+(done?'opacity:.5;':'')+'"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;"><input type="checkbox" '+(done?'checked':'')+' onchange="toggleBesteld(\''+w.d+'\',\''+nEsc+'\',this.checked,'+it.total+')"><span class="shop-nm">'+it.n+artH+'</span></label><span class="shop-amt">'+fmtQ(it.total,it.u)+pkgH+(changed?' <span style="color:#b45309;">\ud83d\udd04 gewijzigd</span>':'')+'</span></div>';
+        html+='<div class="shop-row" style="'+(done?'opacity:.5;':'')+'"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;"><input type="checkbox" '+(done?'checked':'')+' onchange="toggleBesteld(\''+w.d+'\',\''+nEsc+'\',this.checked,'+it.total+')"><span class="shop-nm"><span title="'+(lbl[it.sup]||lbl.super).replace(/^\S+\s/,'')+'" style="font-size:11px;">'+(lbl[it.sup]||lbl.super).split(' ')[0]+'</span> '+it.n+artH+'</span></label><span class="shop-amt">'+fmtQ(it.total,it.u)+pkgH+(changed?' <span style="color:#b45309;">\ud83d\udd04 gewijzigd</span>':'')+'</span></div>';
       });
       html+='</div>';
     });
