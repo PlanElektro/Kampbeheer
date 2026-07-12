@@ -534,9 +534,9 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <tbody id="b-opt"></tbody><tfoot><tr class="tfoot" id="b-opt-ft"></tr></tfoot>
   </table></div></div></div>
   <div class="card"><div class="ch"><h3>Terreinhuur — detail per dag</h3></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
+    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Kookploeg</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
     <tbody id="b-terr"></tbody>
-    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
+    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
   </table></div></div></div>
 </div>
 
@@ -1137,7 +1137,7 @@ function getPorties(d,marge){
 }
 function calcTerrein(){
   const tr=S.setup.terrein||{};let tot=0;const rows=[];
-  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,eff,useMin});});
+  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const kp=(S.setup.kookploeg&&S.setup.kookploeg.leden||[]).filter(k=>k.aa&&k.vt&&d>=k.aa&&d<=k.vt).length;const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,kp,eff,useMin});});
   return{rows,dagtot:tot,netto:tot+(tr.borg||0)-(tr.sub||0),borg:tr.borg||0,sub:tr.sub||0};
 }
 function updateTerreinPreview(){
@@ -1970,7 +1970,7 @@ function renderBudget(){
   document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal extra inkomsten</strong></td><td colspan="4"></td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
   document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
   const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
-  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
+  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr" style="color:#666">${row.kp}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
   document.getElementById('b-terr-t').textContent=fmt(terrT);
   const saldo=ti-to;
   document.getElementById('b-met').innerHTML=`<div class="met met-ok"><div class="ml">Totaal inkomsten</div><div class="mv">${fmt(ti)}</div></div><div class="met met-bad"><div class="ml">Totaal uitgaven</div><div class="mv">${fmt(to)}</div></div><div class="met ${saldo>=0?'met-ok':'met-bad'}"><div class="ml">Saldo</div><div class="mv ${saldo>=0?'ok':'bad'}">${fmt(saldo)}</div></div><div class="met met-info"><div class="ml">Gemiste inkomsten</div><div class="mv">${fmt(oiT-wiT)}</div></div>`;
