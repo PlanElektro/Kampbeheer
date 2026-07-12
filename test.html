@@ -1107,7 +1107,15 @@ async function sbWrite(){
     setSS('ok','opgeslagen \u2713');setTimeout(()=>setSS('ok','gesynchroniseerd'),2000);
   }catch(e){setSS('err','sync mislukt');}
 }
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+function save(){if(typeof isViewer==='function'&&isViewer()){setSS('ok','\ud83d\udc41 kijkmodus \u2014 niet opgeslagen');return;}clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+function applyViewerUI(){
+  var old=document.getElementById('viewer-banner');if(old)old.remove();
+  if(!(typeof isViewer==='function'&&isViewer()))return;
+  var b=document.createElement('div');b.id='viewer-banner';
+  b.style.cssText='background:#6d28d9;color:#fff;text-align:center;padding:6px 14px;font-size:13px;font-weight:600;';
+  b.textContent='\ud83d\udc41 Kijkmodus \u2014 je kunt alles bekijken, maar wijzigingen worden NIET bewaard.';
+  document.body.insertBefore(b,document.body.firstChild);
+}
 
 const DNL=['zo','ma','di','wo','do','vr','za'];
 function fmt(n){if(n==null||isNaN(n))return'\u2014';return'\u20ac\u00a0'+Number(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -2104,15 +2112,42 @@ function refreshAll(){
 }
 function archiveCurrent(){var snap=JSON.parse(JSON.stringify(S));delete snap.archief;return {aid:uid(),nm:(S.setup&&S.setup.nm)||'Kamp',st:(S.setup&&S.setup.st)||'',ei:(S.setup&&S.setup.ei)||'',archivedAt:new Date().toISOString(),snap:snap};}
 function nieuwKamp(){
+  if(typeof isViewer==='function'&&isViewer()){alert('Kijkmodus \u2014 hiervoor heb je het beheerderswachtwoord nodig.');return;}
   if(!confirm('NIEUW KAMP AANMAKEN\n\nHet huidige kamp "'+((S.setup&&S.setup.nm)||'')+'" wordt GEARCHIVEERD en blijft raadpleegbaar onder \uD83D\uDDC4 Archief (rechtsboven), alleen-lezen.\n\nHet nieuwe kamp start als VOLLEDIGE KOPIE van het huidige (zelfde takken, menu, aankopen\u2026) die je daarna aanpast.\n\nEr wordt eerst een backup gedownload. Doorgaan?'))return;
   try{exportData();}catch(e){}
-  var nm=prompt('Naam van het nieuwe kamp:','Kamp '+(new Date().getFullYear()+1));if(nm===null)return;
-  var st=prompt('Begindatum nieuw kamp (JJJJ-MM-DD):','');if(st===null)return;
-  var ei=prompt('Einddatum nieuw kamp (JJJJ-MM-DD):','');if(ei===null)return;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(st)||!/^\d{4}-\d{2}-\d{2}$/.test(ei)){alert('Ongeldige datum (JJJJ-MM-DD). Er is niets gewijzigd.');return;}
-  if(ei<st){alert('Einddatum ligt vóór begindatum. Er is niets gewijzigd.');return;}
-  var c=prompt('LAATSTE BEVESTIGING.\nTyp NIEUW (in hoofdletters) om het huidige kamp te archiveren en een nieuw kamp te starten als kopie:');
-  if(c===null||String(c).trim().toUpperCase()!=='NIEUW'){alert('Niet bevestigd \u2014 er is niets gewijzigd.');return;}
+  var ov=document.getElementById('nk-overlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='nk-overlay';
+    ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;';
+    ov.innerHTML='<div style="background:#fff;border-radius:12px;max-width:420px;width:100%;padding:20px 22px;box-shadow:0 20px 50px rgba(0,0,0,.3);">'
+      +'<h3 style="margin:0 0 12px;color:#1b3a6b;">\ud83c\udd95 Nieuw kamp starten</h3>'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:8px 0 3px;">Naam nieuw kamp</label><input id="nk-nm" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:10px 0 3px;">Begindatum</label><input id="nk-st" type="date" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:10px 0 3px;">Einddatum</label><input id="nk-ei" type="date" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#b45309;margin:12px 0 3px;">Typ NIEUW ter bevestiging (het huidige kamp wordt gearchiveerd)</label><input id="nk-cf" class="rec-in2" style="width:100%;" autocomplete="off">'
+      +'<div id="nk-err" style="color:#dc2626;font-size:12px;min-height:16px;margin-top:6px;"></div>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;"><button class="rec-add-ing" onclick="document.getElementById(\'nk-overlay\').style.display=\'none\'">Annuleren</button><button class="rec-add-ing" style="background:#1b3a6b;color:#fff;" onclick="nkSubmit()">Nieuw kamp starten</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('nk-nm').value='Kamp '+(new Date().getFullYear()+1);
+  document.getElementById('nk-st').value='';document.getElementById('nk-ei').value='';
+  document.getElementById('nk-cf').value='';document.getElementById('nk-err').textContent='';
+  ov.style.display='flex';
+}
+function nkSubmit(){
+  var nm=document.getElementById('nk-nm').value.trim();
+  var st=document.getElementById('nk-st').value;
+  var ei=document.getElementById('nk-ei').value;
+  var cf=document.getElementById('nk-cf').value;
+  var err=document.getElementById('nk-err');
+  if(!nm){err.textContent='Geef een naam.';return;}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(st)||!/^\d{4}-\d{2}-\d{2}$/.test(ei)){err.textContent='Kies begin- en einddatum.';return;}
+  if(ei<st){err.textContent='Einddatum ligt v\u00f3\u00f3r begindatum.';return;}
+  if(String(cf).trim().toUpperCase()!=='NIEUW'){err.textContent='Typ NIEUW (hoofdletters) ter bevestiging.';return;}
+  document.getElementById('nk-overlay').style.display='none';
+  _nieuwKampCore(nm,st,ei);
+}
+function _nieuwKampCore(nm,st,ei){
   if(!S.archief)S.archief=[];
   S.archief.push(archiveCurrent());
   var oldSt=(S.setup&&S.setup.st)||st;var oldDays=getDays();
@@ -2180,8 +2215,10 @@ function importFile(inp){
   r.readAsText(file);
 }
 const _kh='23363565840879c01d226e0aa3615d97b1428ee7238c9f23558a0ff034bd7496'; // SHA-256 van het wachtwoord — het wachtwoord zelf staat niet in de code
+const _kh2='a9453ca82f297c53063c0dcfb548468a0a7e5a54526b39884da346ab72ad993b'; // SHA-256 van het kijk-wachtwoord (alleen-lezen)
 async function _hash(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-function isLoggedIn(){return localStorage.getItem('kamp26')==='1';}
+function isLoggedIn(){var v=localStorage.getItem('kamp26');return v==='1'||v==='v';}
+function isViewer(){return localStorage.getItem('kamp26')==='v';}
 function setLocked(locked){
   document.body.classList.toggle('locked',locked);
   document.getElementById('readonly-banner').classList.toggle('show',locked);
@@ -2197,12 +2234,14 @@ function showGate(v){
 }
 async function checkGate(){
   const v=document.getElementById('gate-pw').value;
-  if(await _hash(v)===_kh){
-    localStorage.setItem('kamp26','1');
+  const h=await _hash(v);
+  if(h===_kh||h===_kh2){
+    localStorage.setItem('kamp26',h===_kh2?'v':'1');
     document.getElementById('gate-pw').value='';
     document.getElementById('gate-err').textContent='';
     setLocked(false);
     showGate(false);
+    applyViewerUI();
   } else {
     document.getElementById('gate-err').textContent='Fout wachtwoord.';
     document.getElementById('gate-pw').value='';
@@ -2211,6 +2250,7 @@ async function checkGate(){
 }
 setLocked(!isLoggedIn());
 showGate(!isLoggedIn());
+if(typeof applyViewerUI==='function')applyViewerUI();
 (function(){var t=document.getElementById('tabs');if(!t)return;function f(){t.classList.toggle('more',t.scrollLeft+t.clientWidth<t.scrollWidth-4);}t.addEventListener('scroll',f);window.addEventListener('resize',f);f();})();
 sbLoad();
 updateBackupAge();
