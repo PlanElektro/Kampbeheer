@@ -255,10 +255,10 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   </div></div></div>
   <div class="card"><div class="ch"><h3>Kookploeg</h3><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn lockhide" onclick="kpSort()" title="Sorteer op aankomstdatum">↕ Sorteer op aankomst</button><button class="btn btn-ok" onclick="addKP()">+ Persoon</button></div></div><div class="cb">
     <div class="fgrid" style="margin-bottom:14px;">
-      <div class="fg"><label>Tarief per dag (€)</label><input type="number" id="kp-tarief" value="10" step="1" onchange="saveKP()"></div>
+      <div class="fg"><label>Tarief per nacht (€)</label><input type="number" id="kp-tarief" value="10" step="1" onchange="saveKP()"></div>
       <div class="fg"><label>Maximum per persoon (€)</label><input type="number" id="kp-max" value="50" step="5" onchange="saveKP()"></div>
     </div>
-    <div class="tw"><table><thead><tr><th>Naam</th><th>Aankomst</th><th>Vertrek</th><th class="tr">Dagen</th><th class="tr">Bijdrage (€)</th><th></th></tr></thead>
+    <div class="tw"><table><thead><tr><th>Naam</th><th>Aankomst</th><th>Vertrek</th><th class="tr">Nachten</th><th class="tr">Bijdrage (€)</th><th></th></tr></thead>
     <tbody id="kp-body"></tbody>
     <tfoot><tr class="tfoot"><td colspan="4"><strong>Totaal</strong></td><td class="tr tw5" id="kp-tot">—</td><td></td></tr></tfoot>
     </table></div>
@@ -1236,8 +1236,8 @@ function syncAVFromSetup(force){
   });
   if(document.getElementById('p-av').classList.contains('act'))renderAV();
 }
-function kpDagen(k){if(!k.aa||!k.vt)return 0;return Math.max(0,Math.round((new Date(k.vt)-new Date(k.aa))/86400000)+1);}
-function kpBijdrage(k){const kpCfg=S.setup.kookploeg||{tarief:10,max:50};return Math.min(kpDagen(k)*(kpCfg.tarief||10),(kpCfg.max||50));}
+function kpNachten(k){if(!k.aa||!k.vt)return 0;return Math.max(0,Math.round((new Date(k.vt)-new Date(k.aa))/86400000));}
+function kpBijdrage(k){const kpCfg=S.setup.kookploeg||{tarief:10,max:50};return Math.min(kpNachten(k)*(kpCfg.tarief||10),(kpCfg.max||50));}
 function saveKP(){
   if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
   S.setup.kookploeg.tarief=+document.getElementById('kp-tarief').value||10;
@@ -1252,7 +1252,7 @@ function rKP(){
   const tb=document.getElementById('kp-body');tb.innerHTML='';let tot=0;
   const len=(kp.leden||[]).length;
   (kp.leden||[]).forEach((k,i)=>{
-    const d=kpDagen(k),b=kpBijdrage(k);tot+=b;
+    const d=kpNachten(k),b=kpBijdrage(k);tot+=b;
     const tr=document.createElement('tr');
     tr.innerHTML=`<td><input type="text" value="${k.naam||''}" placeholder="Naam" style="min-width:120px" onchange="uKP(${i},'naam',this.value)"></td><td><input type="date" value="${k.aa||''}" style="width:130px" onchange="uKP(${i},'aa',this.value)"></td><td><input type="date" value="${k.vt||''}" style="width:130px" onchange="uKP(${i},'vt',this.value)"></td><td class="tr">${d}</td><td class="tr tw5">${fmt(b)}</td><td style="white-space:nowrap;"><button class="btn lockhide" onclick="kpMove(${i},-1)" title="Omhoog"${i===0?' disabled':''}>&#x25B2;</button> <button class="btn lockhide" onclick="kpMove(${i},1)" title="Omlaag"${i===len-1?' disabled':''}>&#x25BC;</button> <button class="btn btn-bad" onclick="dKP(${i})">&#x2715;</button></td>`;
     tb.appendChild(tr);
@@ -1897,7 +1897,7 @@ function renderBudget(){
   inR.push('<tr class="bsec"><td colspan="3">Kampprijs</td></tr>');{let _st=0;s.takken.forEach(t=>{const b=t.ins*t.kp;ti+=b;_st+=b;inR.push(`<tr><td>${t.nm}</td><td class="muted">${t.ins} \xd7 ${fmt(t.kp)}</td><td class="tr">${fmt(b)}</td></tr>`);});inR.push(`<tr class="bsub"><td>Totaal kampprijs</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   const kp=s.kookploeg||{tarief:10,max:50,leden:[]};
   if(kp.leden&&kp.leden.length){
-    inR.push('<tr class="bsec"><td colspan="3">Bijdrage kookploeg</td></tr>');{let _st=0;kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;_st+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpDagen(k)} dagen \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});inR.push(`<tr class="bsub"><td>Totaal bijdrage kookploeg</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
+    inR.push('<tr class="bsec"><td colspan="3">Bijdrage kookploeg</td></tr>');{let _st=0;kp.leden.forEach(k=>{const b=kpBijdrage(k);ti+=b;_st+=b;inR.push(`<tr><td>${k.naam||'—'}</td><td class="muted">${kpNachten(k)} nachten \xd7 ${fmt(kp.tarief)} (max ${fmt(kp.max)})</td><td class="tr">${fmt(b)}</td></tr>`);});inR.push(`<tr class="bsub"><td>Totaal bijdrage kookploeg</td><td></td><td class="tr">${fmt(_st)}</td></tr>`);}
   }
   // Speelgeld is geen inkomst maar een uitgave (uitbetaald aan groepen)
   outR.push('<tr class="bsec"><td colspan="3">Speelgeld (uitbetaald aan groepen)</td></tr>');
