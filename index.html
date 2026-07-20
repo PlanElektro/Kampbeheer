@@ -534,9 +534,9 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <tbody id="b-opt"></tbody><tfoot><tr class="tfoot" id="b-opt-ft"></tr></tfoot>
   </table></div></div></div>
   <div class="card"><div class="ch"><h3>Terreinhuur — detail per dag</h3></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
+    <table><thead><tr><th>Dag</th><th class="tr">Aanwezigen</th><th class="tr">Kookploeg</th><th class="tr">Berekend (€)</th><th class="tr">Min. toegepast</th></tr></thead>
     <tbody id="b-terr"></tbody>
-    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
+    <tfoot><tr class="tfoot"><td><strong>Totaal (excl. borg)</strong></td><td></td><td></td><td class="tr tw5" id="b-terr-t">—</td><td></td></tr></tfoot>
   </table></div></div></div>
 </div>
 
@@ -1107,7 +1107,15 @@ async function sbWrite(){
     setSS('ok','opgeslagen \u2713');setTimeout(()=>setSS('ok','gesynchroniseerd'),2000);
   }catch(e){setSS('err','sync mislukt');}
 }
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+function save(){if(typeof isViewer==='function'&&isViewer()){setSS('ok','\ud83d\udc41 kijkmodus \u2014 niet opgeslagen');return;}clearTimeout(saveTimer);saveTimer=setTimeout(sbWrite,800);}
+function applyViewerUI(){
+  var old=document.getElementById('viewer-banner');if(old)old.remove();
+  if(!(typeof isViewer==='function'&&isViewer()))return;
+  var b=document.createElement('div');b.id='viewer-banner';
+  b.style.cssText='background:#6d28d9;color:#fff;text-align:center;padding:6px 14px;font-size:13px;font-weight:600;';
+  b.textContent='\ud83d\udc41 Kijkmodus \u2014 je kunt alles bekijken, maar wijzigingen worden NIET bewaard.';
+  document.body.insertBefore(b,document.body.firstChild);
+}
 
 const DNL=['zo','ma','di','wo','do','vr','za'];
 function fmt(n){if(n==null||isNaN(n))return'\u2014';return'\u20ac\u00a0'+Number(n).toLocaleString('nl-BE',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -1129,7 +1137,7 @@ function getPorties(d,marge){
 }
 function calcTerrein(){
   const tr=S.setup.terrein||{};let tot=0;const rows=[];
-  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,eff,useMin});});
+  getDays().forEach(d=>{const av=S.av[d]||{};let n=0;S.setup.takken.forEach(t=>n+=av[t.id]||0);const kp=(S.setup.kookploeg&&S.setup.kookploeg.leden||[]).filter(k=>k.aa&&k.vt&&d>=k.aa&&d<=k.vt).length;const raw=n*(tr.r||0),eff=Math.max(raw,tr.min||0),useMin=raw<(tr.min||0);tot+=eff;rows.push({d,tot:n,kp,eff,useMin});});
   return{rows,dagtot:tot,netto:tot+(tr.borg||0)-(tr.sub||0),borg:tr.borg||0,sub:tr.sub||0};
 }
 function updateTerreinPreview(){
@@ -1287,7 +1295,16 @@ function printDoc(title,inner,landscape){
     +'th,td{border:1px solid #999;padding:5px 7px;text-align:center;vertical-align:top;}'
     +'th{background:#eee;}td.l,th.l{text-align:left;}tr.tot td{font-weight:bold;background:#f1f4fa;}'
     +'.tot-col{font-weight:bold;}.note{color:#666;font-size:10px;margin-top:3px;line-height:1.3;font-weight:normal;}';
-  var doc='<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+css+'</style></head><body>'+inner+'</body></html>';
+  css+='@media print{.noprint{display:none!important;}}';
+  var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+  var pbtn='<div class="noprint" style="margin:0 0 12px;"><button onclick="window.print()" style="font-size:15px;padding:10px 16px;border:1px solid #1b3a6b;background:#1b3a6b;color:#fff;border-radius:8px;">\ud83d\udda8\ufe0f Afdrukken / Opslaan als PDF</button><span style="font-size:11px;color:#888;margin-left:10px;">Kies in het printvenster \u201cOpslaan als PDF\u201d.</span></div>';
+  var doc='<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'+esc(title)+'</title><style>'+css+'</style></head><body>'+(isMobile?pbtn:'')+inner+'</body></html>';
+  if(isMobile){
+    var w=window.open('','_blank');
+    if(!w){alert('Kon geen nieuw tabblad openen. Sta pop-ups toe voor deze site en probeer opnieuw.');return;}
+    w.document.open();w.document.write(doc);w.document.close();
+    return;
+  }
   var ifr=document.createElement('iframe');ifr.setAttribute('aria-hidden','true');
   ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
   document.body.appendChild(ifr);
@@ -1962,7 +1979,7 @@ function renderBudget(){
   document.getElementById('b-scenario-ft').innerHTML=`<td><strong>Totaal extra inkomsten</strong></td><td colspan="4"></td><td class="tr tw5 ok">+${fmt(ext10)}</td><td class="tr tw5 ok">+${fmt(ext15)}</td>`;const tD2=oiT-wiT,tp2=lT?Math.round(iT/lT*100):0;
   document.getElementById('b-opt-ft').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${lT}</td><td class="tr">${iT}</td><td class="tr tw5">${lT?tp2+'%':'\u2014'}</td><td class="tr tw5">${fmt(wiT)}</td><td class="tr tw5">${fmt(oiT)}</td><td class="tr tw5 ${tD2>0?'ok':''}">${fmt(tD2)}</td>`;
   const terrBd=document.getElementById('b-terr');terrBd.innerHTML='';let terrT=0;
-  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
+  terrRes.rows.forEach(row=>{terrT+=row.eff;const tr=document.createElement('tr');tr.innerHTML=`<td style="white-space:nowrap">${fD(row.d)}</td><td class="tr">${row.tot}</td><td class="tr" style="color:#666">${row.kp}</td><td class="tr">${fmt(row.eff)}</td><td class="tr" style="font-size:12px;color:${row.useMin?'#d97706':'#888'}">${row.useMin?'ja':'nee'}</td>`;terrBd.appendChild(tr);});
   document.getElementById('b-terr-t').textContent=fmt(terrT);
   const saldo=ti-to;
   document.getElementById('b-met').innerHTML=`<div class="met met-ok"><div class="ml">Totaal inkomsten</div><div class="mv">${fmt(ti)}</div></div><div class="met met-bad"><div class="ml">Totaal uitgaven</div><div class="mv">${fmt(to)}</div></div><div class="met ${saldo>=0?'met-ok':'met-bad'}"><div class="ml">Saldo</div><div class="mv ${saldo>=0?'ok':'bad'}">${fmt(saldo)}</div></div><div class="met met-info"><div class="ml">Gemiste inkomsten</div><div class="mv">${fmt(oiT-wiT)}</div></div>`;
@@ -2104,15 +2121,42 @@ function refreshAll(){
 }
 function archiveCurrent(){var snap=JSON.parse(JSON.stringify(S));delete snap.archief;return {aid:uid(),nm:(S.setup&&S.setup.nm)||'Kamp',st:(S.setup&&S.setup.st)||'',ei:(S.setup&&S.setup.ei)||'',archivedAt:new Date().toISOString(),snap:snap};}
 function nieuwKamp(){
+  if(typeof isViewer==='function'&&isViewer()){alert('Kijkmodus \u2014 hiervoor heb je het beheerderswachtwoord nodig.');return;}
   if(!confirm('NIEUW KAMP AANMAKEN\n\nHet huidige kamp "'+((S.setup&&S.setup.nm)||'')+'" wordt GEARCHIVEERD en blijft raadpleegbaar onder \uD83D\uDDC4 Archief (rechtsboven), alleen-lezen.\n\nHet nieuwe kamp start als VOLLEDIGE KOPIE van het huidige (zelfde takken, menu, aankopen\u2026) die je daarna aanpast.\n\nEr wordt eerst een backup gedownload. Doorgaan?'))return;
   try{exportData();}catch(e){}
-  var nm=prompt('Naam van het nieuwe kamp:','Kamp '+(new Date().getFullYear()+1));if(nm===null)return;
-  var st=prompt('Begindatum nieuw kamp (JJJJ-MM-DD):','');if(st===null)return;
-  var ei=prompt('Einddatum nieuw kamp (JJJJ-MM-DD):','');if(ei===null)return;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(st)||!/^\d{4}-\d{2}-\d{2}$/.test(ei)){alert('Ongeldige datum (JJJJ-MM-DD). Er is niets gewijzigd.');return;}
-  if(ei<st){alert('Einddatum ligt vóór begindatum. Er is niets gewijzigd.');return;}
-  var c=prompt('LAATSTE BEVESTIGING.\nTyp NIEUW (in hoofdletters) om het huidige kamp te archiveren en een nieuw kamp te starten als kopie:');
-  if(c===null||String(c).trim().toUpperCase()!=='NIEUW'){alert('Niet bevestigd \u2014 er is niets gewijzigd.');return;}
+  var ov=document.getElementById('nk-overlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='nk-overlay';
+    ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;';
+    ov.innerHTML='<div style="background:#fff;border-radius:12px;max-width:420px;width:100%;padding:20px 22px;box-shadow:0 20px 50px rgba(0,0,0,.3);">'
+      +'<h3 style="margin:0 0 12px;color:#1b3a6b;">\ud83c\udd95 Nieuw kamp starten</h3>'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:8px 0 3px;">Naam nieuw kamp</label><input id="nk-nm" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:10px 0 3px;">Begindatum</label><input id="nk-st" type="date" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#555;margin:10px 0 3px;">Einddatum</label><input id="nk-ei" type="date" class="rec-in2" style="width:100%;">'
+      +'<label style="display:block;font-size:12px;font-weight:600;color:#b45309;margin:12px 0 3px;">Typ NIEUW ter bevestiging (het huidige kamp wordt gearchiveerd)</label><input id="nk-cf" class="rec-in2" style="width:100%;" autocomplete="off">'
+      +'<div id="nk-err" style="color:#dc2626;font-size:12px;min-height:16px;margin-top:6px;"></div>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;"><button class="rec-add-ing" onclick="document.getElementById(\'nk-overlay\').style.display=\'none\'">Annuleren</button><button class="rec-add-ing" style="background:#1b3a6b;color:#fff;" onclick="nkSubmit()">Nieuw kamp starten</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('nk-nm').value='Kamp '+(new Date().getFullYear()+1);
+  document.getElementById('nk-st').value='';document.getElementById('nk-ei').value='';
+  document.getElementById('nk-cf').value='';document.getElementById('nk-err').textContent='';
+  ov.style.display='flex';
+}
+function nkSubmit(){
+  var nm=document.getElementById('nk-nm').value.trim();
+  var st=document.getElementById('nk-st').value;
+  var ei=document.getElementById('nk-ei').value;
+  var cf=document.getElementById('nk-cf').value;
+  var err=document.getElementById('nk-err');
+  if(!nm){err.textContent='Geef een naam.';return;}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(st)||!/^\d{4}-\d{2}-\d{2}$/.test(ei)){err.textContent='Kies begin- en einddatum.';return;}
+  if(ei<st){err.textContent='Einddatum ligt v\u00f3\u00f3r begindatum.';return;}
+  if(String(cf).trim().toUpperCase()!=='NIEUW'){err.textContent='Typ NIEUW (hoofdletters) ter bevestiging.';return;}
+  document.getElementById('nk-overlay').style.display='none';
+  _nieuwKampCore(nm,st,ei);
+}
+function _nieuwKampCore(nm,st,ei){
   if(!S.archief)S.archief=[];
   S.archief.push(archiveCurrent());
   var oldSt=(S.setup&&S.setup.st)||st;var oldDays=getDays();
@@ -2180,8 +2224,10 @@ function importFile(inp){
   r.readAsText(file);
 }
 const _kh='23363565840879c01d226e0aa3615d97b1428ee7238c9f23558a0ff034bd7496'; // SHA-256 van het wachtwoord — het wachtwoord zelf staat niet in de code
+const _kh2='a9453ca82f297c53063c0dcfb548468a0a7e5a54526b39884da346ab72ad993b'; // SHA-256 van het kijk-wachtwoord (alleen-lezen)
 async function _hash(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-function isLoggedIn(){return localStorage.getItem('kamp26')==='1';}
+function isLoggedIn(){var v=localStorage.getItem('kamp26');return v==='1'||v==='v';}
+function isViewer(){return localStorage.getItem('kamp26')==='v';}
 function setLocked(locked){
   document.body.classList.toggle('locked',locked);
   document.getElementById('readonly-banner').classList.toggle('show',locked);
@@ -2197,12 +2243,14 @@ function showGate(v){
 }
 async function checkGate(){
   const v=document.getElementById('gate-pw').value;
-  if(await _hash(v)===_kh){
-    localStorage.setItem('kamp26','1');
+  const h=await _hash(v);
+  if(h===_kh||h===_kh2){
+    localStorage.setItem('kamp26',h===_kh2?'v':'1');
     document.getElementById('gate-pw').value='';
     document.getElementById('gate-err').textContent='';
     setLocked(false);
     showGate(false);
+    applyViewerUI();
   } else {
     document.getElementById('gate-err').textContent='Fout wachtwoord.';
     document.getElementById('gate-pw').value='';
@@ -2211,6 +2259,7 @@ async function checkGate(){
 }
 setLocked(!isLoggedIn());
 showGate(!isLoggedIn());
+if(typeof applyViewerUI==='function')applyViewerUI();
 (function(){var t=document.getElementById('tabs');if(!t)return;function f(){t.classList.toggle('more',t.scrollLeft+t.clientWidth<t.scrollWidth-4);}t.addEventListener('scroll',f);window.addEventListener('resize',f);f();})();
 sbLoad();
 updateBackupAge();
