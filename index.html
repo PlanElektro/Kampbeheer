@@ -502,6 +502,19 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   </table></div></div></div>
 </div>
 
+<div class="panel" id="p-leveranciers">
+  <div class="card"><div class="ch"><h3>📇 Leveranciers &amp; contacten</h3>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="btn lockhide" onclick="addLev()">+ firma toevoegen</button>
+      <button class="btn" onclick="printLev()">🖨️ Afdrukken / PDF</button>
+    </div></div>
+    <div class="cb">
+      <div class="note">Naslagwerk voor volgende kampen: bij wie werd wat gehuurd of gekocht, tegen welke prijs, met welke contactgegevens en afspraken. Deze gegevens blijven behouden wanneer je een nieuw kamp start.</div>
+      <div style="margin:8px 0 4px;"><input type="text" id="lev-zoek" placeholder="🔍 zoek op firma, onderdeel of notitie…" style="width:100%;max-width:420px;" oninput="renderLev()"></div>
+      <div id="lev-body"></div>
+    </div>
+  </div>
+</div>
 <div class="panel" id="p-budget">
   <div class="metrics" id="b-met"></div>
   <div class="note">⚠ Variabele kosten zijn ramingen. Als je werkelijke aankopen registreert voor dezelfde posten, zet de raming dan op €0.</div>
@@ -1147,7 +1160,7 @@ function updateTerreinPreview(){
 }
 
 const TAB_GROUPS={
-  administratie:{children:[['budget','💰 Budget'],['av','👥 Aanwezigheden'],['aankopen','🛒 Aankopen'],['vervoer','🚗 Vervoerskosten']]},
+  administratie:{children:[['budget','💰 Budget'],['av','👥 Aanwezigheden'],['aankopen','🛒 Aankopen'],['vervoer','🚗 Vervoerskosten'],['leveranciers','📇 Leveranciers']]},
   kampkost:{children:[['keuken','🍳 Keuken'],['menu','📋 Menu'],['recepten','🍲 Recepten'],['bestellingen','📦 Bestellingen']]}
 };
 function tabGroupOf(tab){for(const g in TAB_GROUPS){if(TAB_GROUPS[g].children.some(c=>c[0]===tab))return g;}return null;}
@@ -1924,6 +1937,78 @@ function renderVer(){
 function uPV(i,f,v){S.ver.pv[i][f]=v;renderVer();save();}function addPV(){S.ver.pv.push({id:uid(),tak:'',tp:'Trein',b:0,nt:''});renderVer();save();}function dPV(i){S.ver.pv.splice(i,1);renderVer();save();}
 function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.mv.push({id:uid(),om:'',b:0,s:0});renderVer();save();}function dMV(i){S.ver.mv.splice(i,1);renderVer();save();}
 
+const LEV_CATS=['Sanitair (Toi Toi’s)','Koeling (koelwagen/koelcel)','Tenten','Voeding – groothandel','Bakkerij','Slager','Vervoer (bus/trein)','Terrein','Gas','Materiaal','Overige'];
+const LEV_STATUS=[['top','⭐ Aanrader'],['ok','✓ Bruikbaar'],['nok','⚠ Niet meer doen']];
+function levList(){if(!S.leveranciers)S.leveranciers=[];return S.leveranciers;}
+function addLev(){levList().push({id:uid(),cat:LEV_CATS[0],nm:'',cp:'',tel:'',em:'',web:'',adr:'',prijs:'',jaar:'',per:'',ctr:'',ctrl:'',st:'ok',nt:''});renderLev();save();}
+function uLev(i,f,v){levList()[i][f]=v;save();if(f==='cat'||f==='st'||f==='nm')renderLev();}
+function dLev(i){var l=levList()[i];if(!confirm('Firma \''+(l.nm||'zonder naam')+'\' verwijderen?'))return;levList().splice(i,1);renderLev();save();}
+function levEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderLev(){
+  var bd=document.getElementById('lev-body');if(!bd)return;
+  var q=((document.getElementById('lev-zoek')||{}).value||'').toLowerCase().trim();
+  var list=levList();
+  if(!list.length){bd.innerHTML='<p style="color:#888;font-size:13px;">Nog geen firma\u2019s geregistreerd. Klik op \u201c+ firma toevoegen\u201d om te beginnen.</p>';return;}
+  var idx=list.map(function(l,i){return i;});
+  if(q)idx=idx.filter(function(i){var l=list[i];return ((l.nm||'')+' '+(l.cat||'')+' '+(l.nt||'')+' '+(l.cp||'')+' '+(l.per||'')).toLowerCase().indexOf(q)>=0;});
+  var cats=[];LEV_CATS.forEach(function(c){cats.push(c);});
+  list.forEach(function(l){if(l.cat&&cats.indexOf(l.cat)<0)cats.push(l.cat);});
+  var rank={top:0,ok:1,nok:2},html='';
+  cats.forEach(function(cat){
+    var items=idx.filter(function(i){return (list[i].cat||'Overige')===cat;});
+    if(!items.length)return;
+    items.sort(function(a,b){return (rank[list[a].st]||1)-(rank[list[b].st]||1);});
+    html+='<details open style="margin-bottom:10px;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden;"><summary style="cursor:pointer;padding:8px 12px;background:#eef2f8;font-weight:700;color:#1b3a6b;">'+levEsc(cat)+' <span style="font-weight:400;color:#888;font-size:12px;">('+items.length+')</span></summary><div style="padding:10px 12px;">';
+    items.forEach(function(i){
+      var l=list[i];
+      var kleur=l.st==='top'?'#15803d':(l.st==='nok'?'#dc2626':'#6b7280');
+      html+='<div style="border:1px solid #e8edf4;border-radius:6px;padding:10px;margin-bottom:8px;background:#fbfcfe;">'
+       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">'
+       +'<input type="text" value="'+levEsc(l.nm)+'" placeholder="Firma" style="flex:1;min-width:160px;font-weight:700;" onchange="uLev('+i+',\'nm\',this.value)">'
+       +'<select onchange="uLev('+i+',\'cat\',this.value)">'+LEV_CATS.map(function(c){return '<option'+(c===l.cat?' selected':'')+'>'+levEsc(c)+'</option>';}).join('')+'</select>'
+       +'<select style="color:'+kleur+';font-weight:600;" onchange="uLev('+i+',\'st\',this.value)">'+LEV_STATUS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===l.st?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
+       +'<button class="btn btn-bad lockhide" onclick="dLev('+i+')">✕</button></div>'
+       +'<div class="fgrid">'
+       +'<div class="fg"><label>Contactpersoon</label><input type="text" value="'+levEsc(l.cp)+'" onchange="uLev('+i+',\'cp\',this.value)"></div>'
+       +'<div class="fg"><label>Telefoon</label><input type="text" value="'+levEsc(l.tel)+'" onchange="uLev('+i+',\'tel\',this.value)"></div>'
+       +'<div class="fg"><label>E-mail</label><input type="text" value="'+levEsc(l.em)+'" onchange="uLev('+i+',\'em\',this.value)"></div>'
+       +'<div class="fg"><label>Website</label><input type="text" value="'+levEsc(l.web)+'" onchange="uLev('+i+',\'web\',this.value)"></div>'
+       +'<div class="fg"><label>Adres</label><input type="text" value="'+levEsc(l.adr)+'" onchange="uLev('+i+',\'adr\',this.value)"></div>'
+       +'<div class="fg"><label>Prijs (€)</label><input type="text" value="'+levEsc(l.prijs)+'" placeholder="bv. 1000" onchange="uLev('+i+',\'prijs\',this.value)"></div>'
+       +'<div class="fg"><label>Jaar van die prijs</label><input type="text" value="'+levEsc(l.jaar)+'" placeholder="bv. 2026" onchange="uLev('+i+',\'jaar\',this.value)"></div>'
+       +'<div class="fg"><label>Periode / duur</label><input type="text" value="'+levEsc(l.per)+'" placeholder="bv. 14–28 juli, 2 weken" onchange="uLev('+i+',\'per\',this.value)"></div>'
+       +'<div class="fg"><label>Contract / offerte</label><input type="text" value="'+levEsc(l.ctr)+'" placeholder="omschrijving" onchange="uLev('+i+',\'ctr\',this.value)"></div>'
+       +'<div class="fg"><label>Link naar document</label><input type="text" value="'+levEsc(l.ctrl)+'" placeholder="Drive-link…" onchange="uLev('+i+',\'ctrl\',this.value)"></div>'
+       +'</div>'
+       +'<div class="fg" style="margin-top:6px;"><label>Notities / ervaring</label><textarea rows="2" style="width:100%;" onchange="uLev('+i+',\'nt\',this.value)">'+levEsc(l.nt)+'</textarea></div>'
+       +'</div>';
+    });
+    html+='</div></details>';
+  });
+  if(!html)html='<p style="color:#888;font-size:13px;">Geen resultaten voor deze zoekterm.</p>';
+  bd.innerHTML=html;
+}
+function printLev(){
+  var list=levList();if(!list.length){alert('Nog geen leveranciers geregistreerd.');return;}
+  var rank={top:0,ok:1,nok:2},lbl={top:'⭐ Aanrader',ok:'Bruikbaar',nok:'⚠ Niet meer doen'};
+  var cats=[];LEV_CATS.forEach(function(c){cats.push(c);});
+  list.forEach(function(l){if(l.cat&&cats.indexOf(l.cat)<0)cats.push(l.cat);});
+  var h='<h1>Leveranciers &amp; contacten</h1><p class="sub">'+levEsc((S.setup&&S.setup.nm)||'Kamp')+' — naslagwerk voor volgende kampen</p>';
+  cats.forEach(function(cat){
+    var items=list.filter(function(l){return (l.cat||'Overige')===cat;});
+    if(!items.length)return;
+    items.sort(function(a,b){return (rank[a.st]||1)-(rank[b.st]||1);});
+    h+='<h2>'+levEsc(cat)+'</h2><table><thead><tr><th>Firma</th><th>Contact</th><th>Prijs</th><th>Periode</th><th>Notities</th></tr></thead><tbody>';
+    items.forEach(function(l){
+      var c=[levEsc(l.cp),levEsc(l.tel),levEsc(l.em),levEsc(l.web),levEsc(l.adr)].filter(Boolean).join('<br>');
+      var p=l.prijs?('€ '+levEsc(l.prijs)+(l.jaar?' <span style="color:#666">('+levEsc(l.jaar)+')</span>':'')):'—';
+      var n=[levEsc(l.nt),(l.ctr?'Contract: '+levEsc(l.ctr):''),(l.ctrl?levEsc(l.ctrl):'')].filter(Boolean).join('<br>');
+      h+='<tr><td><strong>'+levEsc(l.nm||'—')+'</strong><br><span style="color:#666;font-size:11px;">'+(lbl[l.st]||'')+'</span></td><td>'+(c||'—')+'</td><td>'+p+'</td><td>'+(levEsc(l.per)||'—')+'</td><td>'+(n||'—')+'</td></tr>';
+    });
+    h+='</tbody></table>';
+  });
+  printDoc('Leveranciers — '+((S.setup&&S.setup.nm)||'Kamp'),h,true);
+}
 function renderBudget(){
   const s=S.setup;let ti=0,to=0;const inR=[],outR=[];
   let gep=0;getDays().forEach(d=>{const av=S.av[d]||{};let t=0;s.takken.forEach(tk=>{if(tk.eet===false)return;t+=av[tk.id]||0;});gep+=t*s.eb;});
@@ -2126,13 +2211,13 @@ function printBak(){
   printDoc(title,'<h1>'+esc(title)+'</h1><p class="sub">'+esc(sub)+'</p><table><thead>'+head+'</thead><tbody>'+body+foot+'</tbody></table>',true);
 }function normalizeState(){
   if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup)S.setup={};if(!S.bakleiding)S.bakleiding={};if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
-  if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};if(!S.ingprijzen)S.ingprijzen={};if(!S.archief)S.archief=[];
+  if(!S.leveranciers)S.leveranciers=[];if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};if(!S.ingprijzen)S.ingprijzen={};if(!S.archief)S.archief=[];
   if(typeof seedRecepten==='function')seedRecepten();
   if(!S.menu)S.menu={};getDays().forEach(function(d){if(!S.menu[d])S.menu[d]={};if(S.menu[d].on===undefined)S.menu[d].on={ma:'\uD83C\uDF5E Standaard ontbijt'};if(S.menu[d].mi===undefined)S.menu[d].mi={ma:'\uD83E\uDD6A Boterhammen middag'};if(S.menu[d].uu===undefined)S.menu[d].uu={ma:'\uD83C\uDF6A Vieruurtje'};});
 }
 function refreshAll(){
   try{if(typeof loadSU==='function')loadSU();}catch(e){}
-  ['rTk','renderAV','renderMenu','renderKeuken','renderBudget','renderAankopen','renderRecepten','renderPrikbord','updateBackupAge'].forEach(function(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
+  ['rTk','renderAV','renderMenu','renderKeuken','renderBudget','renderAankopen','renderRecepten','renderPrikbord','renderLev','updateBackupAge'].forEach(function(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
   var h=document.getElementById('app-nm');if(h&&S.setup&&S.setup.nm)h.textContent=S.setup.nm;
 }
 function archiveCurrent(){var snap=JSON.parse(JSON.stringify(S));delete snap.archief;return {aid:uid(),nm:(S.setup&&S.setup.nm)||'Kamp',st:(S.setup&&S.setup.st)||'',ei:(S.setup&&S.setup.ei)||'',archivedAt:new Date().toISOString(),snap:snap};}
