@@ -74,6 +74,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
+/* ===== Sprint 4A: Vervoer ===== */
+#ver-sum{margin-bottom:16px;}
+.su-cnt-s{font-size:11.5px;color:#8a94a6;margin-top:3px;}
+table.ver-tbl tbody tr{cursor:default;}
+table.ver-tbl tbody tr:hover{background:transparent;}
+.ver-leeg{color:#c3ccdb;}
+.ver-nt{font-size:11.5px;color:var(--txt2);margin-top:2px;}
+@media(max-width:640px){
+  #ver-sum{grid-template-columns:1fr 1fr;}
+  table.ver-tbl thead{display:none;}
+  table.ver-tbl tbody tr{display:block;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;padding:10px 12px;}
+  table.ver-tbl tbody td{display:none;}
+  table.ver-tbl tbody td:first-child{display:block;padding:0;border:0;}
+  table.ver-tbl tfoot{display:none;}
+}
 /* ===== Sprint 3.1: visuele consistentie ===== */
 .su-2col{align-items:stretch;}
 .su-2col .card{display:flex;flex-direction:column;height:100%;}
@@ -823,16 +838,35 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 </div>
 
 <div class="panel" id="p-vervoer">
-  <div class="card"><div class="ch"><h3>Personenvervoer</h3><button class="btn btn-ok" onclick="addPV()">+ Rij</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Tak / groep</th><th>Type</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
-    <tbody id="pv-bd"></tbody>
-    <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal</strong></td><td class="tr tw5" id="pv-t">—</td><td colspan="2"></td></tr></tfoot>
-  </table></div></div></div>
-  <div class="card"><div class="ch"><h3>Materiaalvervoer</h3><button class="btn btn-ok" onclick="addMV()">+ Rij</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
-    <tbody id="mv-bd"></tbody>
-    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="mv-b">—</td><td class="tr" id="mv-s">—</td><td class="tr tw5" id="mv-n">—</td><td></td></tr></tfoot>
-  </table></div></div></div>
+  <div class="pl-counts" id="ver-sum"></div>
+
+  <div class="card"><div class="ch"><h3>Personenvervoer</h3>
+    <button class="btn su-edit" id="pv-toggle" onclick="pvToggle()">Personenvervoer bewerken</button></div><div class="cb">
+    <div id="pv-read"><div class="tw"><table class="su-tak ver-tbl">
+      <thead><tr><th>Groep</th><th>Rit</th><th>Datum</th><th>Type</th><th>Vervoerder</th><th>Status</th><th class="tr">Bedrag</th></tr></thead>
+      <tbody id="pv-read-body"></tbody>
+      <tfoot><tr class="tfoot" id="pv-read-ft"></tr></tfoot></table></div></div>
+    <div id="pv-manage" style="display:none;">
+      <div style="margin-bottom:10px;"><button class="btn btn-pri lockhide" onclick="addPV()">+ Rij toevoegen</button></div>
+      <div class="tw"><table><thead><tr><th>Tak / groep</th><th>Type</th><th class="tr">Bedrag (€)</th><th>Notities</th><th></th></tr></thead>
+      <tbody id="pv-bd"></tbody>
+      <tfoot><tr class="tfoot"><td colspan="2"><strong>Totaal</strong></td><td class="tr tw5" id="pv-t">—</td><td colspan="2"></td></tr></tfoot>
+    </table></div></div>
+  </div></div>
+
+  <div class="card"><div class="ch"><h3>Materiaalvervoer</h3>
+    <button class="btn su-edit" id="mv-toggle" onclick="mvToggle()">Materiaalvervoer bewerken</button></div><div class="cb">
+    <div id="mv-read"><div class="tw"><table class="su-tak ver-tbl">
+      <thead><tr><th>Omschrijving</th><th>Datum</th><th>Vervoerder</th><th>Status</th><th class="tr">Bruto</th><th class="tr">Subsidie</th><th class="tr">Netto</th></tr></thead>
+      <tbody id="mv-read-body"></tbody>
+      <tfoot><tr class="tfoot" id="mv-read-ft"></tr></tfoot></table></div></div>
+    <div id="mv-manage" style="display:none;">
+      <div style="margin-bottom:10px;"><button class="btn btn-pri lockhide" onclick="addMV()">+ Rij toevoegen</button></div>
+      <div class="tw"><table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+      <tbody id="mv-bd"></tbody>
+      <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="mv-b">—</td><td class="tr" id="mv-s">—</td><td class="tr tw5" id="mv-n">—</td><td></td></tr></tfoot>
+    </table></div></div>
+  </div></div>
 </div>
 
 <div class="panel" id="p-leveranciers">
@@ -1946,7 +1980,7 @@ function suApplyViewer(){
   var ro=suViewer();
   document.querySelectorAll('.su-edit').forEach(function(b){b.style.display=ro?'none':'';});
   if(ro){
-    [['kp-manage','kp-read'],['vk-manage','vk-read'],['vark-manage','vark-read']].forEach(function(pair){
+    [['kp-manage','kp-read'],['vk-manage','vk-read'],['vark-manage','vark-read'],['pv-manage','pv-read'],['mv-manage','mv-read']].forEach(function(pair){
       var m=document.getElementById(pair[0]),r=document.getElementById(pair[1]);
       if(m)m.style.display='none';if(r)r.style.display='block';});
   }
@@ -2816,6 +2850,72 @@ function renderVer(){
   const mvb=document.getElementById('mv-bd');mvb.innerHTML='';let mvB=0,mvS=0;
   S.ver.mv.forEach((v,i)=>{mvB+=v.b||0;mvS+=v.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${v.om}" style="min-width:200px" onchange="uMV(${i},'om',this.value)"></td><td class="tr"><input type="number" value="${v.b}" step="50" style="width:90px" onchange="uMV(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${v.s}" step="50" style="width:90px" onchange="uMV(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((v.b||0)-(v.s||0))}</td><td><button class="btn btn-bad" onclick="dMV(${i})">&#x2715;</button></td>`;mvb.appendChild(tr);});
   document.getElementById('mv-b').textContent=fmt(mvB);document.getElementById('mv-s').textContent=fmt(mvS);document.getElementById('mv-n').textContent=fmt(mvB-mvS);
+  renderVerRead();
+}
+function pvToggle(){
+  if(suViewer())return;
+  var m=document.getElementById('pv-manage'),r=document.getElementById('pv-read'),b=document.getElementById('pv-toggle');
+  if(!m)return;var open=m.style.display!=='none';
+  m.style.display=open?'none':'block';if(r)r.style.display=open?'block':'none';
+  if(b)b.textContent=open?'Personenvervoer bewerken':'Bewerken sluiten';
+}
+function mvToggle(){
+  if(suViewer())return;
+  var m=document.getElementById('mv-manage'),r=document.getElementById('mv-read'),b=document.getElementById('mv-toggle');
+  if(!m)return;var open=m.style.display!=='none';
+  m.style.display=open?'none':'block';if(r)r.style.display=open?'block':'none';
+  if(b)b.textContent=open?'Materiaalvervoer bewerken':'Bewerken sluiten';
+}
+function verVal(v,k){var x=v[k];return (x===undefined||x===null||x==='')?'':String(x);}
+function verCel(t){return t?plEsc(t):'<span class="ver-leeg">\u2014</span>';}
+function renderVerRead(){
+  // Leesweergave. Rit/Datum/Vervoerder/Status bestaan nog niet in het datamodel;
+  // ze worden getoond als voorbereide kolom en gevuld zodra de velden bestaan.
+  var pv=(S.ver&&S.ver.pv)||[],mv=(S.ver&&S.ver.mv)||[];
+  var pvT=0,mvB=0,mvS=0;
+  var pb=document.getElementById('pv-read-body');
+  if(pb){
+    pb.innerHTML=pv.map(function(v){
+      pvT+=v.b||0;
+      var nt=verVal(v,'nt');
+      return '<tr>'
+        +'<td><strong>'+verCel(verVal(v,'tak'))+'</strong>'
+        +(nt?'<div class="ver-nt">'+plEsc(nt)+'</div>':'')
+        +'<span class="su-mobile-cell">'+verCel(verVal(v,'tp'))+' \u00b7 '+fmt(v.b||0)+'</span></td>'
+        +'<td>'+verCel(verVal(v,'rit'))+'</td>'
+        +'<td>'+verCel(verVal(v,'d')?fD(verVal(v,'d')):'')+'</td>'
+        +'<td>'+verCel(verVal(v,'tp'))+'</td>'
+        +'<td>'+verCel(verVal(v,'vv'))+'</td>'
+        +'<td>'+verCel(verVal(v,'st'))+'</td>'
+        +'<td class="tr"><strong>'+fmt(v.b||0)+'</strong></td></tr>';}).join('')
+      ||'<tr><td colspan="7" style="color:#8a94a6;">Nog geen personenvervoer geregistreerd.</td></tr>';
+    var pf=document.getElementById('pv-read-ft');
+    if(pf)pf.innerHTML='<td colspan="6"><strong>Totaal</strong></td><td class="tr tw5">'+fmt(pvT)+'</td>';
+  }
+  var mb=document.getElementById('mv-read-body');
+  if(mb){
+    mb.innerHTML=mv.map(function(v){
+      var b=v.b||0,su=v.s||0;mvB+=b;mvS+=su;
+      return '<tr>'
+        +'<td><strong>'+verCel(verVal(v,'om'))+'</strong>'
+        +'<span class="su-mobile-cell">bruto '+fmt(b)+(su?' \u2212 subsidie '+fmt(su):'')+' \u00b7 netto '+fmt(b-su)+'</span></td>'
+        +'<td>'+verCel(verVal(v,'d')?fD(verVal(v,'d')):'')+'</td>'
+        +'<td>'+verCel(verVal(v,'vv'))+'</td>'
+        +'<td>'+verCel(verVal(v,'st'))+'</td>'
+        +'<td class="tr">'+fmt(b)+'</td>'
+        +'<td class="tr">'+(su?fmt(su):'<span class="ver-leeg">\u2014</span>')+'</td>'
+        +'<td class="tr"><strong>'+fmt(b-su)+'</strong></td></tr>';}).join('')
+      ||'<tr><td colspan="7" style="color:#8a94a6;">Nog geen materiaalvervoer geregistreerd.</td></tr>';
+    var mf=document.getElementById('mv-read-ft');
+    if(mf)mf.innerHTML='<td colspan="4"><strong>Totaal</strong></td><td class="tr">'+fmt(mvB)+'</td><td class="tr">'+fmt(mvS)+'</td><td class="tr tw5">'+fmt(mvB-mvS)+'</td>';
+  }
+  var sum=document.getElementById('ver-sum');
+  if(sum)sum.innerHTML=[['Personenvervoer',fmt(pvT),pv.length+' ritten'],
+    ['Materiaalvervoer netto',fmt(mvB-mvS),'bruto '+fmt(mvB)],
+    ['Subsidies',fmt(mvS),mvS?'op materiaalvervoer':'geen'],
+    ['Totale vervoerskost',fmt(pvT+(mvB-mvS)),'telt mee in budget']].map(function(c){
+      return '<div class="pl-count"><div class="lbl">'+c[0]+'</div><div class="val">'+c[1]+'</div><div class="su-cnt-s">'+c[2]+'</div></div>';}).join('');
+  if(typeof suApplyViewer==='function')suApplyViewer();
 }
 function uPV(i,f,v){S.ver.pv[i][f]=v;renderVer();save();}function addPV(){S.ver.pv.push({id:uid(),tak:'',tp:'Trein',b:0,nt:''});renderVer();save();}function dPV(i){S.ver.pv.splice(i,1);renderVer();save();}
 function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.mv.push({id:uid(),om:'',b:0,s:0});renderVer();save();}function dMV(i){S.ver.mv.splice(i,1);renderVer();save();}
