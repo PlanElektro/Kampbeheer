@@ -74,13 +74,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
-/* ===== Sprint 4A: Vervoer ===== */
+/* ===== Sprint 4A/4B: Vervoer ===== */
 #ver-sum{margin-bottom:16px;}
 .su-cnt-s{font-size:11.5px;color:#8a94a6;margin-top:3px;}
-table.ver-tbl tbody tr{cursor:default;}
-table.ver-tbl tbody tr:hover{background:transparent;}
+table.ver-tbl tbody tr{cursor:pointer;}
+table.ver-tbl tbody tr:hover{background:#f5f8fd;}
+table.ver-tbl tbody tr.ver-leegrij,table.ver-tbl tbody tr.ver-leegrij:hover{cursor:default;background:transparent;}
 .ver-leeg{color:#c3ccdb;}
 .ver-nt{font-size:11.5px;color:var(--txt2);margin-top:2px;}
+.ver-rt{font-size:11.5px;color:#5b6880;margin-top:2px;}
+.ver-add{margin-bottom:10px;}
+.ver-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;line-height:1.55;white-space:nowrap;}
+.ver-st-concept{background:#eef1f6;color:#5b6880;}
+.ver-st-aangevraagd{background:#fbeedb;color:#9a5b06;}
+.ver-st-bevestigd{background:#e4edfb;color:#1b3a6b;}
+.ver-st-afgerond{background:#e2f3e8;color:#1d6b3c;}
+#ver-ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto;}
+#ver-ov.open{display:flex;}
+.pl-modal.ver-modal{max-width:640px;}
+.ver-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+.ver-grid .ver-f2{grid-column:1/-1;}
+.pl-modal.ver-modal textarea{min-height:64px;}
+.pl-modal.ver-modal input[readonly]{background:#f6f8fc;color:var(--txt2);}
 @media(max-width:640px){
   #ver-sum{grid-template-columns:1fr 1fr;}
   table.ver-tbl thead{display:none;}
@@ -88,6 +103,9 @@ table.ver-tbl tbody tr:hover{background:transparent;}
   table.ver-tbl tbody td{display:none;}
   table.ver-tbl tbody td:first-child{display:block;padding:0;border:0;}
   table.ver-tbl tfoot{display:none;}
+  #ver-ov{padding:12px 10px;}
+  .ver-grid{grid-template-columns:1fr;}
+  .pl-modal.ver-modal{max-height:calc(100vh - 24px);overflow:auto;}
 }
 /* ===== Sprint 3.1: visuele consistentie ===== */
 .su-2col{align-items:stretch;}
@@ -842,7 +860,9 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 
   <div class="card"><div class="ch"><h3>Personenvervoer</h3>
     <button class="btn su-edit" id="pv-toggle" onclick="pvToggle()">Personenvervoer bewerken</button></div><div class="cb">
-    <div id="pv-read"><div class="tw"><table class="su-tak ver-tbl">
+    <div id="pv-read">
+      <div class="ver-add"><button class="btn btn-pri su-edit" onclick="pvOpen(-1)">+ Rit toevoegen</button></div>
+      <div class="tw"><table class="su-tak ver-tbl">
       <thead><tr><th>Groep</th><th>Rit</th><th>Datum</th><th>Type</th><th>Vervoerder</th><th>Status</th><th class="tr">Bedrag</th></tr></thead>
       <tbody id="pv-read-body"></tbody>
       <tfoot><tr class="tfoot" id="pv-read-ft"></tr></tfoot></table></div></div>
@@ -856,7 +876,9 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 
   <div class="card"><div class="ch"><h3>Materiaalvervoer</h3>
     <button class="btn su-edit" id="mv-toggle" onclick="mvToggle()">Materiaalvervoer bewerken</button></div><div class="cb">
-    <div id="mv-read"><div class="tw"><table class="su-tak ver-tbl">
+    <div id="mv-read">
+      <div class="ver-add"><button class="btn btn-pri su-edit" onclick="mvOpen(-1)">+ Materiaalrit toevoegen</button></div>
+      <div class="tw"><table class="su-tak ver-tbl">
       <thead><tr><th>Omschrijving</th><th>Datum</th><th>Vervoerder</th><th>Status</th><th class="tr">Bruto</th><th class="tr">Subsidie</th><th class="tr">Netto</th></tr></thead>
       <tbody id="mv-read-body"></tbody>
       <tfoot><tr class="tfoot" id="mv-read-ft"></tr></tfoot></table></div></div>
@@ -2868,44 +2890,77 @@ function mvToggle(){
 }
 function verVal(v,k){var x=v[k];return (x===undefined||x===null||x==='')?'':String(x);}
 function verCel(t){return t?plEsc(t):'<span class="ver-leeg">\u2014</span>';}
+var VER_TP=['Trein','Bus','Bestelwagen','Auto','Andere'];
+var VER_RIT=[['heen','Heenreis'],['terug','Terugreis'],['overig','Overig']];
+var VER_ST=[['concept','Concept'],['aangevraagd','Aangevraagd'],['bevestigd','Bevestigd'],['afgerond','Afgerond']];
+function verLbl(list,code){var r='';list.forEach(function(o){if(o[0]===code)r=o[1];});return r;}
+function verRitCel(c){return c?plEsc(verLbl(VER_RIT,c)||c):'<span class="ver-leeg">\u2014</span>';}
+function verStCel(c){
+  if(!c)return '<span class="ver-leeg">\u2014</span>';
+  var l=verLbl(VER_ST,c);
+  return l?'<span class="ver-badge ver-st-'+plEsc(c)+'">'+plEsc(l)+'</span>':plEsc(c);
+}
+function verDatCel(v){
+  var d=verVal(v,'d');if(!d)return '<span class="ver-leeg">\u2014</span>';
+  var t=verVal(v,'tijd');return plEsc(fD(d)+(t?' \u00b7 '+t:''));
+}
+function verOpts(list,cur){
+  return '<option value="">\u2014</option>'+list.map(function(o){
+    return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('');
+}
 function renderVerRead(){
-  // Leesweergave. Rit/Datum/Vervoerder/Status bestaan nog niet in het datamodel;
-  // ze worden getoond als voorbereide kolom en gevuld zodra de velden bestaan.
   var pv=(S.ver&&S.ver.pv)||[],mv=(S.ver&&S.ver.mv)||[];
   var pvT=0,mvB=0,mvS=0;
   var pb=document.getElementById('pv-read-body');
   if(pb){
-    pb.innerHTML=pv.map(function(v){
+    pb.innerHTML=pv.map(function(v,i){
       pvT+=v.b||0;
-      var nt=verVal(v,'nt');
-      return '<tr>'
+      var nt=verVal(v,'nt'),van=verVal(v,'van'),naar=verVal(v,'naar'),st=verVal(v,'st');
+      var route=(van||naar)?((van||'?')+' \u2192 '+(naar||'?')):'';
+      var mob=[];
+      if(verVal(v,'rit'))mob.push(verLbl(VER_RIT,verVal(v,'rit'))||verVal(v,'rit'));
+      if(verVal(v,'d'))mob.push(fD(verVal(v,'d'))+(verVal(v,'tijd')?' '+verVal(v,'tijd'):''));
+      if(verVal(v,'vv'))mob.push(verVal(v,'vv'));
+      return '<tr onclick="pvOpen('+i+')">'
         +'<td><strong>'+verCel(verVal(v,'tak'))+'</strong>'
+        +(route?'<div class="ver-rt">'+plEsc(route)+'</div>':'')
         +(nt?'<div class="ver-nt">'+plEsc(nt)+'</div>':'')
-        +'<span class="su-mobile-cell">'+verCel(verVal(v,'tp'))+' \u00b7 '+fmt(v.b||0)+'</span></td>'
-        +'<td>'+verCel(verVal(v,'rit'))+'</td>'
-        +'<td>'+verCel(verVal(v,'d')?fD(verVal(v,'d')):'')+'</td>'
+        +'<span class="su-mobile-cell">'+verCel(verVal(v,'tp'))+' \u00b7 '+fmt(v.b||0)+'</span>'
+        +(mob.length?'<span class="su-mobile-cell">'+plEsc(mob.join(' \u00b7 '))+'</span>':'')
+        +(st?'<span class="su-mobile-cell">'+verStCel(st)+'</span>':'')
+        +'</td>'
+        +'<td>'+verRitCel(verVal(v,'rit'))+'</td>'
+        +'<td>'+verDatCel(v)+'</td>'
         +'<td>'+verCel(verVal(v,'tp'))+'</td>'
         +'<td>'+verCel(verVal(v,'vv'))+'</td>'
-        +'<td>'+verCel(verVal(v,'st'))+'</td>'
+        +'<td>'+verStCel(st)+'</td>'
         +'<td class="tr"><strong>'+fmt(v.b||0)+'</strong></td></tr>';}).join('')
-      ||'<tr><td colspan="7" style="color:#8a94a6;">Nog geen personenvervoer geregistreerd.</td></tr>';
+      ||'<tr class="ver-leegrij"><td colspan="7" style="color:#8a94a6;">Nog geen personenvervoer geregistreerd.</td></tr>';
     var pf=document.getElementById('pv-read-ft');
     if(pf)pf.innerHTML='<td colspan="6"><strong>Totaal</strong></td><td class="tr tw5">'+fmt(pvT)+'</td>';
   }
   var mb=document.getElementById('mv-read-body');
   if(mb){
-    mb.innerHTML=mv.map(function(v){
+    mb.innerHTML=mv.map(function(v,i){
       var b=v.b||0,su=v.s||0;mvB+=b;mvS+=su;
-      return '<tr>'
+      var nt=verVal(v,'nt'),st=verVal(v,'st');
+      var mob=[];
+      if(verVal(v,'d'))mob.push(fD(verVal(v,'d')));
+      if(verVal(v,'vv'))mob.push(verVal(v,'vv'));
+      return '<tr onclick="mvOpen('+i+')">'
         +'<td><strong>'+verCel(verVal(v,'om'))+'</strong>'
-        +'<span class="su-mobile-cell">bruto '+fmt(b)+(su?' \u2212 subsidie '+fmt(su):'')+' \u00b7 netto '+fmt(b-su)+'</span></td>'
-        +'<td>'+verCel(verVal(v,'d')?fD(verVal(v,'d')):'')+'</td>'
+        +(nt?'<div class="ver-nt">'+plEsc(nt)+'</div>':'')
+        +'<span class="su-mobile-cell">bruto '+fmt(b)+(su?' \u2212 subsidie '+fmt(su):'')+' \u00b7 netto '+fmt(b-su)+'</span>'
+        +(mob.length?'<span class="su-mobile-cell">'+plEsc(mob.join(' \u00b7 '))+'</span>':'')
+        +(st?'<span class="su-mobile-cell">'+verStCel(st)+'</span>':'')
+        +'</td>'
+        +'<td>'+verDatCel(v)+'</td>'
         +'<td>'+verCel(verVal(v,'vv'))+'</td>'
-        +'<td>'+verCel(verVal(v,'st'))+'</td>'
+        +'<td>'+verStCel(st)+'</td>'
         +'<td class="tr">'+fmt(b)+'</td>'
         +'<td class="tr">'+(su?fmt(su):'<span class="ver-leeg">\u2014</span>')+'</td>'
         +'<td class="tr"><strong>'+fmt(b-su)+'</strong></td></tr>';}).join('')
-      ||'<tr><td colspan="7" style="color:#8a94a6;">Nog geen materiaalvervoer geregistreerd.</td></tr>';
+      ||'<tr class="ver-leegrij"><td colspan="7" style="color:#8a94a6;">Nog geen materiaalvervoer geregistreerd.</td></tr>';
     var mf=document.getElementById('mv-read-ft');
     if(mf)mf.innerHTML='<td colspan="4"><strong>Totaal</strong></td><td class="tr">'+fmt(mvB)+'</td><td class="tr">'+fmt(mvS)+'</td><td class="tr tw5">'+fmt(mvB-mvS)+'</td>';
   }
@@ -2916,6 +2971,136 @@ function renderVerRead(){
     ['Totale vervoerskost',fmt(pvT+(mvB-mvS)),'telt mee in budget']].map(function(c){
       return '<div class="pl-count"><div class="lbl">'+c[0]+'</div><div class="val">'+c[1]+'</div><div class="su-cnt-s">'+c[2]+'</div></div>';}).join('');
   if(typeof suApplyViewer==='function')suApplyViewer();
+}
+/* ---- Sprint 4B: vervoer-editors (draft in de modal, pas schrijven bij Opslaan) ---- */
+var VER_RO_BANNER='<div style="background:#f3e8ff;border:1px solid #e9d5ff;color:#6d28d9;border-radius:7px;padding:8px 10px;font-size:12.5px;margin-bottom:10px;">\ud83d\udc41 Kijkmodus \u2014 je kunt dit bekijken, niet wijzigen.</div>';
+function verOv(){
+  var ov=document.getElementById('ver-ov');
+  if(!ov){ov=document.createElement('div');ov.id='ver-ov';document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)verClose();});}
+  return ov;
+}
+function verClose(){var ov=document.getElementById('ver-ov');if(ov)ov.classList.remove('open');}
+function verF(label,html,wide){return '<div'+(wide?' class="ver-f2"':'')+'><label>'+label+'</label>'+html+'</div>';}
+function verGet(id){var e=document.getElementById(id);return e?String(e.value):'';}
+function verNum(id){var n=parseFloat(verGet(id).replace(',','.'));return isNaN(n)?0:n;}
+function verSet(o,k,val){if(val===''||val==null){if(k in o)delete o[k];}else{o[k]=val;}}
+function pvOpen(i){
+  var ro=suViewer(),pv=(S.ver&&S.ver.pv)||[],nieuw=(i<0);
+  if(nieuw&&ro)return;
+  var v=nieuw?{tak:'',tp:'Trein',b:0,nt:''}:pv[i];
+  if(!v)return;
+  var d=ro?'disabled ':'';
+  var ov=verOv();
+  ov.innerHTML='<div class="pl-modal ver-modal">'
+    +'<h3>'+(ro?'Personenrit bekijken':(nieuw?'Nieuwe personenrit':'Personenrit bewerken'))+'</h3>'
+    +(ro?VER_RO_BANNER:'')
+    +'<div class="ver-grid">'
+    +verF('Groep / tak','<input type="text" id="ver-f-tak" '+d+'value="'+plEsc(verVal(v,'tak'))+'" placeholder="bv. Welpen">')
+    +verF('Rit','<select id="ver-f-rit" '+d+'>'+verOpts(VER_RIT,verVal(v,'rit'))+'</select>')
+    +verF('Type','<select id="ver-f-tp" '+d+'>'+VER_TP.map(function(t){return '<option'+(verVal(v,'tp')===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select>')
+    +verF('Datum','<input type="date" id="ver-f-d" '+d+'value="'+plEsc(verVal(v,'d'))+'">')
+    +verF('Tijd','<input type="time" id="ver-f-tijd" '+d+'value="'+plEsc(verVal(v,'tijd'))+'">')
+    +verF('Vertrek','<input type="text" id="ver-f-van" '+d+'value="'+plEsc(verVal(v,'van'))+'" placeholder="bv. Station Nieuwpoort">')
+    +verF('Bestemming','<input type="text" id="ver-f-naar" '+d+'value="'+plEsc(verVal(v,'naar'))+'" placeholder="bv. kampterrein">')
+    +verF('Vervoerder','<input type="text" id="ver-f-vv" '+d+'value="'+plEsc(verVal(v,'vv'))+'" placeholder="bv. De Lijn, autocarfirma">')
+    +verF('Contact','<input type="text" id="ver-f-ct" '+d+'value="'+plEsc(verVal(v,'ct'))+'" placeholder="naam, telefoon of e-mail">')
+    +verF('Status','<select id="ver-f-st" '+d+'>'+verOpts(VER_ST,verVal(v,'st'))+'</select>')
+    +verF('Bedrag (\u20ac)','<input type="number" step="0.5" id="ver-f-b" '+d+'value="'+(v.b||0)+'">')
+    +verF('Notities','<textarea id="ver-f-nt" '+d+'placeholder="bv. terugbetaald aan\u2026">'+plEsc(verVal(v,'nt'))+'</textarea>',true)
+    +'</div><div class="pl-acts">'
+    +((nieuw||ro)?'<span></span>':'<button class="btn btn-bad" onclick="pvDel('+i+')">Verwijderen</button>')
+    +'<span style="display:flex;gap:8px;"><button class="btn" onclick="verClose()">'+(ro?'Sluiten':'Annuleren')+'</button>'
+    +(ro?'':'<button class="btn btn-pri" onclick="pvSave('+i+')">Opslaan</button>')+'</span></div></div>';
+  ov.classList.add('open');
+  if(!ro)setTimeout(function(){var f=document.getElementById('ver-f-tak');if(f)f.focus();},60);
+}
+function pvSave(i){
+  if(suViewer())return;
+  if(!S.ver)S.ver={};if(!S.ver.pv)S.ver.pv=[];
+  var pv=S.ver.pv,nieuw=(i<0);
+  var tak=verGet('ver-f-tak').trim();
+  if(!tak){alert('Vul de groep of tak in.');return;}
+  var row=nieuw?{id:uid(),tak:'',tp:'Trein',b:0,nt:''}:pv[i];
+  if(!row)return;
+  row.tak=tak;
+  row.tp=verGet('ver-f-tp')||'Trein';
+  row.b=verNum('ver-f-b');
+  row.nt=verGet('ver-f-nt');
+  verSet(row,'rit',verGet('ver-f-rit'));
+  verSet(row,'d',verGet('ver-f-d'));
+  verSet(row,'tijd',verGet('ver-f-tijd'));
+  verSet(row,'van',verGet('ver-f-van').trim());
+  verSet(row,'naar',verGet('ver-f-naar').trim());
+  verSet(row,'vv',verGet('ver-f-vv').trim());
+  verSet(row,'ct',verGet('ver-f-ct').trim());
+  verSet(row,'st',verGet('ver-f-st'));
+  if(nieuw)pv.push(row);
+  verClose();renderVer();save();
+}
+function pvDel(i){
+  if(suViewer())return;
+  var pv=(S.ver&&S.ver.pv)||[];
+  if(i<0||!pv[i])return;
+  if(!confirm('Personenrit \u201c'+(verVal(pv[i],'tak')||'zonder groep')+'\u201d verwijderen?'))return;
+  pv.splice(i,1);verClose();renderVer();save();
+}
+function mvOpen(i){
+  var ro=suViewer(),mv=(S.ver&&S.ver.mv)||[],nieuw=(i<0);
+  if(nieuw&&ro)return;
+  var v=nieuw?{om:'',b:0,s:0}:mv[i];
+  if(!v)return;
+  var d=ro?'disabled ':'';
+  var ov=verOv();
+  ov.innerHTML='<div class="pl-modal ver-modal">'
+    +'<h3>'+(ro?'Materiaalrit bekijken':(nieuw?'Nieuwe materiaalrit':'Materiaalrit bewerken'))+'</h3>'
+    +(ro?VER_RO_BANNER:'')
+    +'<div class="ver-grid">'
+    +verF('Omschrijving','<input type="text" id="ver-f-om" '+d+'value="'+plEsc(verVal(v,'om'))+'" placeholder="bv. vrachtwagen materiaal heen">',true)
+    +verF('Datum','<input type="date" id="ver-f-d" '+d+'value="'+plEsc(verVal(v,'d'))+'">')
+    +verF('Vervoerder','<input type="text" id="ver-f-vv" '+d+'value="'+plEsc(verVal(v,'vv'))+'" placeholder="bv. transportfirma">')
+    +verF('Contact','<input type="text" id="ver-f-ct" '+d+'value="'+plEsc(verVal(v,'ct'))+'" placeholder="naam, telefoon of e-mail">')
+    +verF('Status','<select id="ver-f-st" '+d+'>'+verOpts(VER_ST,verVal(v,'st'))+'</select>')
+    +verF('Bruto (\u20ac)','<input type="number" step="50" id="ver-f-b" '+d+'oninput="mvNetto()" value="'+(v.b||0)+'">')
+    +verF('Subsidie (\u20ac)','<input type="number" step="50" id="ver-f-s" '+d+'oninput="mvNetto()" value="'+(v.s||0)+'">')
+    +verF('Netto (\u20ac)','<input type="text" id="ver-f-n" readonly disabled value="'+plEsc(fmt((v.b||0)-(v.s||0)))+'">')
+    +verF('Notities','<textarea id="ver-f-nt" '+d+'placeholder="afspraken, laadplaats, subsidiedossier\u2026">'+plEsc(verVal(v,'nt'))+'</textarea>',true)
+    +'</div><div class="pl-acts">'
+    +((nieuw||ro)?'<span></span>':'<button class="btn btn-bad" onclick="mvDel('+i+')">Verwijderen</button>')
+    +'<span style="display:flex;gap:8px;"><button class="btn" onclick="verClose()">'+(ro?'Sluiten':'Annuleren')+'</button>'
+    +(ro?'':'<button class="btn btn-pri" onclick="mvSave('+i+')">Opslaan</button>')+'</span></div></div>';
+  ov.classList.add('open');
+  if(!ro)setTimeout(function(){var f=document.getElementById('ver-f-om');if(f)f.focus();},60);
+}
+function mvNetto(){
+  var n=document.getElementById('ver-f-n');
+  if(n)n.value=fmt(verNum('ver-f-b')-verNum('ver-f-s'));
+}
+function mvSave(i){
+  if(suViewer())return;
+  if(!S.ver)S.ver={};if(!S.ver.mv)S.ver.mv=[];
+  var mv=S.ver.mv,nieuw=(i<0);
+  var om=verGet('ver-f-om').trim();
+  if(!om){alert('Vul een omschrijving in.');return;}
+  var row=nieuw?{id:uid(),om:'',b:0,s:0}:mv[i];
+  if(!row)return;
+  row.om=om;
+  row.b=verNum('ver-f-b');
+  row.s=verNum('ver-f-s');
+  verSet(row,'d',verGet('ver-f-d'));
+  verSet(row,'vv',verGet('ver-f-vv').trim());
+  verSet(row,'ct',verGet('ver-f-ct').trim());
+  verSet(row,'st',verGet('ver-f-st'));
+  verSet(row,'nt',verGet('ver-f-nt'));
+  if(nieuw)mv.push(row);
+  verClose();renderVer();save();
+}
+function mvDel(i){
+  if(suViewer())return;
+  var mv=(S.ver&&S.ver.mv)||[];
+  if(i<0||!mv[i])return;
+  if(!confirm('Materiaalrit \u201c'+(verVal(mv[i],'om')||'zonder omschrijving')+'\u201d verwijderen?'))return;
+  mv.splice(i,1);verClose();renderVer();save();
 }
 function uPV(i,f,v){S.ver.pv[i][f]=v;renderVer();save();}function addPV(){S.ver.pv.push({id:uid(),tak:'',tp:'Trein',b:0,nt:''});renderVer();save();}function dPV(i){S.ver.pv.splice(i,1);renderVer();save();}
 function uMV(i,f,v){S.ver.mv[i][f]=v;renderVer();save();}function addMV(){S.ver.mv.push({id:uid(),om:'',b:0,s:0});renderVer();save();}function dMV(i){S.ver.mv.splice(i,1);renderVer();save();}
