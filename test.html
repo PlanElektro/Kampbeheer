@@ -1387,47 +1387,51 @@ var PL_FILTER='alle';
 // Centrale standaardplanning. offsetDays = aantal kalenderdagen t.o.v. de kampstartdatum
 // (negatief = voor het kamp). Pas hier aan om de startset te wijzigen.
 const STANDARD_PLANNING=[
- {titel:'Kampplaats definitief bevestigen',cat:'Algemeen',offsetDays:-300,verantw:'',notitie:'',tpl:true},
- {titel:'Kampdata definitief bevestigen',cat:'Algemeen',offsetDays:-270,verantw:'',notitie:'',tpl:true},
- {titel:'Contract kampterrein controleren',cat:'Kampterrein',offsetDays:-270,verantw:'',notitie:'',tpl:true},
- {titel:'Voorschot kampterrein betalen',cat:'Kampterrein',offsetDays:-240,verantw:'',notitie:'',tpl:true},
- {titel:'Kampprijs voorbereiden',cat:'Financi\u00ebn',offsetDays:-180,verantw:'',notitie:'',tpl:true},
- {titel:'Subsidies controleren en aanvragen',cat:'Financi\u00ebn',offsetDays:-180,verantw:'',notitie:'',tpl:true},
- {titel:'Personenvervoer heenreis regelen',cat:'Vervoer',offsetDays:-180,verantw:'',notitie:'',tpl:true},
- {titel:'Personenvervoer terugreis regelen',cat:'Vervoer',offsetDays:-180,verantw:'',notitie:'',tpl:true},
- {titel:'Kampprijs definitief vastleggen',cat:'Financi\u00ebn',offsetDays:-150,verantw:'',notitie:'',tpl:true},
- {titel:'Budgetraming controleren',cat:'Financi\u00ebn',offsetDays:-150,verantw:'',notitie:'',tpl:true},
- {titel:'Materiaalvervoer regelen',cat:'Vervoer',offsetDays:-150,verantw:'',notitie:'',tpl:true},
- {titel:'Inschrijvingen openen',cat:'Communicatie',offsetDays:-120,verantw:'',notitie:'',tpl:true},
- {titel:'Kookploeg bevestigen',cat:'Kampkost',offsetDays:-120,verantw:'',notitie:'',tpl:true},
- {titel:'Nutsvoorzieningen en terreinvoorzieningen controleren',cat:'Kampterrein',offsetDays:-90,verantw:'',notitie:'',tpl:true},
- {titel:'Gehuurd materiaal bevestigen',cat:'Materiaal',offsetDays:-90,verantw:'',notitie:'',tpl:true},
- {titel:'Menu opstellen',cat:'Kampkost',offsetDays:-60,verantw:'',notitie:'',tpl:true},
- {titel:'Recepten controleren',cat:'Kampkost',offsetDays:-45,verantw:'',notitie:'',tpl:true},
- {titel:'Afspraken over aankomst en vertrek bevestigen',cat:'Kampterrein',offsetDays:-30,verantw:'',notitie:'',tpl:true},
- {titel:'Waarborgregeling controleren',cat:'Kampterrein',offsetDays:-30,verantw:'',notitie:'',tpl:true},
- {titel:'Vervoersprijzen en afspraken bevestigen',cat:'Vervoer',offsetDays:-30,verantw:'',notitie:'',tpl:true},
- {titel:'Solucious-prijzen actualiseren',cat:'Kampkost',offsetDays:-30,verantw:'',notitie:'',tpl:true},
- {titel:'Tent- en kampmateriaal controleren',cat:'Materiaal',offsetDays:-30,verantw:'',notitie:'',tpl:true},
- {titel:'Definitieve deelnemersaantallen controleren',cat:'Algemeen',offsetDays:-21,verantw:'',notitie:'',tpl:true},
- {titel:'Eerste bestelling voorbereiden',cat:'Kampkost',offsetDays:-14,verantw:'',notitie:'',tpl:true},
- {titel:'EHBO-materiaal controleren',cat:'Materiaal',offsetDays:-14,verantw:'',notitie:'',tpl:true},
- {titel:'Kampbijdragen controleren',cat:'Financi\u00ebn',offsetDays:-14,verantw:'',notitie:'',tpl:true},
- {titel:'Leverdata bevestigen',cat:'Kampkost',offsetDays:-7,verantw:'',notitie:'',tpl:true},
- {titel:'Openstaande terugbetalingen afwerken',cat:'Na het kamp',offsetDays:7,verantw:'',notitie:'',tpl:true},
- {titel:'Facturen controleren',cat:'Na het kamp',offsetDays:14,verantw:'',notitie:'',tpl:true},
- {titel:'Kamp financieel afsluiten',cat:'Na het kamp',offsetDays:21,verantw:'',notitie:'',tpl:true},
- {titel:'Definitieve backup maken',cat:'Na het kamp',offsetDays:21,verantw:'',notitie:'',tpl:true},
- {titel:'Kamp archiveren',cat:'Na het kamp',offsetDays:30,verantw:'',notitie:'',tpl:true}
+ {titel:'Kampplaats definitief bevestigen',cat:'Algemeen',base:'start',offsetDays:-300,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampdata definitief bevestigen',cat:'Algemeen',base:'start',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Contract kampterrein controleren',cat:'Kampterrein',base:'start',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Voorschot kampterrein betalen',cat:'Kampterrein',base:'start',offsetDays:-240,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs voorbereiden',cat:'Financi\u00ebn',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Subsidies controleren en aanvragen',cat:'Financi\u00ebn',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer heenreis regelen',cat:'Vervoer',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer terugreis regelen',cat:'Vervoer',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs definitief vastleggen',cat:'Financi\u00ebn',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Budgetraming controleren',cat:'Financi\u00ebn',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Materiaalvervoer regelen',cat:'Vervoer',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Inschrijvingen openen',cat:'Communicatie',base:'start',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Kookploeg bevestigen',cat:'Kampkost',base:'start',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Nutsvoorzieningen en terreinvoorzieningen controleren',cat:'Kampterrein',base:'start',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Gehuurd materiaal bevestigen',cat:'Materiaal',base:'start',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Menu opstellen',cat:'Kampkost',base:'start',offsetDays:-60,verantw:'',notitie:'',tpl:true},
+ {titel:'Recepten controleren',cat:'Kampkost',base:'start',offsetDays:-45,verantw:'',notitie:'',tpl:true},
+ {titel:'Afspraken over aankomst en vertrek bevestigen',cat:'Kampterrein',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Waarborgregeling controleren',cat:'Kampterrein',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Vervoersprijzen en afspraken bevestigen',cat:'Vervoer',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Solucious-prijzen actualiseren',cat:'Kampkost',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Tent- en kampmateriaal controleren',cat:'Materiaal',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve deelnemersaantallen controleren',cat:'Algemeen',base:'start',offsetDays:-21,verantw:'',notitie:'',tpl:true},
+ {titel:'Eerste bestelling voorbereiden',cat:'Kampkost',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'EHBO-materiaal controleren',cat:'Materiaal',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampbijdragen controleren',cat:'Financi\u00ebn',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Leverdata bevestigen',cat:'Kampkost',base:'start',offsetDays:-7,verantw:'',notitie:'',tpl:true},
+ {titel:'Openstaande terugbetalingen afwerken',cat:'Na het kamp',base:'end',offsetDays:7,verantw:'',notitie:'',tpl:true},
+ {titel:'Facturen controleren',cat:'Na het kamp',base:'end',offsetDays:14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp financieel afsluiten',cat:'Na het kamp',base:'end',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve backup maken',cat:'Na het kamp',base:'end',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp archiveren',cat:'Na het kamp',base:'end',offsetDays:30,verantw:'',notitie:'',tpl:true}
 ];
 function plAddStandard(){
   if(plViewer())return;
   if(plList().length){alert('Er bestaat al een planning voor dit kamp.');return;}
   if(!confirm('De standaard kampplanning toevoegen?\nJe kunt alle taken daarna aanpassen of verwijderen.'))return;
   var st=(S.setup&&S.setup.st)||'';
+  var ei=(S.setup&&S.setup.ei)||'';   // einddatum kamp
   S.planning=STANDARD_PLANNING.map(function(t){
+    // Voorbereidingstaken rekenen vanaf de kampstart, taken na het kamp vanaf de einddatum.
+    // Ontbreekt de relevante basisdatum, dan blijft de deadline leeg.
+    var basis=(t.base==='end')?ei:st;
     return {id:uid(),titel:t.titel,cat:t.cat,
-            deadline:st?plShiftDate(st,t.offsetDays):'',
+            deadline:basis?plShiftDate(basis,t.offsetDays):'',
             status:'todo',verantw:t.verantw||'',notitie:t.notitie||'',tpl:t.tpl!==false};
   });
   renderPlanning();save();
