@@ -2924,7 +2924,7 @@ function renderVerRead(){
       return '<tr onclick="pvOpen('+i+')">'
         +'<td><strong>'+verCel(verVal(v,'tak'))+'</strong>'
         +(route?'<div class="ver-rt">'+plEsc(route)+'</div>':'')
-        +(nt?'<div class="ver-nt">'+plEsc(nt)+'</div>':'')
+        +(nt?'<div class="ver-nt" title="Notitie \u2014 open de rit om ze te lezen">\ud83d\udcdd Notitie</div>':'')
         +'<span class="su-mobile-cell">'+verCel(verVal(v,'tp'))+' \u00b7 '+fmt(v.b||0)+'</span>'
         +(mob.length?'<span class="su-mobile-cell">'+plEsc(mob.join(' \u00b7 '))+'</span>':'')
         +(st?'<span class="su-mobile-cell">'+verStCel(st)+'</span>':'')
@@ -2949,7 +2949,7 @@ function renderVerRead(){
       if(verVal(v,'vv'))mob.push(verVal(v,'vv'));
       return '<tr onclick="mvOpen('+i+')">'
         +'<td><strong>'+verCel(verVal(v,'om'))+'</strong>'
-        +(nt?'<div class="ver-nt">'+plEsc(nt)+'</div>':'')
+        +(nt?'<div class="ver-nt" title="Notitie \u2014 open de rit om ze te lezen">\ud83d\udcdd Notitie</div>':'')
         +'<span class="su-mobile-cell">bruto '+fmt(b)+(su?' \u2212 subsidie '+fmt(su):'')+' \u00b7 netto '+fmt(b-su)+'</span>'
         +(mob.length?'<span class="su-mobile-cell">'+plEsc(mob.join(' \u00b7 '))+'</span>':'')
         +(st?'<span class="su-mobile-cell">'+verStCel(st)+'</span>':'')
