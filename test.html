@@ -245,7 +245,10 @@ body.locked .su-edit{display:none;}
 body.locked .btn-pri{display:none;}
 .lbl-sm{display:none;}
 .nav-i:focus,.qk button:focus,.icon-btn:focus,#ovf-menu button:focus{outline:none;}
-.nav-i:focus-visible{outline:2px solid var(--navy);outline-offset:-2px;}
+/* Focusring op navigatie-items uitsluitend bij toetsenbordgebruik: :focus-visible wordt
+   door browsers verschillend toegepast na een muisklik, daarom een expliciete modusvlag. */
+body.kbnav .nav-i:focus,body.kbnav .nav-i:focus-visible{outline:2px solid var(--navy);outline-offset:-2px;}
+body:not(.kbnav) .nav-i:focus,body:not(.kbnav) .nav-i:focus-visible{outline:none;}
 .qk button:focus-visible,.icon-btn:focus-visible,#ovf-menu button:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
 @media(max-width:1100px){.lbl-lg{display:none;}.lbl-sm{display:inline;}}
 @media(max-width:900px){
@@ -515,7 +518,6 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <div class="tw"><table class="su-tak">
       <thead><tr><th>Tak</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th>Periode</th><th class="tr">Kampprijs</th><th class="su-goh"></th></tr></thead>
       <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table></div>
-    <div id="tk-tot" class="su-tot"></div>
   </div></div>
   <div class="card"><div class="ch"><h3>Kookploeg</h3><button class="btn su-edit" id="kp-toggle" onclick="kpToggleManage()">Kookploeg beheren</button></div><div class="cb">
     <div id="kp-sum"></div>
@@ -1505,6 +1507,12 @@ function renderSidebar(){
       return '<button class="nav-i" data-tab="'+it[0]+'">'+it[1]+'</button>';}).join('');
   }).join('');
 }
+(function(){
+  function kb(on){document.body.classList.toggle('kbnav',on);}
+  document.addEventListener('keydown',function(e){if(e.key==='Tab')kb(true);},true);
+  document.addEventListener('mousedown',function(){kb(false);},true);
+  document.addEventListener('touchstart',function(){kb(false);},{capture:true,passive:true});
+})();
 function toggleNav(v){document.body.classList.toggle('nav-open',v===undefined?!document.body.classList.contains('nav-open'):!!v);}
 function toggleOvf(v){var m=document.getElementById('ovf-menu');if(!m)return;m.classList.toggle('open',v===undefined?!m.classList.contains('open'):!!v);}
 document.addEventListener('click',function(e){var m=document.getElementById('ovf-menu');if(m&&m.classList.contains('open')&&!e.target.closest('#ovf'))m.classList.remove('open');});
@@ -2080,8 +2088,6 @@ function rTk(){
     tb.appendChild(tr);});
   const tp=tT?Math.round(iT/tT*100):0;
   document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${iT} / ${tT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="3"></td>`;
-  const tot=document.getElementById('tk-tot');
-  if(tot)tot.innerHTML=`<span><strong>${iT}</strong> ingeschreven</span><span><strong>${tT}</strong> totaal leden</span><span><strong>${tT?tp+'%':'\u2014'}</strong> deelname</span>`;
   renderSetupSummary();
 }
 function syncTakAV(t){
