@@ -75,6 +75,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
 /* ===== Sprint 2: Planning ===== */
+.pl-blank{text-align:center;padding:30px 18px 34px;}
+.pl-blank h4{margin:0 0 6px;font-size:17px;color:var(--txt);font-weight:600;}
+.pl-blank p{margin:0 0 16px;font-size:13.5px;color:var(--txt2);}
+.pl-blank-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.pl-blank-acts .btn{padding:9px 16px;font-size:13px;}
 .pg-wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;}
 #pg-act:empty{display:none;}
 .pl-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
@@ -1379,6 +1384,54 @@ document.getElementById('side-nav').addEventListener('click',function(e){
 const PL_CATS=['Algemeen','Kampterrein','Financi\u00ebn','Vervoer','Kampkost','Materiaal','Communicatie','Na het kamp'];
 const PL_ST=[['todo','Te doen'],['doing','Bezig'],['done','Klaar']];
 var PL_FILTER='alle';
+// Centrale standaardplanning. offsetDays = aantal kalenderdagen t.o.v. de kampstartdatum
+// (negatief = voor het kamp). Pas hier aan om de startset te wijzigen.
+const STANDARD_PLANNING=[
+ {titel:'Kampplaats definitief bevestigen',cat:'Algemeen',offsetDays:-300,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampdata definitief bevestigen',cat:'Algemeen',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Contract kampterrein controleren',cat:'Kampterrein',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Voorschot kampterrein betalen',cat:'Kampterrein',offsetDays:-240,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs voorbereiden',cat:'Financi\u00ebn',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Subsidies controleren en aanvragen',cat:'Financi\u00ebn',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer heenreis regelen',cat:'Vervoer',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer terugreis regelen',cat:'Vervoer',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs definitief vastleggen',cat:'Financi\u00ebn',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Budgetraming controleren',cat:'Financi\u00ebn',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Materiaalvervoer regelen',cat:'Vervoer',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Inschrijvingen openen',cat:'Communicatie',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Kookploeg bevestigen',cat:'Kampkost',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Nutsvoorzieningen en terreinvoorzieningen controleren',cat:'Kampterrein',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Gehuurd materiaal bevestigen',cat:'Materiaal',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Menu opstellen',cat:'Kampkost',offsetDays:-60,verantw:'',notitie:'',tpl:true},
+ {titel:'Recepten controleren',cat:'Kampkost',offsetDays:-45,verantw:'',notitie:'',tpl:true},
+ {titel:'Afspraken over aankomst en vertrek bevestigen',cat:'Kampterrein',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Waarborgregeling controleren',cat:'Kampterrein',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Vervoersprijzen en afspraken bevestigen',cat:'Vervoer',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Solucious-prijzen actualiseren',cat:'Kampkost',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Tent- en kampmateriaal controleren',cat:'Materiaal',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve deelnemersaantallen controleren',cat:'Algemeen',offsetDays:-21,verantw:'',notitie:'',tpl:true},
+ {titel:'Eerste bestelling voorbereiden',cat:'Kampkost',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'EHBO-materiaal controleren',cat:'Materiaal',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampbijdragen controleren',cat:'Financi\u00ebn',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Leverdata bevestigen',cat:'Kampkost',offsetDays:-7,verantw:'',notitie:'',tpl:true},
+ {titel:'Openstaande terugbetalingen afwerken',cat:'Na het kamp',offsetDays:7,verantw:'',notitie:'',tpl:true},
+ {titel:'Facturen controleren',cat:'Na het kamp',offsetDays:14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp financieel afsluiten',cat:'Na het kamp',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve backup maken',cat:'Na het kamp',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp archiveren',cat:'Na het kamp',offsetDays:30,verantw:'',notitie:'',tpl:true}
+];
+function plAddStandard(){
+  if(plViewer())return;
+  if(plList().length){alert('Er bestaat al een planning voor dit kamp.');return;}
+  if(!confirm('De standaard kampplanning toevoegen?\nJe kunt alle taken daarna aanpassen of verwijderen.'))return;
+  var st=(S.setup&&S.setup.st)||'';
+  S.planning=STANDARD_PLANNING.map(function(t){
+    return {id:uid(),titel:t.titel,cat:t.cat,
+            deadline:st?plShiftDate(st,t.offsetDays):'',
+            status:'todo',verantw:t.verantw||'',notitie:t.notitie||'',tpl:t.tpl!==false};
+  });
+  renderPlanning();save();
+}
 function plShiftDate(d,n){
   if(!d)return '';
   var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);if(!m)return d;
@@ -1435,7 +1488,15 @@ function renderPlanning(){
     if(catF&&(t.cat||'Algemeen')!==catF)return false;
     return true;
   });
-  if(!list.length){lst.innerHTML='<div class="pl-empty">Nog geen taken. Klik op \u201c+ Taak toevoegen\u201d om te beginnen \u2014 bijvoorbeeld \u201cKampterrein reserveren\u201d of \u201cBus heenreis boeken\u201d.</div>';return;}
+  if(!list.length){
+    var ro=plViewer();
+    lst.innerHTML='<div class="pl-blank"><h4>Nog geen planning</h4>'
+      +'<p>Start met onze standaard kampplanning of voeg zelf een taak toe.</p>'
+      +(ro?'<p style="color:#6d28d9;">\ud83d\udc41 Kijkmodus \u2014 taken toevoegen kan niet.</p>'
+          :'<div class="pl-blank-acts"><button class="btn btn-pri" onclick="plAddStandard()">Standaard kampplanning toevoegen</button>'
+           +'<button class="btn" onclick="plOpen()">Taak toevoegen</button></div>')
+      +'</div>';
+    return;}
   if(!vis.length){lst.innerHTML='<div class="pl-empty">Geen taken die aan deze filter voldoen.</div>';return;}
   var grp={late:[],soon:[],later:[],done:[]};
   vis.forEach(function(t){var u=plUrg(t);grp[u==='geen'?'later':u].push(t);});
@@ -2479,7 +2540,15 @@ function renderPrikbord(){
 function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Kampbeheer_2026_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);try{localStorage.setItem('kamp26_lastbackup',Date.now());}catch(e){}if(typeof updateBackupAge==='function')updateBackupAge();}
 function updateBackupAge(){var el=document.getElementById('bk-age');if(!el)return;var t=localStorage.getItem('kamp26_lastbackup');if(!t){el.textContent='nog geen backup';el.style.color='#c0392b';el.title='Maak een backup met de knop ↓ backup';return;}var d=Math.floor((Date.now()-(+t))/86400000);el.textContent=d<=0?'backup: vandaag':'backup: '+d+'d geleden';el.style.color=d>=7?'#c0392b':'#888';el.title='Laatste backup op dit toestel';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function _shiftDate(d,n){if(!d)return d;var dt=new Date(d+'T00:00:00');if(isNaN(dt))return d;dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
+function _shiftDate(d,n){
+  // Lokale kalenderdatum: geen UTC-conversie, geen toISOString() (voorkomt off-by-one in TZ != UTC).
+  if(!d)return d;
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d));if(!m)return d;
+  var dt=new Date(+m[1],+m[2]-1,+m[3]);if(isNaN(dt))return d;
+  dt.setDate(dt.getDate()+(n||0));
+  var y=dt.getFullYear(),mo=dt.getMonth()+1,da=dt.getDate();
+  return y+'-'+(mo<10?'0':'')+mo+'-'+(da<10?'0':'')+da;
+}
 function _daysOf(st,ei){var out=[];if(!st||!ei)return out;var d=new Date(st+'T00:00:00'),e=new Date(ei+'T00:00:00');if(isNaN(d)||isNaN(e))return out;while(d<=e){out.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}return out;}
 // ---- Verdeling per bak (eetgroepen) ----
 function bakCfg(){
