@@ -74,30 +74,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
-/* ===== Sprint 4: Aanwezigheden & Menu ===== */
-.su-cnt-s{font-size:11.5px;color:#8a94a6;margin-top:3px;}
-#av-sum,#menu-sum{margin-bottom:16px;}
-#av-read table.su-tak td{padding:8px 10px;}
-#av-read table.su-tak tbody tr{cursor:default;}
-#av-read table.su-tak tbody tr:hover{background:transparent;}
-.db{border:1px solid var(--line);border-radius:8px;margin-bottom:7px;overflow:hidden;background:#fff;}
-.dh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;cursor:pointer;background:#fff;}
-.dh:hover{background:#f7faff;}
-.db.mopen .dh{background:#f4f8fe;border-bottom:1px solid var(--line-soft);}
-.menu-dh-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
-.menu-dh-date{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap;}
-.dh .menu-av-chip{font-size:14px;font-weight:600;color:var(--navy);background:none;padding:0;border:0;border-radius:0;}
-.dh .menu-av-empty{font-size:13px;color:var(--warn);font-weight:600;font-style:normal;background:none;}
-.menu-rest{font-size:12px;color:var(--txt2);}
-.menu-dh-r{font-size:12.5px;color:var(--txt2);white-space:nowrap;display:flex;align-items:center;gap:7px;}
-.menu-chev{color:#c3ccdb;transition:transform .15s;display:inline-block;}
-.db.mopen .menu-chev{transform:rotate(180deg);color:var(--navy);}
-@media(max-width:640px){
-  #av-sum,#menu-sum{grid-template-columns:1fr 1fr;}
-  .dh{flex-wrap:wrap;gap:6px;}
-  .menu-dh-r{width:100%;justify-content:space-between;}
-  .menu-rest{width:100%;}
-}
 /* ===== Sprint 3.1: visuele consistentie ===== */
 .su-2col{align-items:stretch;}
 .su-2col .card{display:flex;flex-direction:column;height:100%;}
@@ -634,23 +610,9 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 </div>
 
 <div class="panel" id="p-av">
-  <div class="pl-counts" id="av-sum"></div>
-  <div class="card"><div class="ch"><h3>Bezetting per dag</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-      <button class="btn" onclick="printAV()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button>
-      <button class="btn su-edit" id="av-toggle" onclick="avToggle()">Aanwezigheden bewerken</button>
-    </div></div><div class="cb">
-    <div id="av-read"><div class="tw"><table class="su-tak">
-      <thead><tr><th>Dag</th><th class="tr">Takken</th><th class="tr">Kookploeg</th><th class="tr">Totaal</th></tr></thead>
-      <tbody id="av-read-body"></tbody><tfoot><tr class="tfoot" id="av-read-ft"></tr></tfoot></table></div></div>
-    <div id="av-manage" style="display:none;">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="btn btn-pri lockhide" onclick="syncAVFromSetup(false)" title="Vul lege velden in op basis van ingeschreven leden">↻ <span class="lbl-lg">Aantallen overnemen uit kampgegevens</span><span class="lbl-sm">Overnemen uit kampgegevens</span></button>
-        <button class="btn btn-bad" onclick="if(confirm('Alle aanwezigheidsdata overschrijven met ingeschreven aantallen uit setup?'))syncAVFromSetup(true)" title="Overschrijf alles met ingeschreven aantallen">↺ Herstellen naar kampgegevens</button>
-      </div>
-      <div class="tw"><table><thead><tr id="av-hd"></tr></thead><tbody id="av-bd"></tbody><tfoot><tr id="av-ft" class="tfoot"></tr></tfoot></table></div>
-    </div>
-  </div></div>
+  <div class="card"><div class="ch"><h3>Aanwezigen per dag per tak</h3><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn" onclick="printAV()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button><button class="btn btn-pri" onclick="syncAVFromSetup(false)" title="Vul lege velden in op basis van ingeschreven leden">↻ <span class="lbl-lg">Aantallen overnemen uit kampgegevens</span><span class="lbl-sm">Overnemen uit kampgegevens</span></button><button class="btn btn-bad" onclick="if(confirm('Alle aanwezigheidsdata overschrijven met ingeschreven aantallen uit setup?'))syncAVFromSetup(true)" title="Overschrijf alles met ingeschreven aantallen">↺ Herstellen naar kampgegevens</button></div></div><div class="cb"><div class="tw">
+    <table><thead><tr id="av-hd"></tr></thead><tbody id="av-bd"></tbody><tfoot><tr id="av-ft" class="tfoot"></tr></tfoot></table>
+  </div></div></div>
 </div>
 
 <div class="panel" id="p-keuken">
@@ -707,8 +669,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 </div>
 
 <div class="panel" id="p-menu">
-  <div class="pl-counts" id="menu-sum"></div>
-  <div class="card"><div class="ch"><h3>Maaltijdplanning per dag</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span style="font-size:11px;color:#8a94a6;">klik een dag open om de gangen te kiezen</span><button class="btn" onclick="printMenu()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button></div></div><div class="cb" id="menu-bd"></div></div>
+  <div class="card"><div class="ch"><h3>📋 Maaltijdplanning per dag</h3><div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap;"><span style="font-size:11px;color:#888;">klik een dag open om de gangen te kiezen</span><button class="btn" onclick="printMenu()" title="Afdrukken of opslaan als PDF">🖨️ Afdrukken / PDF</button></div></div><div class="cb" id="menu-bd"></div></div>
 </div>
 
 <div class="panel" id="p-recepten">
@@ -1985,7 +1946,7 @@ function suApplyViewer(){
   var ro=suViewer();
   document.querySelectorAll('.su-edit').forEach(function(b){b.style.display=ro?'none':'';});
   if(ro){
-    [['kp-manage','kp-read'],['vk-manage','vk-read'],['vark-manage','vark-read'],['av-manage','av-read']].forEach(function(pair){
+    [['kp-manage','kp-read'],['vk-manage','vk-read'],['vark-manage','vark-read']].forEach(function(pair){
       var m=document.getElementById(pair[0]),r=document.getElementById(pair[1]);
       if(m)m.style.display='none';if(r)r.style.display='block';});
   }
@@ -2234,46 +2195,7 @@ function renderAV(){
     cells+=`<td><input type="number" min="0" value="${kpv}" style="width:55px" onchange="uAV('${d}','kp',+this.value)"></td>`;
     tots.tt+=dt;cells+=`<td class="tr tw5">${dt}</td>`;const tr=document.createElement('tr');tr.innerHTML=cells;bd.appendChild(tr);});
   document.getElementById('av-ft').innerHTML='<td><strong>Totaal</strong></td>'+tak.map(t=>`<td class="tr">${tots[t.id]}</td>`).join('')+`<td class="tr">${tots['kp']||0}</td><td class="tr tw5">${tots.tt}</td>`;
-  renderAvRead();
   updateTerreinPreview();
-}
-function avToggle(){
-  if(suViewer())return;
-  var m=document.getElementById('av-manage'),r=document.getElementById('av-read'),b=document.getElementById('av-toggle');
-  if(!m)return;var open=m.style.display!=='none';
-  m.style.display=open?'none':'block';if(r)r.style.display=open?'block':'none';
-  if(b)b.textContent=open?'Aanwezigheden bewerken':'Bewerken sluiten';
-}
-function renderAvRead(){
-  var days=getDays(),tak=S.setup.takken||[];
-  var bd=document.getElementById('av-read-body');if(!bd)return;
-  var rows=[],piek=0,piekD='',somT=0,kpPiek=0,somAll=0;
-  days.forEach(function(d){
-    var av=S.av[d]||{},t=0;
-    tak.forEach(function(x){t+=av[x.id]||0;});
-    var kpv=av['kp']||0,tot=t+kpv;
-    if(tot>piek){piek=tot;piekD=d;}
-    if(kpv>kpPiek)kpPiek=kpv;
-    somT+=t;somAll+=tot;
-    rows.push({d:d,t:t,kp:kpv,tot:tot});
-  });
-  bd.innerHTML=rows.map(function(r){
-    var top=(r.tot===piek&&piek>0);
-    return '<tr'+(top?' style="background:#f4f8fe;"':'')+'>'
-      +'<td style="white-space:nowrap"><strong>'+fD(r.d)+'</strong>'
-      +'<span class="su-mobile-cell" style="font-size:12px;color:var(--txt2);">'+r.t+' takken \u00b7 '+r.kp+' kookploeg \u00b7 <strong>'+r.tot+'</strong> totaal</span></td>'
-      +'<td class="tr">'+r.t+'</td><td class="tr">'+r.kp+'</td>'
-      +'<td class="tr"><strong>'+r.tot+'</strong></td></tr>';}).join('')
-    ||'<tr><td colspan="4" style="color:#8a94a6;">Nog geen kampdagen ingesteld.</td></tr>';
-  var ft=document.getElementById('av-read-ft');
-  if(ft)ft.innerHTML='<td><strong>Persoonsdagen</strong></td><td class="tr">'+somT+'</td><td class="tr">'+(somAll-somT)+'</td><td class="tr tw5">'+somAll+'</td>';
-  var gem=days.length?Math.round(somAll/days.length):0;
-  var sum=document.getElementById('av-sum');
-  if(sum)sum.innerHTML=[['Kampdagen',days.length,''],
-    ['Piekbezetting',piek,(piekD?fD(piekD):'')],
-    ['Gemiddelde bezetting',gem,'per dag'],
-    ['Kookploeg (piek)',kpPiek,'']].map(function(c){
-      return '<div class="pl-count"><div class="lbl">'+c[0]+'</div><div class="val">'+c[1]+'</div>'+(c[2]?'<div class="su-cnt-s">'+c[2]+'</div>':'')+'</div>';}).join('');
 }
 function uAV(d,f,v){if(!S.av[d])S.av[d]={};S.av[d][f]=v;save();renderAV();}
 // ---- Printbare overzichten (aanwezigheden + menu) ----
@@ -2717,36 +2639,14 @@ function renderMenu(){
     const div=document.createElement('div');div.className='db';
     const inner=GANG.map(([k,l])=>menuSlotHtml(d,k,l,m)).join('');
     const chip=avNm?`<span class="menu-av-chip">${avNm}</span>`:`<span class="menu-av-empty">nog geen avondmaal</span>`;
-    const rest=[['mi','Middag'],['uu','4-uurtje'],['des','Dessert']].map(function(g){
-      var v=(m[g[0]]&&m[g[0]].ma)?cleanName(m[g[0]].ma):'';return v?v:null;}).filter(Boolean);
-    const restHtml=rest.length?'<span class="menu-rest">'+rest.join(' \u00b7 ')+'</span>':'';
-    div.innerHTML='<div class="dh" onclick="this.parentElement.classList.toggle(\'mopen\');this.nextElementSibling.classList.toggle(\'open\')"><span class="menu-dh-l"><span class="menu-dh-date">'+fD(d)+'</span>'+chip+restHtml+'</span><span class="menu-dh-r">'+(tot||'geen')+' aanwezigen <span class="menu-chev">▾</span></span></div><div class="dbody">'+inner+'</div>';
+    div.innerHTML='<div class="dh" onclick="this.parentElement.classList.toggle(\'mopen\');this.nextElementSibling.classList.toggle(\'open\')"><span class="menu-dh-l"><span class="menu-dh-date">'+fD(d)+'</span>'+chip+'</span><span class="menu-dh-r">'+(tot||'geen')+' aanwezigen <span class="menu-chev">▾</span></span></div><div class="dbody">'+inner+'</div>';
     bd.appendChild(div);
     div.querySelectorAll('.dbody select').forEach((sel,idx)=>{
       const k=GANG[idx][0];const cur=(m[k]&&m[k].ma)||'';
       const inDropdown=allRecipes().some(mx=>mx.nm===cur)||(VASTE_MENUS[k]&&VASTE_MENUS[k].some(v=>v.nm===cur));
       if(inDropdown)sel.value=cur;
     });
-    if(suViewer())div.querySelectorAll('.dbody select,.dbody input').forEach(function(el){el.disabled=true;});
   });
-  renderMenuSummary();
-}
-function renderMenuSummary(){
-  var days=getDays(),gepland=0,zonderAvond=[],gerechten={};
-  days.forEach(function(d){
-    var m=S.menu[d]||{};
-    var av=(m.av&&m.av.ma)?cleanName(m.av.ma):'';
-    if(av){gepland++;gerechten[av]=1;}else zonderAvond.push(d);
-    ['mi','uu','des','on'].forEach(function(k){var v=(m[k]&&m[k].ma)?cleanName(m[k].ma):'';if(v)gerechten[v]=1;});
-  });
-  var uniek=Object.keys(gerechten).length;
-  var el=document.getElementById('menu-sum');if(!el)return;
-  var cards=[['Kampdagen',days.length,''],
-             ['Avondmaal gepland',gepland+' / '+days.length,''],
-             ['Nog te plannen',zonderAvond.length,(zonderAvond.length?'avondmalen':'alles ingevuld'),zonderAvond.length?'is-soon':''],
-             ['Unieke gerechten',uniek,'']];
-  el.innerHTML=cards.map(function(c){
-    return '<div class="pl-count '+(c[4]||'')+'"><div class="lbl">'+c[0]+'</div><div class="val">'+c[1]+'</div>'+(c[2]?'<div class="su-cnt-s">'+c[2]+'</div>':'')+'</div>';}).join('');
 }
 function uMenuSel(sel,d,k){
   const val=sel.value;
