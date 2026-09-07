@@ -1359,7 +1359,8 @@ function activateTab(tab){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('act',p.id==='p-'+tab);});
   var t=document.getElementById('pg-t');if(t)t.textContent=navLabel(tab)||'';
   var pa=document.getElementById('pg-act');
-  if(pa)pa.innerHTML=(tab==='planning')?'<button class="btn btn-pri lockhide" onclick="plOpen()">+ Taak toevoegen</button>':'';
+  var plRO=(typeof isViewer==='function'&&isViewer());
+  if(pa)pa.innerHTML=(tab==='planning'&&!plRO)?'<button class="btn btn-pri lockhide" onclick="plOpen()">+ Taak toevoegen</button>':'';
   if(tab==='overzicht')renderOverzicht();
   if(tab==='planning')renderPlanning();
   if(tab==='av')renderAV();if(tab==='menu')renderMenu();if(tab==='keuken'){renderKeuken();renderBak();}
@@ -1378,6 +1379,28 @@ document.getElementById('side-nav').addEventListener('click',function(e){
 const PL_CATS=['Algemeen','Kampterrein','Financi\u00ebn','Vervoer','Kampkost','Materiaal','Communicatie','Na het kamp'];
 const PL_ST=[['todo','Te doen'],['doing','Bezig'],['done','Klaar']];
 var PL_FILTER='alle';
+function plShiftDate(d,n){
+  if(!d)return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);if(!m)return d;
+  var dt=new Date(+m[1],+m[2]-1,+m[3]);          // lokale kalenderdatum, geen UTC-conversie
+  dt.setDate(dt.getDate()+(n||0));
+  var y=dt.getFullYear(),mo=dt.getMonth()+1,da=dt.getDate();
+  return y+'-'+(mo<10?'0':'')+mo+'-'+(da<10?'0':'')+da;
+}
+function plDayDelta(vanISO,naarISO){
+  var a=/^(\d{4})-(\d{2})-(\d{2})$/.exec(vanISO||''),b=/^(\d{4})-(\d{2})-(\d{2})$/.exec(naarISO||'');
+  if(!a||!b)return 0;
+  var d1=Date.UTC(+a[1],+a[2]-1,+a[3]),d2=Date.UTC(+b[1],+b[2]-1,+b[3]);
+  return Math.round((d2-d1)/86400000);
+}
+function plCopyForNewCamp(list,oudeStart,nieuweStart){
+  if(!Array.isArray(list))return [];
+  var delta=plDayDelta(oudeStart,nieuweStart);
+  return list.filter(function(t){return t&&t.tpl===true;}).map(function(t){
+    return {id:uid(),titel:t.titel,cat:t.cat,deadline:t.deadline?plShiftDate(t.deadline,delta):'',
+            status:'todo',verantw:t.verantw,notitie:t.notitie,tpl:true};
+  });
+}
 function plList(){if(!S.planning)S.planning=[];return S.planning;}
 function plStLabel(v){for(var i=0;i<PL_ST.length;i++)if(PL_ST[i][0]===v)return PL_ST[i][1];return 'Te doen';}
 function plToday(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
@@ -1443,7 +1466,10 @@ function renderPlanning(){
   lst.innerHTML=html;
 }
 function plSetFilter(f){PL_FILTER=f;renderPlanning();}
+function plViewer(){return (typeof isViewer==='function'&&isViewer());}
 function plOpen(id){
+  var ro=plViewer();
+  if(ro&&!id)return;
   var t=id?plList().filter(function(x){return x.id===id;})[0]:null;
   var nieuw=!t;
   if(nieuw)t={id:'',titel:'',cat:'Algemeen',deadline:'',status:'todo',verantw:'',notitie:'',tpl:true};
@@ -1451,23 +1477,26 @@ function plOpen(id){
   if(!ov){ov=document.createElement('div');ov.id='pl-ov';document.body.appendChild(ov);
     ov.addEventListener('click',function(e){if(e.target===ov)plClose();});}
   ov.innerHTML='<div class="pl-modal">'
-    +'<h3>'+(nieuw?'Nieuwe taak':'Taak bewerken')+'</h3>'
-    +'<label>Titel</label><input type="text" id="pl-f-titel" value="'+plEsc(t.titel)+'" placeholder="bv. Bus heenreis reserveren">'
-    +'<label>Categorie</label><select id="pl-f-cat">'+PL_CATS.map(function(c){return '<option'+(c===(t.cat||'Algemeen')?' selected':'')+'>'+c+'</option>';}).join('')+'</select>'
-    +'<label>Deadline</label><input type="date" id="pl-f-deadline" value="'+plEsc(t.deadline)+'">'
-    +'<label>Status</label><select id="pl-f-status">'+PL_ST.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===(t.status||'todo')?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
-    +'<label>Verantwoordelijke</label><input type="text" id="pl-f-verantw" value="'+plEsc(t.verantw)+'" placeholder="bv. Tobias, Kookploeg, Materiaalploeg">'
-    +'<label>Notitie</label><textarea id="pl-f-notitie" placeholder="Praktische info, contactgegevens, wat vorig jaar werkte\u2026">'+plEsc(t.notitie)+'</textarea>'
-    +'<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:500;color:var(--txt);"><input type="checkbox" id="pl-f-tpl" style="width:auto;" '+(t.tpl!==false?'checked':'')+'> Meenemen naar volgend kamp</label>'
+    +'<h3>'+(ro?'Taak bekijken':(nieuw?'Nieuwe taak':'Taak bewerken'))+'</h3>'
+    +(ro?'<div style="background:#f3e8ff;border:1px solid #e9d5ff;color:#6d28d9;border-radius:7px;padding:8px 10px;font-size:12.5px;margin-bottom:10px;">\ud83d\udc41 Kijkmodus \u2014 je kunt deze taak bekijken, niet wijzigen.</div>':'')
+    +'<label>Titel</label><input type="text" id="pl-f-titel" '+(ro?'disabled ':'')+'value="'+plEsc(t.titel)+'" placeholder="bv. Bus heenreis reserveren">'
+    +'<label>Categorie</label><select id="pl-f-cat" '+(ro?'disabled':'')+'>'+PL_CATS.map(function(c){return '<option'+(c===(t.cat||'Algemeen')?' selected':'')+'>'+c+'</option>';}).join('')+'</select>'
+    +'<label>Deadline</label><input type="date" id="pl-f-deadline" '+(ro?'disabled ':'')+'value="'+plEsc(t.deadline)+'">'
+    +'<label>Status</label><select id="pl-f-status" '+(ro?'disabled':'')+'>'+PL_ST.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===(t.status||'todo')?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
+    +'<label>Verantwoordelijke</label><input type="text" id="pl-f-verantw" '+(ro?'disabled ':'')+'value="'+plEsc(t.verantw)+'" placeholder="bv. Tobias, Kookploeg, Materiaalploeg">'
+    +'<label>Notitie</label><textarea id="pl-f-notitie" '+(ro?'disabled ':'')+'placeholder="Praktische info, contactgegevens, wat vorig jaar werkte\u2026">'+plEsc(t.notitie)+'</textarea>'
+    +'<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:500;color:var(--txt);"><input type="checkbox" id="pl-f-tpl" style="width:auto;" '+(ro?'disabled ':'')+(t.tpl!==false?'checked':'')+'> Meenemen naar volgend kamp</label>'
+    +'<div style="font-size:11.5px;color:var(--txt2);margin:3px 0 0 24px;">De deadline schuift mee met de kampdatum. Zonder deadline blijft die leeg.</div>'
     +'<div class="pl-acts">'
-    +(nieuw?'<span></span>':'<button class="btn btn-bad" onclick="plDelete(\''+t.id+'\')">Verwijderen</button>')
-    +'<span style="display:flex;gap:8px;"><button class="btn" onclick="plClose()">Annuleren</button>'
-    +'<button class="btn btn-pri" onclick="plSave(\''+(t.id||'')+'\')">Opslaan</button></span></div></div>';
+    +((nieuw||ro)?'<span></span>':'<button class="btn btn-bad" onclick="plDelete(\''+t.id+'\')">Verwijderen</button>')
+    +'<span style="display:flex;gap:8px;"><button class="btn" onclick="plClose()">'+(ro?'Sluiten':'Annuleren')+'</button>'
+    +(ro?'':'<button class="btn btn-pri" onclick="plSave(\''+(t.id||'')+'\')">Opslaan</button>')+'</span></div></div>';
   ov.classList.add('open');
   setTimeout(function(){var f=document.getElementById('pl-f-titel');if(f)f.focus();},60);
 }
 function plClose(){var ov=document.getElementById('pl-ov');if(ov)ov.classList.remove('open');}
 function plSave(id){
+  if(plViewer())return;
   var titel=document.getElementById('pl-f-titel').value.trim();
   if(!titel){alert('Geef de taak een titel.');return;}
   var obj={
@@ -1485,6 +1514,7 @@ function plSave(id){
   plClose();renderPlanning();save();
 }
 function plDelete(id){
+  if(plViewer())return;
   var t=plList().filter(function(x){return x.id===id;})[0];
   if(!confirm('Taak \u201c'+((t&&t.titel)||'')+'\u201d verwijderen?'))return;
   S.planning=plList().filter(function(x){return x.id!==id;});
@@ -2593,6 +2623,10 @@ function _nieuwKampCore(nm,st,ei){
   S.archief.push(archiveCurrent());
   var oldSt=(S.setup&&S.setup.st)||st;var oldDays=getDays();
   var offset=Math.round((new Date(st+'T00:00:00')-new Date(oldSt+'T00:00:00'))/86400000)||0;
+  // Planning: alleen taken met tpl===true, als NIEUWE objecten (nieuw id), status terug op 'todo',
+  // deadline verschoven met hetzelfde aantal kalenderdagen als de kampstart. Het gearchiveerde
+  // kamp behoudt zijn eigen taken ongewijzigd (archiveCurrent maakt hierboven al een diepe kopie).
+  S.planning=plCopyForNewCamp(S.planning,oldSt,st);
   if(Array.isArray(S.setup.takken))S.setup.takken.forEach(function(t){if(t.aa)t.aa=_shiftDate(t.aa,offset);if(t.vt)t.vt=_shiftDate(t.vt,offset);if(t.aa&&t.aa<st)t.aa=st;if(t.vt&&t.vt>ei)t.vt=ei;if(!t.aa)t.aa=st;if(!t.vt)t.vt=ei;});
   S.setup.nm=nm;S.setup.st=st;S.setup.ei=ei;
   var newDays=getDays();var oM=S.menu||{},oA=S.av||{},oE=S.evaluatie||{},nM={},nA={},nE={};
