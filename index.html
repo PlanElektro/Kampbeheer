@@ -74,6 +74,94 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
+/* ===== Sprint 2.3 ===== */
+.pl-count.is-soon .val{color:#b45309;}
+.pl-stwrap{flex-shrink:0;}
+.pl-st-btn{font-family:inherit;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.pl-st-btn:hover{filter:brightness(.96);border-color:rgba(27,58,107,.25);}
+.pl-caret{font-size:9px;opacity:.65;}
+#pl-stmenu{position:fixed;z-index:10000;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 28px rgba(20,35,60,.16);padding:5px;min-width:140px;}
+#pl-stmenu button{display:block;width:100%;text-align:left;padding:8px 11px;font-size:13px;font-family:inherit;background:none;border:0;border-radius:6px;color:#33405a;cursor:pointer;}
+#pl-stmenu button:hover{background:#f1f5fb;}
+#pl-stmenu button.act{background:var(--navy-soft);color:var(--navy);font-weight:600;}
+.pl-filters{gap:6px;}
+.pl-fb{padding:4px 10px;}
+#pl-cat{padding:4px 7px;}
+.pl-blank{padding:26px 18px 28px;}
+.pl-modal input:focus,.pl-modal select:focus,.pl-modal textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.13);}
+.pl-modal input:focus-visible,.pl-modal select:focus-visible,.pl-modal textarea:focus-visible{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.13);}
+.pl-modal input[type=checkbox]:focus-visible{outline:2px solid var(--navy);outline-offset:2px;box-shadow:none;}
+#ov-next{margin-bottom:6px;}
+.ov-next-list{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:8px;}
+.ov-next-i{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line-soft);border-left:3px solid transparent;cursor:pointer;font-size:13.5px;}
+.ov-next-i:last-child{border-bottom:0;}
+.ov-next-i:hover{background:#f7faff;}
+.ov-next-i.u-late{border-left-color:var(--bad);}
+.ov-next-i.u-soon{border-left-color:#d97706;}
+.ov-next-i .d{flex:0 0 74px;color:var(--txt2);font-size:12.5px;white-space:nowrap;}
+.ov-next-i .t{flex:1;min-width:0;color:var(--txt);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ov-next-i .c{flex-shrink:0;font-size:11px;color:#8a94a6;}
+.ov-next-cta{background:none;border:0;padding:2px 2px;font-family:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;}
+.ov-next-cta:hover{text-decoration:underline;}
+.ov-next-cta:focus{outline:none;}
+.ov-next-cta:focus-visible{outline:2px solid var(--navy);outline-offset:2px;border-radius:4px;}
+@media(max-width:640px){
+  .pl-counts{grid-template-columns:1fr 1fr;}
+  .ov-next-i .c{display:none;}
+  .ov-next-i .d{flex-basis:62px;}
+  .pl-st.pl-st-btn{padding:9px 13px;font-size:12.5px;}
+}
+/* ===== Sprint 2: Planning ===== */
+.pl-blank{text-align:center;padding:30px 18px 34px;}
+.pl-blank h4{margin:0 0 6px;font-size:17px;color:var(--txt);font-weight:600;}
+.pl-blank p{margin:0 0 16px;font-size:13.5px;color:var(--txt2);}
+.pl-blank-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.pl-blank-acts .btn{padding:9px 16px;font-size:13px;}
+.pg-wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;}
+#pg-act:empty{display:none;}
+.pl-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
+.pl-count{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;}
+.pl-count .lbl{font-size:12px;color:var(--txt2);margin-bottom:4px;}
+.pl-count .val{font-size:23px;font-weight:700;color:var(--txt);line-height:1.1;}
+.pl-count.is-late .val{color:var(--bad);}
+.pl-count.is-done .val{color:var(--ok);}
+.pl-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+#pl-fbtns{display:flex;gap:4px;flex-wrap:wrap;}
+.pl-fb{padding:5px 11px;font-size:12.5px;font-family:inherit;color:#475569;background:#fff;border:1px solid var(--line);border-radius:7px;cursor:pointer;}
+.pl-fb:hover{background:#f1f5fb;}
+.pl-fb.act{background:var(--navy-soft);border-color:#b9cbe6;color:var(--navy);font-weight:600;}
+.pl-grp{font-size:11px;letter-spacing:.6px;font-weight:700;color:#8a94a6;padding:16px 2px 7px;}
+.pl-grp:first-child{padding-top:2px;}
+.pl-row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-left:3px solid #cbd5e1;border-radius:8px;padding:11px 14px;margin-bottom:7px;cursor:pointer;min-height:64px;}
+.pl-row:hover{background:#f7faff;border-color:#cbd7ea;}
+.pl-row.u-late{border-left-color:var(--bad);}
+.pl-row.u-soon{border-left-color:#d97706;}
+.pl-row.u-done{border-left-color:var(--ok);}
+.pl-main{flex:1;min-width:0;}
+.pl-tit{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pl-row.u-done .pl-tit{color:var(--txt2);}
+.pl-meta{font-size:12px;color:var(--txt2);display:flex;gap:12px;flex-wrap:wrap;}
+.pl-meta .late{color:var(--bad);font-weight:600;}
+.pl-meta .soon{color:#b45309;font-weight:600;}
+.pl-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:#eef2f8;color:#5b6880;white-space:nowrap;}
+.pl-st{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.st-todo{background:#eef2f8;color:#475569;}
+.st-doing{background:#fef3c7;color:#92400e;}
+.st-done{background:#dcfce7;color:#15803d;}
+.pl-empty{color:#8a94a6;font-size:13px;padding:14px 2px;}
+#pl-ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto;}
+#pl-ov.open{display:flex;}
+.pl-modal{background:#fff;border-radius:12px;max-width:520px;width:100%;padding:20px 22px;box-shadow:0 20px 50px rgba(15,23,42,.3);}
+.pl-modal h3{margin:0 0 14px;font-size:18px;color:var(--navy);}
+.pl-modal label{display:block;font-size:12px;font-weight:600;color:#5b6880;margin:10px 0 3px;}
+.pl-modal input,.pl-modal select,.pl-modal textarea{width:100%;font-family:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--txt);}
+.pl-modal textarea{resize:vertical;min-height:76px;}
+.pl-acts{display:flex;gap:8px;justify-content:space-between;margin-top:18px;}
+@media(max-width:640px){
+  .pl-row{flex-wrap:wrap;gap:8px;}
+  .pl-st{order:3;}
+  .pg-wrap{flex-wrap:wrap;}
+}
 /* ===== Sprint 1.1: visuele correcties ===== */
 .side-hd .t1{font-size:15px;}
 .pg-wrap{padding:20px 28px 0;}
@@ -310,7 +398,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     </div>
   </div>
 </div>
-<div class="pg-wrap"><h2 id="pg-t">Overzicht</h2></div>
+<div class="pg-wrap"><h2 id="pg-t">Overzicht</h2><div id="pg-act"></div></div>
 <div id="arch-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;">
   <div style="background:#fff;border-radius:10px;max-width:820px;width:100%;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.3);">
     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:12px;">
@@ -339,12 +427,14 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
       <div class="ov-sec-t">Snel naar</div>
       <div class="qk">
         <button onclick="activateTab('setup')">Kampgegevens</button>
-        <button onclick="activateTab('av')">Aanwezigheden</button>
+        <button onclick="activateTab('planning')">Planning</button>
         <button onclick="activateTab('menu')">Menu</button>
         <button onclick="activateTab('aankopen')">Aankopen</button>
       </div>
     </section>
   </div>
+  <div class="ov-sec-t" style="margin-top:22px;">Volgende taken</div>
+  <div id="ov-next"></div>
 </div>
 
 <div class="panel" id="p-setup">
@@ -388,6 +478,17 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <tbody id="vark-body"></tbody>
     <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr tw5" id="vark-t">—</td><td></td></tr></tfoot>
   </table></div></div></div>
+</div>
+
+<div class="panel" id="p-planning">
+  <div class="pl-counts" id="pl-counts"></div>
+  <div class="card">
+    <div class="ch"><h3>Taken</h3><div class="pl-filters">
+      <div id="pl-fbtns"></div>
+      <select id="pl-cat" class="plan-sel" style="max-width:170px;" onchange="renderPlanning()"></select>
+    </div></div>
+    <div class="cb"><div id="pl-list"></div></div>
+  </div>
 </div>
 
 <div class="panel" id="p-av">
@@ -1275,7 +1376,7 @@ function updateTerreinPreview(){
 
 const NAV=[
  ['OVERZICHT',[['overzicht','Overzicht']]],
- ['KAMP',[['setup','Kampgegevens'],['av','Aanwezigheden'],['vervoer','Vervoer']]],
+ ['KAMP',[['setup','Kampgegevens'],['planning','Planning'],['av','Aanwezigheden'],['vervoer','Vervoer']]],
  ['KAMPKOST',[['menu','Menu'],['recepten','Recepten'],['bestellingen','Bestellingen'],['keuken','Keuken']]],
  ['FINANCIEEL',[['budget','Budget'],['aankopen','Aankopen']]],
  ['KENNIS & OVERDRACHT',[['leveranciers','Leveranciers'],['prikbord','Notities'],['handleiding','Overdracht']]]
@@ -1300,7 +1401,11 @@ function activateTab(tab){
   document.querySelectorAll('#side-nav .nav-i').forEach(function(b){b.classList.toggle('act',b.dataset.tab===tab);});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('act',p.id==='p-'+tab);});
   var t=document.getElementById('pg-t');if(t)t.textContent=navLabel(tab)||'';
+  var pa=document.getElementById('pg-act');
+  var plRO=(typeof isViewer==='function'&&isViewer());
+  if(pa)pa.innerHTML=(tab==='planning'&&!plRO)?'<button class="btn btn-pri lockhide" onclick="plOpen()">+ Taak toevoegen</button>':'';
   if(tab==='overzicht')renderOverzicht();
+  if(tab==='planning')renderPlanning();
   if(tab==='av')renderAV();if(tab==='menu')renderMenu();if(tab==='keuken'){renderKeuken();renderBak();}
   if(tab==='recepten')renderRecepten();
   if(tab==='prikbord')renderPrikbord();
@@ -1314,6 +1419,254 @@ renderSidebar();
 document.getElementById('side-nav').addEventListener('click',function(e){
   var b=e.target.closest('.nav-i');if(!b||!b.dataset.tab)return;activateTab(b.dataset.tab);
 });
+const PL_CATS=['Algemeen','Kampterrein','Financi\u00ebn','Vervoer','Kampkost','Materiaal','Communicatie','Na het kamp'];
+const PL_ST=[['todo','Te doen'],['doing','Bezig'],['done','Klaar']];
+var PL_FILTER='alle';
+// Centrale standaardplanning. offsetDays = aantal kalenderdagen t.o.v. de kampstartdatum
+// (negatief = voor het kamp). Pas hier aan om de startset te wijzigen.
+const STANDARD_PLANNING=[
+ {titel:'Kampplaats definitief bevestigen',cat:'Algemeen',base:'start',offsetDays:-300,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampdata definitief bevestigen',cat:'Algemeen',base:'start',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Contract kampterrein controleren',cat:'Kampterrein',base:'start',offsetDays:-270,verantw:'',notitie:'',tpl:true},
+ {titel:'Voorschot kampterrein betalen',cat:'Kampterrein',base:'start',offsetDays:-240,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs voorbereiden',cat:'Financi\u00ebn',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Subsidies controleren en aanvragen',cat:'Financi\u00ebn',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer heenreis regelen',cat:'Vervoer',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Personenvervoer terugreis regelen',cat:'Vervoer',base:'start',offsetDays:-180,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampprijs definitief vastleggen',cat:'Financi\u00ebn',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Budgetraming controleren',cat:'Financi\u00ebn',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Materiaalvervoer regelen',cat:'Vervoer',base:'start',offsetDays:-150,verantw:'',notitie:'',tpl:true},
+ {titel:'Inschrijvingen openen',cat:'Communicatie',base:'start',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Kookploeg bevestigen',cat:'Kampkost',base:'start',offsetDays:-120,verantw:'',notitie:'',tpl:true},
+ {titel:'Nutsvoorzieningen en terreinvoorzieningen controleren',cat:'Kampterrein',base:'start',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Gehuurd materiaal bevestigen',cat:'Materiaal',base:'start',offsetDays:-90,verantw:'',notitie:'',tpl:true},
+ {titel:'Menu opstellen',cat:'Kampkost',base:'start',offsetDays:-60,verantw:'',notitie:'',tpl:true},
+ {titel:'Recepten controleren',cat:'Kampkost',base:'start',offsetDays:-45,verantw:'',notitie:'',tpl:true},
+ {titel:'Afspraken over aankomst en vertrek bevestigen',cat:'Kampterrein',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Waarborgregeling controleren',cat:'Kampterrein',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Vervoersprijzen en afspraken bevestigen',cat:'Vervoer',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Solucious-prijzen actualiseren',cat:'Kampkost',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Tent- en kampmateriaal controleren',cat:'Materiaal',base:'start',offsetDays:-30,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve deelnemersaantallen controleren',cat:'Algemeen',base:'start',offsetDays:-21,verantw:'',notitie:'',tpl:true},
+ {titel:'Eerste bestelling voorbereiden',cat:'Kampkost',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'EHBO-materiaal controleren',cat:'Materiaal',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kampbijdragen controleren',cat:'Financi\u00ebn',base:'start',offsetDays:-14,verantw:'',notitie:'',tpl:true},
+ {titel:'Leverdata bevestigen',cat:'Kampkost',base:'start',offsetDays:-7,verantw:'',notitie:'',tpl:true},
+ {titel:'Openstaande terugbetalingen afwerken',cat:'Na het kamp',base:'end',offsetDays:7,verantw:'',notitie:'',tpl:true},
+ {titel:'Facturen controleren',cat:'Na het kamp',base:'end',offsetDays:14,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp financieel afsluiten',cat:'Na het kamp',base:'end',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Definitieve backup maken',cat:'Na het kamp',base:'end',offsetDays:21,verantw:'',notitie:'',tpl:true},
+ {titel:'Kamp archiveren',cat:'Na het kamp',base:'end',offsetDays:30,verantw:'',notitie:'',tpl:true}
+];
+function plAddStandard(){
+  if(plViewer())return;
+  if(plList().length){alert('Er bestaat al een planning voor dit kamp.');return;}
+  if(!confirm('De standaard kampplanning toevoegen?\nJe kunt alle taken daarna aanpassen of verwijderen.'))return;
+  var st=(S.setup&&S.setup.st)||'';
+  var ei=(S.setup&&S.setup.ei)||'';   // einddatum kamp
+  S.planning=STANDARD_PLANNING.map(function(t){
+    // Voorbereidingstaken rekenen vanaf de kampstart, taken na het kamp vanaf de einddatum.
+    // Ontbreekt de relevante basisdatum, dan blijft de deadline leeg.
+    var basis=(t.base==='end')?ei:st;
+    return {id:uid(),titel:t.titel,cat:t.cat,
+            deadline:basis?plShiftDate(basis,t.offsetDays):'',
+            status:'todo',verantw:t.verantw||'',notitie:t.notitie||'',tpl:t.tpl!==false};
+  });
+  renderPlanning();save();
+}
+function plShiftDate(d,n){
+  if(!d)return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);if(!m)return d;
+  var dt=new Date(+m[1],+m[2]-1,+m[3]);          // lokale kalenderdatum, geen UTC-conversie
+  dt.setDate(dt.getDate()+(n||0));
+  var y=dt.getFullYear(),mo=dt.getMonth()+1,da=dt.getDate();
+  return y+'-'+(mo<10?'0':'')+mo+'-'+(da<10?'0':'')+da;
+}
+function plDayDelta(vanISO,naarISO){
+  var a=/^(\d{4})-(\d{2})-(\d{2})$/.exec(vanISO||''),b=/^(\d{4})-(\d{2})-(\d{2})$/.exec(naarISO||'');
+  if(!a||!b)return 0;
+  var d1=Date.UTC(+a[1],+a[2]-1,+a[3]),d2=Date.UTC(+b[1],+b[2]-1,+b[3]);
+  return Math.round((d2-d1)/86400000);
+}
+function plCopyForNewCamp(list,oudeStart,nieuweStart){
+  if(!Array.isArray(list))return [];
+  var delta=plDayDelta(oudeStart,nieuweStart);
+  return list.filter(function(t){return t&&t.tpl===true;}).map(function(t){
+    return {id:uid(),titel:t.titel,cat:t.cat,deadline:t.deadline?plShiftDate(t.deadline,delta):'',
+            status:'todo',verantw:t.verantw,notitie:t.notitie,tpl:true};
+  });
+}
+function plList(){if(!S.planning)S.planning=[];return S.planning;}
+function plStLabel(v){for(var i=0;i<PL_ST.length;i++)if(PL_ST[i][0]===v)return PL_ST[i][1];return 'Te doen';}
+function plToday(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function plDagen(dl){if(!dl)return null;var d=new Date(dl+'T00:00:00');if(isNaN(d))return null;return Math.round((d-plToday())/86400000);}
+function plUrg(t){
+  if(t.status==='done')return 'done';
+  var n=plDagen(t.deadline);
+  if(n===null)return 'geen';
+  if(n<0)return 'late';
+  if(n<=30)return 'soon';
+  return 'later';
+}
+function plEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderPlanning(){
+  var list=plList(),lst=document.getElementById('pl-list');if(!lst)return;
+  var n=plTellers(list);
+  var cw=document.getElementById('pl-counts');
+  if(cw){
+    var cards=[['Achterstallig',n.late,n.late>0?'is-late':''],['Binnen 30 dagen',n.soon,n.soon>0?'is-soon':''],
+               ['Later',n.later,''],['Klaar',n.done,'is-done']];
+    cw.innerHTML=cards.map(function(c){return '<div class="pl-count '+c[2]+'"><div class="lbl">'+c[0]+'</div><div class="val">'+c[1]+'</div></div>';}).join('');
+  }
+  var fb=document.getElementById('pl-fbtns');
+  if(fb)fb.innerHTML=[['alle','Alle'],['todo','Te doen'],['doing','Bezig'],['done','Klaar']].map(function(f){
+    return '<button class="pl-fb'+(PL_FILTER===f[0]?' act':'')+'" onclick="plSetFilter(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
+  var sel=document.getElementById('pl-cat');
+  if(sel&&!sel.dataset.init){sel.innerHTML='<option value="">Alle categorie\u00ebn</option>'+PL_CATS.map(function(c){return '<option>'+c+'</option>';}).join('');sel.dataset.init='1';}
+  var catF=sel?sel.value:'';
+  var vis=list.filter(function(t){
+    if(PL_FILTER!=='alle'&&(t.status||'todo')!==PL_FILTER)return false;
+    if(catF&&(t.cat||'Algemeen')!==catF)return false;
+    return true;
+  });
+  if(!list.length){
+    var ro=plViewer();
+    lst.innerHTML='<div class="pl-blank"><h4>Nog geen planning</h4>'
+      +'<p>Start met de standaard kampplanning of voeg zelf een taak toe.</p>'
+      +(ro?'<p style="color:#6d28d9;">\ud83d\udc41 Kijkmodus \u2014 taken toevoegen kan niet.</p>'
+          :'<div class="pl-blank-acts"><button class="btn btn-pri" onclick="plAddStandard()">Standaard kampplanning toevoegen</button>'
+           +'<button class="btn" onclick="plOpen()">Taak toevoegen</button></div>')
+      +'</div>';
+    return;}
+  if(!vis.length){lst.innerHTML='<div class="pl-empty">Geen taken die aan deze filter voldoen.</div>';return;}
+  var grp={late:[],soon:[],later:[],done:[]};
+  vis.forEach(function(t){var u=plUrg(t);grp[u==='geen'?'later':u].push(t);});
+  function srt(a,b){var x=a.deadline||'9999-12-31',y=b.deadline||'9999-12-31';return x.localeCompare(y);}
+  var titels=[['late','ACHTERSTALLIG'],['soon','BINNENKORT (BINNEN 30 DAGEN)'],['later','LATER'],['done','KLAAR']];
+  var html='';
+  titels.forEach(function(g){
+    var items=grp[g[0]];if(!items.length)return;
+    items.sort(srt);
+    html+='<div class="pl-grp">'+g[1]+' \u00b7 '+items.length+'</div>';
+    items.forEach(function(t){
+      var u=plUrg(t),d=plDagen(t.deadline);
+      var dl=t.deadline?fD(t.deadline):'geen deadline';
+      var extra='';
+      if(u==='late')extra=' <span class="late">('+Math.abs(d)+' d te laat)</span>';
+      else if(u==='soon')extra=' <span class="soon">('+(d===0?'vandaag':'over '+d+' d')+')</span>';
+      var st=t.status||'todo';
+      var ro=plViewer();
+      html+='<div class="pl-row u-'+u+'" onclick="plOpen(\''+t.id+'\')">'
+        +'<div class="pl-main"><div class="pl-tit">'+plEsc(t.titel||'(zonder titel)')+'</div>'
+        +'<div class="pl-meta"><span class="pl-chip">'+plEsc(t.cat||'Algemeen')+'</span>'
+        +'<span>'+dl+extra+'</span>'
+        +(t.verantw?'<span>'+plEsc(t.verantw)+'</span>':'')
+        +(t.notitie?'<span title="heeft notitie">\u270e</span>':'')
+        +'</div></div>'
+        +(ro?'<span class="pl-st st-'+st+'">'+plStLabel(st)+'</span>'
+            :'<span class="pl-stwrap"><button type="button" class="pl-st pl-st-btn st-'+st+'" onclick="plStMenu(event,\''+t.id+'\')">'+plStLabel(st)+' <span class="pl-caret">\u25be</span></button></span>')
+        +'</div>';
+    });
+  });
+  lst.innerHTML=html;
+}
+function plTellers(list){
+  // Tellers = urgentie (afgeleid van plUrg). Filters eronder = status. Geen overlap.
+  var n={late:0,soon:0,later:0,done:0};
+  (list||plList()).forEach(function(t){
+    var u=plUrg(t);
+    if(u==='done')n.done++;
+    else if(u==='late')n.late++;
+    else if(u==='soon')n.soon++;
+    else n.later++;            // 'later' en 'geen deadline'
+  });
+  return n;
+}
+function plSetFilter(f){PL_FILTER=f;renderPlanning();}
+function plViewer(){return (typeof isViewer==='function'&&isViewer());}
+function plStMenu(ev,id){
+  ev.stopPropagation();ev.preventDefault();
+  if(plViewer())return;
+  var open=document.getElementById('pl-stmenu');
+  if(open&&open.dataset.for===id){open.remove();return;}
+  if(open)open.remove();
+  var t=plList().filter(function(x){return x.id===id;})[0];if(!t)return;
+  var btn=ev.currentTarget,r=btn.getBoundingClientRect();
+  var m=document.createElement('div');m.id='pl-stmenu';m.dataset.for=id;
+  m.innerHTML=PL_ST.map(function(o){
+    return '<button type="button" class="'+(o[0]===(t.status||'todo')?'act':'')+'" onclick="plSetStatus(\''+id+'\',\''+o[0]+'\')">'+o[1]+'</button>';}).join('');
+  document.body.appendChild(m);
+  var w=m.offsetWidth||150,h=m.offsetHeight||110;
+  var left=Math.min(Math.max(8,r.right-w),window.innerWidth-w-8);
+  var top=(r.bottom+h+8<window.innerHeight)?(r.bottom+4):(r.top-h-4);
+  m.style.left=left+'px';m.style.top=Math.max(8,top)+'px';
+}
+function plCloseStMenu(){var m=document.getElementById('pl-stmenu');if(m)m.remove();}
+document.addEventListener('click',function(e){
+  var m=document.getElementById('pl-stmenu');
+  if(m&&!e.target.closest('#pl-stmenu')&&!e.target.closest('.pl-st-btn'))m.remove();
+});
+window.addEventListener('resize',plCloseStMenu);
+window.addEventListener('scroll',plCloseStMenu,true);
+function plSetStatus(id,st){
+  if(plViewer())return;
+  var t=plList().filter(function(x){return x.id===id;})[0];if(!t)return;
+  t.status=st;plCloseStMenu();renderPlanning();save();
+  if(document.getElementById('p-overzicht')&&document.getElementById('p-overzicht').classList.contains('act'))renderOverzicht();
+}
+function plOpen(id){
+  var ro=plViewer();
+  if(ro&&!id)return;
+  var t=id?plList().filter(function(x){return x.id===id;})[0]:null;
+  var nieuw=!t;
+  if(nieuw)t={id:'',titel:'',cat:'Algemeen',deadline:'',status:'todo',verantw:'',notitie:'',tpl:true};
+  var ov=document.getElementById('pl-ov');
+  if(!ov){ov=document.createElement('div');ov.id='pl-ov';document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)plClose();});}
+  ov.innerHTML='<div class="pl-modal">'
+    +'<h3>'+(ro?'Taak bekijken':(nieuw?'Nieuwe taak':'Taak bewerken'))+'</h3>'
+    +(ro?'<div style="background:#f3e8ff;border:1px solid #e9d5ff;color:#6d28d9;border-radius:7px;padding:8px 10px;font-size:12.5px;margin-bottom:10px;">\ud83d\udc41 Kijkmodus \u2014 je kunt deze taak bekijken, niet wijzigen.</div>':'')
+    +'<label>Titel</label><input type="text" id="pl-f-titel" '+(ro?'disabled ':'')+'value="'+plEsc(t.titel)+'" placeholder="bv. Bus heenreis reserveren">'
+    +'<label>Categorie</label><select id="pl-f-cat" '+(ro?'disabled':'')+'>'+PL_CATS.map(function(c){return '<option'+(c===(t.cat||'Algemeen')?' selected':'')+'>'+c+'</option>';}).join('')+'</select>'
+    +'<label>Deadline</label><input type="date" id="pl-f-deadline" '+(ro?'disabled ':'')+'value="'+plEsc(t.deadline)+'">'
+    +'<label>Status</label><select id="pl-f-status" '+(ro?'disabled':'')+'>'+PL_ST.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===(t.status||'todo')?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
+    +'<label>Verantwoordelijke</label><input type="text" id="pl-f-verantw" '+(ro?'disabled ':'')+'value="'+plEsc(t.verantw)+'" placeholder="bv. Tobias, Kookploeg, Materiaalploeg">'
+    +'<label>Notitie</label><textarea id="pl-f-notitie" '+(ro?'disabled ':'')+'placeholder="Praktische info, contactgegevens, wat vorig jaar werkte\u2026">'+plEsc(t.notitie)+'</textarea>'
+    +'<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:500;color:var(--txt);"><input type="checkbox" id="pl-f-tpl" style="width:auto;" '+(ro?'disabled ':'')+(t.tpl!==false?'checked':'')+'> Meenemen naar volgend kamp</label>'
+    +'<div style="font-size:11.5px;color:var(--txt2);margin:3px 0 0 24px;">De deadline schuift mee met de kampdatum. Zonder deadline blijft die leeg.</div>'
+    +'<div class="pl-acts">'
+    +((nieuw||ro)?'<span></span>':'<button class="btn btn-bad" onclick="plDelete(\''+t.id+'\')">Verwijderen</button>')
+    +'<span style="display:flex;gap:8px;"><button class="btn" onclick="plClose()">'+(ro?'Sluiten':'Annuleren')+'</button>'
+    +(ro?'':'<button class="btn btn-pri" onclick="plSave(\''+(t.id||'')+'\')">Opslaan</button>')+'</span></div></div>';
+  ov.classList.add('open');
+  setTimeout(function(){var f=document.getElementById('pl-f-titel');if(f)f.focus();},60);
+}
+function plClose(){var ov=document.getElementById('pl-ov');if(ov)ov.classList.remove('open');}
+function plSave(id){
+  if(plViewer())return;
+  var titel=document.getElementById('pl-f-titel').value.trim();
+  if(!titel){alert('Geef de taak een titel.');return;}
+  var obj={
+    titel:titel,
+    cat:document.getElementById('pl-f-cat').value,
+    deadline:document.getElementById('pl-f-deadline').value,
+    status:document.getElementById('pl-f-status').value,
+    verantw:document.getElementById('pl-f-verantw').value.trim(),
+    notitie:document.getElementById('pl-f-notitie').value,
+    tpl:document.getElementById('pl-f-tpl').checked
+  };
+  var list=plList();
+  if(id){var i=-1;list.forEach(function(t,j){if(t.id===id)i=j;});if(i>=0)list[i]=Object.assign(list[i],obj);}
+  else{obj.id=uid();list.push(obj);}
+  plClose();renderPlanning();save();
+}
+function plDelete(id){
+  if(plViewer())return;
+  var t=plList().filter(function(x){return x.id===id;})[0];
+  if(!confirm('Taak \u201c'+((t&&t.titel)||'')+'\u201d verwijderen?'))return;
+  S.planning=plList().filter(function(x){return x.id!==id;});
+  plClose();renderPlanning();save();
+}
 function renderOverzicht(){
   var st=(typeof S!=='undefined'&&S.setup)?S.setup:{};
   try{if(typeof renderBudget==='function')renderBudget();}catch(e){}
@@ -1333,12 +1686,48 @@ function renderOverzicht(){
   if(KP&&(KP.v-KP.b)>0.005)A.push(['warn','Openstaand kookploegsaldo: '+fmt(KP.v-KP.b)]);
   if(typeof B.aFood==='number'&&typeof B.gep==='number'&&B.aFood>B.gep)A.push(['warn','Voedingsaankopen '+fmt(B.aFood-B.gep)+' boven het voedingsbudget']);
   (st.takken||[]).forEach(function(t){if((t.tot||0)>0){var d=Math.round((t.ins||0)/t.tot*100);if(d<60)A.push(['warn',t.nm+': '+d+'% deelname']);}});
+  var plN=plTellers(plList());
+  if(plN.late>0)A.push(['warn',plN.late===1?'1 planningstaak is achterstallig':plN.late+' planningstaken zijn achterstallig']);
   var lb=null;try{lb=localStorage.getItem('kamp26_lastbackup');}catch(e){}
   if(!lb)A.push(['warn','Er is nog geen backup gemaakt op dit toestel']);
   var box=document.getElementById('ov-att');
   if(box)box.innerHTML=A.length
     ? A.slice(0,5).map(function(a){return '<div class="att-i att-'+a[0]+'"><span class="ic">'+(a[0]==='bad'?'\u2715':'\u26a0')+'</span><span>'+a[1]+'</span></div>';}).join('')
     : '<div class="att-i att-ok"><span class="ic">\u2713</span><span>Niets dat aandacht vraagt.</span></div>';
+  renderOvNext();
+}
+function renderOvNext(){
+  var box=document.getElementById('ov-next');if(!box)return;
+  var open=plList().filter(function(t){return (t.status||'todo')!=='done';});
+  if(!open.length){
+    box.innerHTML='<button class="ov-next-cta" onclick="activateTab(\'planning\')">Planning instellen \u203a</button>';
+    return;
+  }
+  var vandaag=plToday();
+  function rang(t){
+    if(!t.deadline)return 2;
+    return (new Date(t.deadline+'T00:00:00')<vandaag)?0:1;
+  }
+  open.sort(function(a,b){
+    var ra=rang(a),rb=rang(b);
+    if(ra!==rb)return ra-rb;
+    if(ra===2)return String(a.titel||'').localeCompare(String(b.titel||''));
+    return String(a.deadline).localeCompare(String(b.deadline));
+  });
+  var top=open.slice(0,3);
+  box.innerHTML='<div class="ov-next-list">'+top.map(function(t){
+      var u=plUrg(t);
+      return '<div class="ov-next-i u-'+u+'" onclick="activateTab(\'planning\')">'
+        +'<span class="d">'+(t.deadline?fDShort(t.deadline):'\u2014')+'</span>'
+        +'<span class="t">'+plEsc(t.titel||'(zonder titel)')+'</span>'
+        +'<span class="c">'+plEsc(t.cat||'')+'</span></div>';
+    }).join('')+'</div>'
+    +'<button class="ov-next-cta" onclick="activateTab(\'planning\')">Alle planning bekijken \u203a</button>';
+}
+function fDShort(iso){
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m)return '\u2014';
+  var mnd=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  return (+m[3])+' '+mnd[(+m[2])-1]+((+m[1])!==plToday().getFullYear()?" '"+String(m[1]).slice(2):'');
 }
 
 function loadSU(){
@@ -2273,7 +2662,15 @@ function renderPrikbord(){
 function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Kampbeheer_2026_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);try{localStorage.setItem('kamp26_lastbackup',Date.now());}catch(e){}if(typeof updateBackupAge==='function')updateBackupAge();}
 function updateBackupAge(){var el=document.getElementById('bk-age');if(!el)return;var t=localStorage.getItem('kamp26_lastbackup');if(!t){el.textContent='nog geen backup';el.style.color='#c0392b';el.title='Maak een backup met de knop ↓ backup';return;}var d=Math.floor((Date.now()-(+t))/86400000);el.textContent=d<=0?'backup: vandaag':'backup: '+d+'d geleden';el.style.color=d>=7?'#c0392b':'#888';el.title='Laatste backup op dit toestel';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function _shiftDate(d,n){if(!d)return d;var dt=new Date(d+'T00:00:00');if(isNaN(dt))return d;dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
+function _shiftDate(d,n){
+  // Lokale kalenderdatum: geen UTC-conversie, geen toISOString() (voorkomt off-by-one in TZ != UTC).
+  if(!d)return d;
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d));if(!m)return d;
+  var dt=new Date(+m[1],+m[2]-1,+m[3]);if(isNaN(dt))return d;
+  dt.setDate(dt.getDate()+(n||0));
+  var y=dt.getFullYear(),mo=dt.getMonth()+1,da=dt.getDate();
+  return y+'-'+(mo<10?'0':'')+mo+'-'+(da<10?'0':'')+da;
+}
 function _daysOf(st,ei){var out=[];if(!st||!ei)return out;var d=new Date(st+'T00:00:00'),e=new Date(ei+'T00:00:00');if(isNaN(d)||isNaN(e))return out;while(d<=e){out.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}return out;}
 // ---- Verdeling per bak (eetgroepen) ----
 function bakCfg(){
@@ -2366,13 +2763,13 @@ function printBak(){
   printDoc(title,'<h1>'+esc(title)+'</h1><p class="sub">'+esc(sub)+'</p><table><thead>'+head+'</thead><tbody>'+body+foot+'</tbody></table>',true);
 }function normalizeState(){
   if(!S.keuken)S.keuken={};if(!S.prikbord)S.prikbord=[];if(!S.setup)S.setup={};if(!S.bakleiding)S.bakleiding={};if(!S.setup.kookploeg)S.setup.kookploeg={tarief:10,max:50,leden:[]};
-  if(!S.leveranciers)S.leveranciers=[];if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};if(!S.ingprijzen)S.ingprijzen={};if(!S.archief)S.archief=[];
+  if(!S.planning)S.planning=[];if(!S.leveranciers)S.leveranciers=[];if(!S.prijzen)S.prijzen={};if(!S.evaluatie)S.evaluatie={};if(!S.ingprijzen)S.ingprijzen={};if(!S.archief)S.archief=[];
   if(typeof seedRecepten==='function')seedRecepten();
   if(!S.menu)S.menu={};getDays().forEach(function(d){if(!S.menu[d])S.menu[d]={};if(S.menu[d].on===undefined)S.menu[d].on={ma:'\uD83C\uDF5E Standaard ontbijt'};if(S.menu[d].mi===undefined)S.menu[d].mi={ma:'\uD83E\uDD6A Boterhammen middag'};if(S.menu[d].uu===undefined)S.menu[d].uu={ma:'\uD83C\uDF6A Vieruurtje'};});
 }
 function refreshAll(){
   try{if(typeof loadSU==='function')loadSU();}catch(e){}
-  ['rTk','renderAV','renderMenu','renderKeuken','renderBudget','renderAankopen','renderRecepten','renderPrikbord','renderLev','updateBackupAge','renderOverzicht'].forEach(function(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
+  ['rTk','renderAV','renderMenu','renderKeuken','renderBudget','renderAankopen','renderRecepten','renderPrikbord','renderLev','updateBackupAge','renderPlanning','renderOverzicht'].forEach(function(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
   updateShellHeader();
 }
 function archiveCurrent(){var snap=JSON.parse(JSON.stringify(S));delete snap.archief;return {aid:uid(),nm:(S.setup&&S.setup.nm)||'Kamp',st:(S.setup&&S.setup.st)||'',ei:(S.setup&&S.setup.ei)||'',archivedAt:new Date().toISOString(),snap:snap};}
@@ -2417,6 +2814,10 @@ function _nieuwKampCore(nm,st,ei){
   S.archief.push(archiveCurrent());
   var oldSt=(S.setup&&S.setup.st)||st;var oldDays=getDays();
   var offset=Math.round((new Date(st+'T00:00:00')-new Date(oldSt+'T00:00:00'))/86400000)||0;
+  // Planning: alleen taken met tpl===true, als NIEUWE objecten (nieuw id), status terug op 'todo',
+  // deadline verschoven met hetzelfde aantal kalenderdagen als de kampstart. Het gearchiveerde
+  // kamp behoudt zijn eigen taken ongewijzigd (archiveCurrent maakt hierboven al een diepe kopie).
+  S.planning=plCopyForNewCamp(S.planning,oldSt,st);
   if(Array.isArray(S.setup.takken))S.setup.takken.forEach(function(t){if(t.aa)t.aa=_shiftDate(t.aa,offset);if(t.vt)t.vt=_shiftDate(t.vt,offset);if(t.aa&&t.aa<st)t.aa=st;if(t.vt&&t.vt>ei)t.vt=ei;if(!t.aa)t.aa=st;if(!t.vt)t.vt=ei;});
   S.setup.nm=nm;S.setup.st=st;S.setup.ei=ei;
   var newDays=getDays();var oM=S.menu||{},oA=S.av||{},oE=S.evaluatie||{},nM={},nA={},nE={};
