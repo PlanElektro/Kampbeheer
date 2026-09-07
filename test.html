@@ -74,6 +74,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
+/* ===== Sprint 3.1: visuele consistentie ===== */
+.su-2col{align-items:stretch;}
+.su-2col .card{display:flex;flex-direction:column;height:100%;}
+.su-2col .cb{flex:1;display:flex;flex-direction:column;}
+.su-sum{gap:11px 16px;}
+.su-sum .i.hero .v{font-size:26px;}
+.su-hero-top{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line-soft);}
+.su-note{font-size:11.5px;color:#8a94a6;margin-top:10px;padding-top:9px;border-top:1px solid var(--line-soft);display:flex;gap:14px;flex-wrap:wrap;}
+.su-sub{font-size:12.5px;color:var(--txt2);margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft);}
+.su-sub strong{color:var(--txt);}
+table.su-tak th{font-size:10.5px;letter-spacing:.5px;color:#8a94a6;font-weight:700;}
+table.su-tak td{font-size:13.5px;}
+table.su-tak td.tr,table.su-tak th.tr{text-align:right;}
+table.su-tak tbody tr td{border-bottom:1px solid var(--line-soft);}
+table.su-tak tbody tr:last-child td{border-bottom:0;}
+.su-goh{width:26px;}
+td.su-go{width:26px;text-align:right;color:#c3ccdb;font-size:16px;line-height:1;}
+table.su-tak tbody tr:hover td.su-go{color:var(--navy);}
+.su-tot{margin-top:11px;padding-top:10px;}
+.panel.act .card{margin-bottom:14px;}
+.panel.act .card:last-child{margin-bottom:0;}
+@media(max-width:640px){
+  td.su-go{display:none!important;}
+  .su-note{gap:10px;}
+}
 /* ===== Sprint 3: Kampgegevens ===== */
 .su-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 .su-2col .card{margin:0;}
@@ -488,7 +513,7 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
   </div>
   <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-pri su-edit" onclick="addTak()">+ Tak toevoegen</button></div><div class="cb">
     <div class="tw"><table class="su-tak">
-      <thead><tr><th>Tak</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th>Periode</th><th class="tr">Kampprijs</th></tr></thead>
+      <thead><tr><th>Tak</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th>Periode</th><th class="tr">Kampprijs</th><th class="su-goh"></th></tr></thead>
       <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table></div>
     <div id="tk-tot" class="su-tot"></div>
   </div></div>
@@ -543,16 +568,32 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <div class="su-acts"><span id="su-mdel"></span><span style="display:flex;gap:8px;"><button class="btn" onclick="suClose()">Annuleren</button><button class="btn btn-pri" id="su-msave">Opslaan</button></span></div>
   </div></div>
 
-  <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn btn-ok" onclick="addVK()">+ Kost</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
-    <tbody id="vk-body"></tbody>
-    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="vk-b">—</td><td class="tr" id="vk-s">—</td><td class="tr tw5" id="vk-n">—</td><td></td></tr></tfoot>
-  </table></div></div></div>
-  <div class="card"><div class="ch"><h3>Variabele kosten (raming)</h3><button class="btn btn-ok" onclick="addVarK()">+ Kost</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Omschrijving</th><th class="tr">Raming (€)</th><th></th></tr></thead>
-    <tbody id="vark-body"></tbody>
-    <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr tw5" id="vark-t">—</td><td></td></tr></tfoot>
-  </table></div></div></div>
+  <div class="su-2col">
+  <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn su-edit" id="vk-toggle" onclick="vkToggle()">Kosten beheren</button></div><div class="cb">
+    <div id="vk-sum"></div>
+    <div id="vk-read"><div class="tw"><table class="su-tak">
+      <thead><tr><th>Omschrijving</th><th class="tr">Bruto</th><th class="tr">Subsidie</th><th class="tr">Netto</th></tr></thead>
+      <tbody id="vk-read-body"></tbody></table></div></div>
+    <div id="vk-manage" style="display:none;">
+      <div style="margin-bottom:10px;"><button class="btn btn-pri lockhide" onclick="addVK()">+ Kost toevoegen</button></div>
+      <div class="tw"><table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
+      <tbody id="vk-body"></tbody>
+      <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr" id="vk-b">—</td><td class="tr" id="vk-s">—</td><td class="tr tw5" id="vk-n">—</td><td></td></tr></tfoot>
+    </table></div></div>
+  </div></div>
+  <div class="card"><div class="ch"><h3>Variabele kosten (raming)</h3><button class="btn su-edit" id="vark-toggle" onclick="varkToggle()">Ramingen beheren</button></div><div class="cb">
+    <div id="vark-sum"></div>
+    <div id="vark-read"><div class="tw"><table class="su-tak">
+      <thead><tr><th>Omschrijving</th><th class="tr">Raming</th></tr></thead>
+      <tbody id="vark-read-body"></tbody></table></div></div>
+    <div id="vark-manage" style="display:none;">
+      <div style="margin-bottom:10px;"><button class="btn btn-pri lockhide" onclick="addVarK()">+ Raming toevoegen</button></div>
+      <div class="tw"><table><thead><tr><th>Omschrijving</th><th class="tr">Raming (€)</th><th></th></tr></thead>
+      <tbody id="vark-body"></tbody>
+      <tfoot><tr class="tfoot"><td><strong>Totaal</strong></td><td class="tr tw5" id="vark-t">—</td><td></td></tr></tfoot>
+    </table></div></div>
+  </div></div>
+  </div>
 </div>
 
 <div class="panel" id="p-planning">
@@ -1827,35 +1868,80 @@ function renderSetupSummary(){
   if(k){
     var per=(s.st&&s.ei)?(fD(s.st)+' \u2013 '+fD(s.ei)):'\u2014';
     var dgn=0;try{dgn=getDays().length;}catch(e){}
-    k.innerHTML='<div class="su-sum">'
+    var tT=0,iT=0;(s.takken||[]).forEach(function(t){tT+=t.tot||0;iT+=t.ins||0;});
+    var dp=tT?Math.round(iT/tT*100):0;
+    k.innerHTML='<div class="su-hero-top"><div class="su-sum">'
       +suItem('Kamp',plEsc(s.nm||'\u2014'),per+(dgn?' \u00b7 '+dgn+' dagen':''),'wide')
+      +'</div></div>'
+      +'<div class="su-sum">'
       +suItem('Eetbudget',fmt(s.eb||0),'p.p./dag')
       +suItem('Speelgeld',fmt(s.sp||0),'p.p./nacht')
-      +suItem('Leiding',(s.ld||0)+' personen','bijdrage '+fmt(s.lb||0))
-      +'</div>';
+      +suItem('Leiding',(s.ld||0),'bijdrage '+fmt(s.lb||0))
+      +'</div>'
+      +'<div class="su-sub"><strong>'+iT+'</strong> ingeschreven van <strong>'+tT+'</strong> leden \u00b7 <strong class="'+suDpClass(dp)+'">'+(tT?dp+'%':'\u2014')+'</strong> deelname</div>';
   }
   var t=document.getElementById('su-terr-sum');
   if(t){
     var tr=s.terrein||{},res=null;try{res=calcTerrein();}catch(e){}
     var netto=res?(res.dagtot-res.sub):0;
-    t.innerHTML='<div class="su-sum">'
+    t.innerHTML='<div class="su-hero-top"><div class="su-sum">'
+      +suItem('Berekende terreinprijs',fmt(netto),(res?res.rows.length+' dagen \u00d7 tarief = '+fmt(res.dagtot)+' \u2212 subsidie '+fmt(res.sub):''),'hero wide')
+      +'</div></div>'
+      +'<div class="su-sum">'
       +suItem('Tarief',fmt(tr.r||0),'p.p./dag')
       +suItem('Minimum',fmt(tr.min||0),'per dag')
-      +suItem('Voorschot / borg',fmt(tr.borg||0),'terugbetaalbaar')
       +suItem('Subsidie',fmt(tr.sub||0),'')
       +'</div>'
-      +'<div class="su-hero-line"><div class="su-sum">'
-      +suItem('Berekende terreinprijs',fmt(netto),(res?res.rows.length+' dagen = '+fmt(res.dagtot)+' \u2212 subsidie '+fmt(res.sub):''),'hero wide')
-      +'</div></div>';
+      +'<div class="su-note"><span>Voorschot / borg '+fmt(tr.borg||0)+' \u2014 terugbetaalbaar, niet in de prijs</span></div>';
   }
   renderKpSummary();
+  renderVkSummary();
   suApplyViewer();
+}
+function vkToggle(){
+  if(suViewer())return;
+  var m=document.getElementById('vk-manage'),r=document.getElementById('vk-read'),b=document.getElementById('vk-toggle');
+  if(!m)return;var open=m.style.display!=='none';
+  m.style.display=open?'none':'block';if(r)r.style.display=open?'block':'none';
+  if(b)b.textContent=open?'Kosten beheren':'Beheer sluiten';
+}
+function varkToggle(){
+  if(suViewer())return;
+  var m=document.getElementById('vark-manage'),r=document.getElementById('vark-read'),b=document.getElementById('vark-toggle');
+  if(!m)return;var open=m.style.display!=='none';
+  m.style.display=open?'none':'block';if(r)r.style.display=open?'block':'none';
+  if(b)b.textContent=open?'Ramingen beheren':'Beheer sluiten';
+}
+function renderVkSummary(){
+  var vk=(S.setup&&S.setup.vk)||[],b=0,sub=0;
+  vk.forEach(function(k){b+=k.b||0;sub+=k.s||0;});
+  var el=document.getElementById('vk-sum');
+  if(el)el.innerHTML='<div class="su-hero-top"><div class="su-sum">'
+    +suItem('Netto vaste kosten',fmt(b-sub),vk.length+' posten \u00b7 bruto '+fmt(b)+(sub?' \u2212 subsidie '+fmt(sub):''),'hero wide')
+    +'</div></div>';
+  var tb=document.getElementById('vk-read-body');
+  if(tb)tb.innerHTML=vk.map(function(k){
+    return '<tr><td><strong>'+plEsc(k.om||'\u2014')+'</strong></td><td class="tr">'+fmt(k.b||0)+'</td><td class="tr">'+(k.s?fmt(k.s):'\u2014')+'</td><td class="tr">'+fmt((k.b||0)-(k.s||0))+'</td></tr>';
+  }).join('')||'<tr><td colspan="4" style="color:#8a94a6;">Nog geen vaste kosten.</td></tr>';
+  var vark=(S.setup&&S.setup.vark)||[],tot=0;
+  vark.forEach(function(k){tot+=k.r||0;});
+  var el2=document.getElementById('vark-sum');
+  if(el2)el2.innerHTML='<div class="su-hero-top"><div class="su-sum">'
+    +suItem('Totaal ramingen',fmt(tot),vark.length+' posten','hero wide')
+    +'</div></div>';
+  var tb2=document.getElementById('vark-read-body');
+  if(tb2)tb2.innerHTML=vark.map(function(k){
+    return '<tr><td><strong>'+plEsc(k.om||'\u2014')+'</strong></td><td class="tr">'+fmt(k.r||0)+'</td></tr>';
+  }).join('')||'<tr><td colspan="2" style="color:#8a94a6;">Nog geen ramingen.</td></tr>';
 }
 function suApplyViewer(){
   var ro=suViewer();
   document.querySelectorAll('.su-edit').forEach(function(b){b.style.display=ro?'none':'';});
-  if(ro){var m=document.getElementById('kp-manage'),r=document.getElementById('kp-read');
-    if(m)m.style.display='none';if(r)r.style.display='block';}
+  if(ro){
+    [['kp-manage','kp-read'],['vk-manage','vk-read'],['vark-manage','vark-read']].forEach(function(pair){
+      var m=document.getElementById(pair[0]),r=document.getElementById(pair[1]);
+      if(m)m.style.display='none';if(r)r.style.display='block';});
+  }
 }
 var SU_MODE=null,TK_IDX=-1;
 function suEdit(mode){
@@ -1941,15 +2027,15 @@ function renderKpSummary(){
   var kp=(S.setup&&S.setup.kookploeg)||{leden:[]},L=kp.leden||[];
   var vs=0,bt=0;
   L.forEach(function(k){vs+=kpVerschuldigd(k);bt+=kpBetaald(k);});
+  var open=vs-bt;
   var el=document.getElementById('kp-sum');
   if(el)el.innerHTML='<div class="su-sum">'
-    +suItem('Kookploeg',L.length+' personen','')
+    +suItem('Kookploeg',L.length,'personen')
     +suItem('Verschuldigd',fmt(vs),'')
     +suItem('Betaald',fmt(bt),'')
-    +suItem('Openstaand',fmt(vs-bt),(Math.abs(vs-bt)<0.005?'alles vereffend':'nog te innen'))
-    +suItem('Tarief',fmt(kp.tarief||10)+'/nacht','max '+fmt(kp.max||50))
-    +suItem('Drankje',fmt(kp.drank==null?0.5:kp.drank),'per stuk')
-    +'</div>';
+    +suItem('Openstaand','<span style="color:'+(Math.abs(open)<0.005?'var(--ok)':'var(--warn)')+'">'+fmt(open)+'</span>',(Math.abs(open)<0.005?'alles vereffend':'nog te innen'))
+    +'</div>'
+    +'<div class="su-note"><span>Tarief '+fmt(kp.tarief||10)+' per nacht</span><span>Maximum '+fmt(kp.max||50)+' per persoon</span><span>Drankje '+fmt(kp.drank==null?0.5:kp.drank)+'</span></div>';
   var tb=document.getElementById('kp-read-body');
   if(tb){
     tb.innerHTML=L.map(function(k){
@@ -1957,7 +2043,7 @@ function renderKpSummary(){
       var kleur=(v>0&&Math.abs(sal)<0.005)?'var(--ok)':(sal<0?'var(--bad)':'var(--txt2)');
       var per=suPeriode(k.aa,k.vt);
       return '<tr><td><strong>'+plEsc(k.naam||'\u2014')+'</strong>'
-        +'<span class="su-mobile-cell" style="font-size:12px;color:var(--txt2);margin-top:3px;">'+per+' \u00b7 te betalen '+fmt(v)+' \u00b7 betaald '+fmt(b)+' \u00b7 <span style="color:'+kleur+'">saldo '+fmt(sal)+'</span></span></td>'
+        +'<span class="su-mobile-cell" style="font-size:12px;color:var(--txt2);">'+per+' \u00b7 te betalen '+fmt(v)+' \u00b7 betaald '+fmt(b)+' \u00b7 <span style="color:'+kleur+'">saldo '+fmt(sal)+'</span></span></td>'
         +'<td style="white-space:nowrap">'+per+'</td>'
         +'<td class="tr">'+fmt(v)+'</td><td class="tr">'+fmt(b)+'</td>'
         +'<td class="tr" style="color:'+kleur+'">'+fmt(sal)+'</td></tr>';}).join('')
@@ -1989,10 +2075,11 @@ function rTk(){
       +`<td class="tr">${(t.ins||0)} / ${(t.tot||0)}</td>`
       +`<td class="tr ${suDpClass(dp)}">${t.tot?dp+'%':'\u2014'}</td>`
       +`<td style="white-space:nowrap">${per}</td>`
-      +`<td class="tr">${fmt(t.kp)}</td>`;
+      +`<td class="tr">${fmt(t.kp)}</td>`
+      +`<td class="su-go">›</td>`;
     tb.appendChild(tr);});
   const tp=tT?Math.round(iT/tT*100):0;
-  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${iT} / ${tT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="2"></td>`;
+  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${iT} / ${tT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="3"></td>`;
   const tot=document.getElementById('tk-tot');
   if(tot)tot.innerHTML=`<span><strong>${iT}</strong> ingeschreven</span><span><strong>${tT}</strong> totaal leden</span><span><strong>${tT?tp+'%':'\u2014'}</strong> deelname</span>`;
   renderSetupSummary();
@@ -2012,12 +2099,14 @@ function rVK(){
   const tb=document.getElementById('vk-body');tb.innerHTML='';let b=0,s=0;
   S.setup.vk.forEach((k,i)=>{b+=k.b||0;s+=k.s||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVK(${i},'om',this.value)" style="min-width:150px"></td><td class="tr"><input type="number" value="${k.b}" step="10" onchange="uVK(${i},'b',+this.value)"></td><td class="tr"><input type="number" value="${k.s}" step="10" onchange="uVK(${i},'s',+this.value)"></td><td class="tr tw5">${fmt((k.b||0)-(k.s||0))}</td><td><button class="btn btn-bad" onclick="dVK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
   document.getElementById('vk-b').textContent=fmt(b);document.getElementById('vk-s').textContent=fmt(s);document.getElementById('vk-n').textContent=fmt(b-s);
+  renderVkSummary();suApplyViewer();
 }
 function uVK(i,f,v){S.setup.vk[i][f]=v;rVK();save();}function addVK(){S.setup.vk.push({id:uid(),om:'',b:0,s:0});rVK();save();}function dVK(i){S.setup.vk.splice(i,1);rVK();save();}
 function rVarK(){
   const tb=document.getElementById('vark-body');tb.innerHTML='';let t=0;
   S.setup.vark.forEach((k,i)=>{t+=k.r||0;const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${k.om}" onchange="uVarK(${i},'om',this.value)" style="min-width:180px"></td><td class="tr"><input type="number" value="${k.r}" step="10" onchange="uVarK(${i},'r',+this.value)"></td><td><button class="btn btn-bad" onclick="dVarK(${i})">&#x2715;</button></td>`;tb.appendChild(tr);});
   document.getElementById('vark-t').textContent=fmt(t);
+  renderVkSummary();suApplyViewer();
 }
 function uVarK(i,f,v){S.setup.vark[i][f]=v;rVarK();save();}function addVarK(){S.setup.vark.push({id:uid(),om:'',r:0});rVarK();save();}function dVarK(i){S.setup.vark.splice(i,1);rVarK();save();}
 
