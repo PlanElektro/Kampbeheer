@@ -74,6 +74,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .qk button{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;text-align:left;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;}
 .qk button:hover{background:#f5f8fd;border-color:#cbd7ea;}
+/* ===== Sprint 3: Kampgegevens ===== */
+.su-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.su-2col .card{margin:0;}
+.su-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px 18px;}
+.su-sum .i .l{font-size:11.5px;color:var(--txt2);margin-bottom:2px;}
+.su-sum .i .v{font-size:14.5px;font-weight:600;color:var(--txt);}
+.su-sum .i .s{font-size:11.5px;color:#8a94a6;}
+.su-sum .i.wide{grid-column:1/-1;}
+.su-sum .i.hero .l{font-size:12px;}
+.su-sum .i.hero .v{font-size:23px;font-weight:700;line-height:1.15;}
+.su-hero-line{border-top:1px solid var(--line-soft);margin-top:12px;padding-top:12px;}
+table.su-tak{width:100%;}
+table.su-tak tbody tr{cursor:pointer;}
+table.su-tak tbody tr:hover{background:#f7faff;}
+table.su-tak td,table.su-tak th{padding:9px 10px;}
+.su-dp-low{color:var(--warn);font-weight:600;}
+.su-dp-high{color:var(--ok);font-weight:600;}
+.su-tot{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);font-size:13px;color:var(--txt2);display:flex;gap:18px;flex-wrap:wrap;}
+.su-tot strong{color:var(--txt);}
+#su-ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto;}
+#su-ov.open{display:flex;}
+.su-modal{background:#fff;border-radius:12px;max-width:560px;width:100%;padding:20px 22px;box-shadow:0 20px 50px rgba(15,23,42,.3);}
+.su-modal h3{margin:0 0 14px;font-size:18px;color:var(--navy);}
+.su-fields{display:none;}
+.su-fields.on{display:block;}
+.su-derived{font-size:12.5px;color:var(--txt2);margin:10px 0 4px;}
+.su-chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--txt);margin-top:8px;}
+.su-chk input{width:auto;}
+.su-acts{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:18px;}
+.su-modal input:focus,.su-modal select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.13);}
+body.locked .su-edit{display:none;}
+.su-mobile-cell{display:none;}
+@media(max-width:900px){.su-2col{grid-template-columns:1fr;}}
+@media(max-width:640px){
+  table.su-tak thead{display:none;}
+  table.su-tak tbody tr{display:block;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;padding:10px 12px;}
+  table.su-tak tbody td{display:none;}
+  table.su-tak tbody td:first-child{display:block;padding:0;border:0;}
+  .su-mobile-cell{display:block;margin-top:3px;}
+  table.su-tak tfoot{display:none;}
+}
 /* ===== Sprint 2.3 ===== */
 .pl-count.is-soon .val{color:#b45309;}
 .pl-stwrap{flex-shrink:0;}
@@ -439,26 +480,25 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
 </div>
 
 <div class="panel" id="p-setup">
-  <div class="card"><div class="ch"><h3>Kampinfo</h3></div><div class="cb"><div class="fgrid">
-    <div class="fg"><label>Kampnaam</label><input type="text" id="s-nm" onchange="saveSU()"></div>
-    <div class="fg"><label>Startdatum</label><input type="date" id="s-st" onchange="saveSU()"></div>
-    <div class="fg"><label>Einddatum</label><input type="date" id="s-ei" onchange="saveSU()"></div>
-    <div class="fg"><label>Eetbudget p/p/dag (€)</label><input type="number" id="s-eb" step="0.5" onchange="saveSU()"></div>
-    <div class="fg"><label>Speelgeld p/p/nacht (€)</label><input type="number" id="s-sp" step="0.5" onchange="saveSU()"></div>
-    <div class="fg"><label>Aantal leiding</label><input type="number" id="s-ld" onchange="saveSU()"></div>
-    <div class="fg"><label>Leidingbijdrage (€)</label><input type="number" id="s-lb" step="5" onchange="saveSU()"></div>
-  </div></div></div>
-  <div class="card"><div class="ch"><h3>Huur kampterrein</h3></div><div class="cb"><div class="fgrid">
-    <div class="fg"><label>Tarief p/p/dag (€)</label><input type="number" id="tr-r" step="0.1" onchange="saveSU()"></div>
-    <div class="fg"><label>Minimum per dag (€)</label><input type="number" id="tr-m" step="10" onchange="saveSU()"></div>
-    <div class="fg"><label>Borg / voorschot (€)</label><input type="number" id="tr-b" step="50" onchange="saveSU()"></div>
-    <div class="fg"><label>Subsidie (€)</label><input type="number" id="tr-s" step="50" onchange="saveSU()"></div>
-  </div><div class="terr-box" id="terr-preview"></div></div></div>
-  <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-ok" onclick="addTak()">+ Tak</button></div><div class="cb"><div class="tw">
-    <table><thead><tr><th>Naam</th><th>Totaal leden</th><th>Ingeschreven</th><th>Deelname %</th><th>Aankomst</th><th>Vertrek</th><th>Kampprijs (€)</th><th>Speelgeld</th><th>Eetbudget</th><th></th></tr></thead>
-    <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table>
-  </div></div></div>
-  <div class="card"><div class="ch"><h3>Kookploeg</h3><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn lockhide" onclick="kpSort()" title="Sorteer op aankomstdatum">↕ Sorteer op aankomst</button><button class="btn btn-ok" onclick="addKP()">+ Persoon</button></div></div><div class="cb">
+  <div class="su-2col">
+    <div class="card"><div class="ch"><h3>Kamp</h3><button class="btn su-edit" onclick="suEdit('kamp')">Bewerken</button></div>
+      <div class="cb"><div id="su-kamp-sum"></div></div></div>
+    <div class="card"><div class="ch"><h3>Kampterrein</h3><button class="btn su-edit" onclick="suEdit('terr')">Bewerken</button></div>
+      <div class="cb"><div id="su-terr-sum"></div></div></div>
+  </div>
+  <div class="card"><div class="ch"><h3>Takken</h3><button class="btn btn-pri su-edit" onclick="addTak()">+ Tak toevoegen</button></div><div class="cb">
+    <div class="tw"><table class="su-tak">
+      <thead><tr><th>Tak</th><th class="tr">Ingeschreven</th><th class="tr">Deelname</th><th>Periode</th><th class="tr">Kampprijs</th></tr></thead>
+      <tbody id="tk-body"></tbody><tfoot><tr class="tfoot" id="tk-foot"></tr></tfoot></table></div>
+    <div id="tk-tot" class="su-tot"></div>
+  </div></div>
+  <div class="card"><div class="ch"><h3>Kookploeg</h3><button class="btn su-edit" id="kp-toggle" onclick="kpToggleManage()">Kookploeg beheren</button></div><div class="cb">
+    <div id="kp-sum"></div>
+    <div id="kp-read"><div class="tw"><table class="su-tak">
+      <thead><tr><th>Naam</th><th>Periode</th><th class="tr">Te betalen</th><th class="tr">Betaald</th><th class="tr">Saldo</th></tr></thead>
+      <tbody id="kp-read-body"></tbody></table></div></div>
+    <div id="kp-manage" style="display:none;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"><button class="btn lockhide" onclick="kpSort()" title="Sorteer op aankomstdatum">↕ Sorteer op aankomst</button><button class="btn btn-pri lockhide" onclick="addKP()">+ Persoon</button></div>
     <div class="fgrid" style="margin-bottom:14px;">
       <div class="fg"><label>Tarief per nacht (€)</label><input type="number" id="kp-tarief" value="10" step="1" onchange="saveKP()"></div>
       <div class="fg"><label>Maximum per persoon (€)</label><input type="number" id="kp-max" value="50" step="5" onchange="saveKP()"></div>
@@ -468,7 +508,41 @@ body::before{content:'';display:block;height:5px;background:linear-gradient(90de
     <tbody id="kp-body"></tbody>
     <tfoot><tr class="tfoot"><td colspan="6"><strong>Totaal</strong></td><td class="tr tw5" id="kp-tot">—</td><td class="tr tw5" id="kp-bet">—</td><td class="tr tw5" id="kp-saldo">—</td><td></td></tr></tfoot>
     </table></div>
+    </div>
   </div></div>
+  <div id="su-ov"><div class="su-modal">
+    <h3 id="su-mt">Bewerken</h3>
+    <div id="su-mbody"></div>
+    <div id="su-fields-kamp" class="su-fields"><div class="fgrid">
+      <div class="fg"><label>Kampnaam</label><input type="text" id="s-nm"></div>
+      <div class="fg"><label>Startdatum</label><input type="date" id="s-st"></div>
+      <div class="fg"><label>Einddatum</label><input type="date" id="s-ei"></div>
+      <div class="fg"><label>Eetbudget p/p/dag (€)</label><input type="number" id="s-eb" step="0.5"></div>
+      <div class="fg"><label>Speelgeld p/p/nacht (€)</label><input type="number" id="s-sp" step="0.5"></div>
+      <div class="fg"><label>Aantal leiding</label><input type="number" id="s-ld"></div>
+      <div class="fg"><label>Leidingbijdrage (€)</label><input type="number" id="s-lb" step="5"></div>
+    </div></div>
+    <div id="su-fields-terr" class="su-fields"><div class="fgrid">
+      <div class="fg"><label>Tarief p/p/dag (€)</label><input type="number" id="tr-r" step="0.1"></div>
+      <div class="fg"><label>Minimum per dag (€)</label><input type="number" id="tr-m" step="10"></div>
+      <div class="fg"><label>Borg / voorschot (€)</label><input type="number" id="tr-b" step="50"></div>
+      <div class="fg"><label>Subsidie (€)</label><input type="number" id="tr-s" step="50"></div>
+    </div><div class="terr-box" id="terr-preview"></div></div>
+    <div id="su-fields-tak" class="su-fields"><div class="fgrid">
+      <div class="fg"><label>Naam</label><input type="text" id="tk-f-nm"></div>
+      <div class="fg"><label>Totaal leden</label><input type="number" id="tk-f-tot" min="0"></div>
+      <div class="fg"><label>Ingeschreven</label><input type="number" id="tk-f-ins" min="0"></div>
+      <div class="fg"><label>Kampprijs (€)</label><input type="number" id="tk-f-kp" step="5"></div>
+      <div class="fg"><label>Aankomst</label><input type="date" id="tk-f-aa"></div>
+      <div class="fg"><label>Vertrek</label><input type="date" id="tk-f-vt"></div>
+    </div>
+    <div id="tk-f-dp" class="su-derived"></div>
+    <label class="su-chk"><input type="checkbox" id="tk-f-sg"> Speelgeld berekenen</label>
+    <label class="su-chk"><input type="checkbox" id="tk-f-eet"> Eetbudget berekenen</label>
+    </div>
+    <div class="su-acts"><span id="su-mdel"></span><span style="display:flex;gap:8px;"><button class="btn" onclick="suClose()">Annuleren</button><button class="btn btn-pri" id="su-msave">Opslaan</button></span></div>
+  </div></div>
+
   <div class="card"><div class="ch"><h3>Overige vaste kosten</h3><button class="btn btn-ok" onclick="addVK()">+ Kost</button></div><div class="cb"><div class="tw">
     <table><thead><tr><th>Omschrijving</th><th class="tr">Bruto (€)</th><th class="tr">Subsidie (€)</th><th class="tr">Netto (€)</th><th></th></tr></thead>
     <tbody id="vk-body"></tbody>
@@ -1742,17 +1816,186 @@ function saveSU(){
   const s=S.setup;s.nm=document.getElementById('s-nm').value;s.st=document.getElementById('s-st').value;s.ei=document.getElementById('s-ei').value;
   s.eb=+document.getElementById('s-eb').value;s.sp=+document.getElementById('s-sp').value;s.ld=+document.getElementById('s-ld').value;s.lb=+document.getElementById('s-lb').value;
   s.terrein={r:+document.getElementById('tr-r').value,min:+document.getElementById('tr-m').value,borg:+document.getElementById('tr-b').value,sub:+document.getElementById('tr-s').value};
-  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';updateShellHeader();updateTerreinPreview();syncAVFromSetup(false);
+  const _hnm2=document.getElementById('hnm');if(_hnm2)_hnm2.textContent=s.nm||'';updateShellHeader();updateTerreinPreview();renderSetupSummary();syncAVFromSetup(false);
   if(document.getElementById('p-budget').classList.contains('act'))renderBudget();
   save();
 }
+function suItem(l,v,sub,cls){return '<div class="i '+(cls||'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+'</div>';}
+function renderSetupSummary(){
+  var s=S.setup||{};
+  var k=document.getElementById('su-kamp-sum');
+  if(k){
+    var per=(s.st&&s.ei)?(fD(s.st)+' \u2013 '+fD(s.ei)):'\u2014';
+    var dgn=0;try{dgn=getDays().length;}catch(e){}
+    k.innerHTML='<div class="su-sum">'
+      +suItem('Kamp',plEsc(s.nm||'\u2014'),per+(dgn?' \u00b7 '+dgn+' dagen':''),'wide')
+      +suItem('Eetbudget',fmt(s.eb||0),'p.p./dag')
+      +suItem('Speelgeld',fmt(s.sp||0),'p.p./nacht')
+      +suItem('Leiding',(s.ld||0)+' personen','bijdrage '+fmt(s.lb||0))
+      +'</div>';
+  }
+  var t=document.getElementById('su-terr-sum');
+  if(t){
+    var tr=s.terrein||{},res=null;try{res=calcTerrein();}catch(e){}
+    var netto=res?(res.dagtot-res.sub):0;
+    t.innerHTML='<div class="su-sum">'
+      +suItem('Tarief',fmt(tr.r||0),'p.p./dag')
+      +suItem('Minimum',fmt(tr.min||0),'per dag')
+      +suItem('Voorschot / borg',fmt(tr.borg||0),'terugbetaalbaar')
+      +suItem('Subsidie',fmt(tr.sub||0),'')
+      +'</div>'
+      +'<div class="su-hero-line"><div class="su-sum">'
+      +suItem('Berekende terreinprijs',fmt(netto),(res?res.rows.length+' dagen = '+fmt(res.dagtot)+' \u2212 subsidie '+fmt(res.sub):''),'hero wide')
+      +'</div></div>';
+  }
+  renderKpSummary();
+  suApplyViewer();
+}
+function suApplyViewer(){
+  var ro=suViewer();
+  document.querySelectorAll('.su-edit').forEach(function(b){b.style.display=ro?'none':'';});
+  if(ro){var m=document.getElementById('kp-manage'),r=document.getElementById('kp-read');
+    if(m)m.style.display='none';if(r)r.style.display='block';}
+}
+var SU_MODE=null,TK_IDX=-1;
+function suEdit(mode){
+  if(suViewer())return;
+  SU_MODE=mode;TK_IDX=-1;
+  loadSU();
+  suShow(mode==='kamp'?'Kamp bewerken':'Kampterrein bewerken',mode==='kamp'?'su-fields-kamp':'su-fields-terr',null);
+  document.getElementById('su-msave').onclick=function(){saveSU();suClose();};
+}
+function tkEdit(i){
+  if(suViewer())return;
+  var t=S.setup.takken[i];if(!t)return;
+  SU_MODE='tak';TK_IDX=i;
+  document.getElementById('tk-f-nm').value=t.nm||'';
+  document.getElementById('tk-f-tot').value=t.tot||0;
+  document.getElementById('tk-f-ins').value=t.ins||0;
+  document.getElementById('tk-f-kp').value=t.kp||0;
+  document.getElementById('tk-f-aa').value=t.aa||'';
+  document.getElementById('tk-f-vt').value=t.vt||'';
+  document.getElementById('tk-f-sg').checked=t.sg!==false;
+  document.getElementById('tk-f-eet').checked=t.eet!==false;
+  tkDp();
+  document.getElementById('tk-f-tot').oninput=tkDp;
+  document.getElementById('tk-f-ins').oninput=tkDp;
+  suShow('Tak bewerken','su-fields-tak','<button class="btn btn-bad" onclick="tkDelFromEditor()">Verwijderen</button>');
+  document.getElementById('su-msave').onclick=tkSave;
+}
+function tkDp(){
+  var tot=+document.getElementById('tk-f-tot').value||0,ins=+document.getElementById('tk-f-ins').value||0;
+  var dp=tot?Math.round(ins/tot*100):0;
+  document.getElementById('tk-f-dp').innerHTML='Deelname: <strong class="'+suDpClass(dp)+'">'+(tot?dp+'%':'\u2014')+'</strong> <span style="color:#8a94a6;">(berekend uit ingeschreven / totaal leden)</span>';
+}
+function tkSave(){
+  var i=TK_IDX;if(i<0)return;
+  var nieuw={nm:document.getElementById('tk-f-nm').value,
+             tot:+document.getElementById('tk-f-tot').value||0,
+             ins:+document.getElementById('tk-f-ins').value||0,
+             kp:+document.getElementById('tk-f-kp').value||0,
+             aa:document.getElementById('tk-f-aa').value,
+             vt:document.getElementById('tk-f-vt').value,
+             sg:document.getElementById('tk-f-sg').checked,
+             eet:document.getElementById('tk-f-eet').checked};
+  // Alleen gewijzigde velden via de bestaande uTk-setter, zodat sync- en opslaglogica identiek blijft.
+  var t=S.setup.takken[i],vs=['nm','tot','ins','kp','aa','vt','sg','eet'];
+  var gewijzigd=false;
+  vs.forEach(function(f){
+    var oud=(f==='sg'||f==='eet')?(t[f]!==false):t[f];
+    if(oud!==nieuw[f]){uTk(i,f,nieuw[f]);gewijzigd=true;}
+  });
+  if(!gewijzigd)rTk();
+  suClose();
+}
+function tkDelFromEditor(){
+  var i=TK_IDX;if(i<0)return;
+  var t=S.setup.takken[i];
+  if(!confirm('Tak \u201c'+((t&&t.nm)||'')+'\u201d verwijderen?'))return;
+  S.setup.takken.splice(i,1);rTk();syncAVFromSetup(false);save();suClose();
+}
+function suShow(titel,fieldsId,delHtml){
+  var ov=document.getElementById('su-ov');if(!ov)return;
+  document.getElementById('su-mt').textContent=titel;
+  ['su-fields-kamp','su-fields-terr','su-fields-tak'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.classList.toggle('on',id===fieldsId);});
+  document.getElementById('su-mdel').innerHTML=delHtml||'';
+  ov.classList.add('open');
+  ov.onclick=function(e){if(e.target===ov)suClose();};
+}
+function suClose(){
+  var ov=document.getElementById('su-ov');if(ov)ov.classList.remove('open');
+  loadSU();   // velden terug in lijn met de opgeslagen state (Annuleren wijzigt niets)
+  SU_MODE=null;TK_IDX=-1;
+}
+function kpToggleManage(){
+  if(suViewer())return;
+  var m=document.getElementById('kp-manage'),r=document.getElementById('kp-read'),b=document.getElementById('kp-toggle');
+  if(!m)return;
+  var open=m.style.display!=='none';
+  m.style.display=open?'none':'block';
+  if(r)r.style.display=open?'block':'none';
+  if(b)b.textContent=open?'Kookploeg beheren':'Beheer sluiten';
+}
+function renderKpSummary(){
+  var kp=(S.setup&&S.setup.kookploeg)||{leden:[]},L=kp.leden||[];
+  var vs=0,bt=0;
+  L.forEach(function(k){vs+=kpVerschuldigd(k);bt+=kpBetaald(k);});
+  var el=document.getElementById('kp-sum');
+  if(el)el.innerHTML='<div class="su-sum">'
+    +suItem('Kookploeg',L.length+' personen','')
+    +suItem('Verschuldigd',fmt(vs),'')
+    +suItem('Betaald',fmt(bt),'')
+    +suItem('Openstaand',fmt(vs-bt),(Math.abs(vs-bt)<0.005?'alles vereffend':'nog te innen'))
+    +suItem('Tarief',fmt(kp.tarief||10)+'/nacht','max '+fmt(kp.max||50))
+    +suItem('Drankje',fmt(kp.drank==null?0.5:kp.drank),'per stuk')
+    +'</div>';
+  var tb=document.getElementById('kp-read-body');
+  if(tb){
+    tb.innerHTML=L.map(function(k){
+      var v=kpVerschuldigd(k),b=kpBetaald(k),sal=b-v;
+      var kleur=(v>0&&Math.abs(sal)<0.005)?'var(--ok)':(sal<0?'var(--bad)':'var(--txt2)');
+      var per=suPeriode(k.aa,k.vt);
+      return '<tr><td><strong>'+plEsc(k.naam||'\u2014')+'</strong>'
+        +'<span class="su-mobile-cell" style="font-size:12px;color:var(--txt2);margin-top:3px;">'+per+' \u00b7 te betalen '+fmt(v)+' \u00b7 betaald '+fmt(b)+' \u00b7 <span style="color:'+kleur+'">saldo '+fmt(sal)+'</span></span></td>'
+        +'<td style="white-space:nowrap">'+per+'</td>'
+        +'<td class="tr">'+fmt(v)+'</td><td class="tr">'+fmt(b)+'</td>'
+        +'<td class="tr" style="color:'+kleur+'">'+fmt(sal)+'</td></tr>';}).join('')
+      ||'<tr><td colspan="5" style="color:#8a94a6;">Nog geen kookploegleden.</td></tr>';
+  }
+}
+function suViewer(){return (typeof isViewer==='function'&&isViewer());}
+function suDpClass(dp){return dp<70?'su-dp-low':(dp>100?'su-dp-high':'');}
+function suPeriode(aa,vt){
+  if(!aa||!vt)return '\u2014';
+  var mnd=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var a=/^(\d{4})-(\d{2})-(\d{2})$/.exec(aa),b=/^(\d{4})-(\d{2})-(\d{2})$/.exec(vt);
+  if(!a||!b)return aa+' \u2013 '+vt;
+  var am=mnd[(+a[2])-1],bm=mnd[(+b[2])-1];
+  return (a[2]===b[2]&&a[1]===b[1]) ? (+a[3])+'\u2013'+(+b[3])+' '+bm
+                                    : (+a[3])+' '+am+' \u2013 '+(+b[3])+' '+bm;
+}
 function rTk(){
-  const tb=document.getElementById('tk-body');tb.innerHTML='';let tT=0,iT=0;
-  S.setup.takken.forEach((t,i)=>{tT+=t.tot||0;iT+=t.ins||0;const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;const clr=dp>=90?'#16a34a':dp>=70?'#d97706':'#dc2626';const tr=document.createElement('tr');
-    tr.innerHTML=`<td><input type="text" value="${t.nm}" onchange="uTk(${i},'nm',this.value)"></td><td><input type="number" value="${t.tot||0}" onchange="uTk(${i},'tot',+this.value)"></td><td><input type="number" value="${t.ins||0}" onchange="uTk(${i},'ins',+this.value)"></td><td style="color:${clr};font-weight:600;font-size:12px;">${t.tot?dp+'%':'\u2014'}</td><td><input type="date" value="${t.aa}" style="width:130px" onchange="uTk(${i},'aa',this.value)"></td><td><input type="date" value="${t.vt}" style="width:130px" onchange="uTk(${i},'vt',this.value)"></td><td><input type="number" value="${t.kp}" step="5" style="width:75px" onchange="uTk(${i},'kp',+this.value)"></td><td style="text-align:center;"><input type="checkbox" ${t.sg!==false?'checked':''} onchange="uTk(${i},'sg',this.checked)" title="Ontvangt speelgeld"></td><td style="text-align:center;"><input type="checkbox" ${t.eet!==false?'checked':''} onchange="uTk(${i},'eet',this.checked)" title="Telt mee in eetbudget"></td><td><button class="btn btn-bad" onclick="dTk(${i})">&#x2715;</button></td>`;
+  const tb=document.getElementById('tk-body');if(!tb)return;
+  tb.innerHTML='';let tT=0,iT=0;
+  S.setup.takken.forEach((t,i)=>{
+    tT+=t.tot||0;iT+=t.ins||0;
+    const dp=t.tot?Math.round((t.ins||0)/t.tot*100):0;
+    const per=suPeriode(t.aa,t.vt);
+    const tr=document.createElement('tr');
+    tr.onclick=function(){tkEdit(i);};
+    tr.innerHTML=`<td><strong>${plEsc(t.nm)}</strong>`
+      +`<span class="su-mobile-cell" style="font-size:12px;color:var(--txt2);margin-top:3px;">${(t.ins||0)} / ${(t.tot||0)} \u00b7 <span class="${suDpClass(dp)}">${t.tot?dp+'%':'\u2014'}</span> \u00b7 ${per} \u00b7 ${fmt(t.kp)}</span></td>`
+      +`<td class="tr">${(t.ins||0)} / ${(t.tot||0)}</td>`
+      +`<td class="tr ${suDpClass(dp)}">${t.tot?dp+'%':'\u2014'}</td>`
+      +`<td style="white-space:nowrap">${per}</td>`
+      +`<td class="tr">${fmt(t.kp)}</td>`;
     tb.appendChild(tr);});
   const tp=tT?Math.round(iT/tT*100):0;
-  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr">${tT}</td><td class="tr">${iT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="4"></td>`;
+  document.getElementById('tk-foot').innerHTML=`<td><strong>Totaal</strong></td><td class="tr tw5">${iT} / ${tT}</td><td class="tr tw5">${tT?tp+'%':'\u2014'}</td><td colspan="2"></td>`;
+  const tot=document.getElementById('tk-tot');
+  if(tot)tot.innerHTML=`<span><strong>${iT}</strong> ingeschreven</span><span><strong>${tT}</strong> totaal leden</span><span><strong>${tT?tp+'%':'\u2014'}</strong> deelname</span>`;
+  renderSetupSummary();
 }
 function syncTakAV(t){
   getDays().forEach(function(d){
@@ -1763,7 +2006,7 @@ function syncTakAV(t){
   if(document.getElementById('p-av').classList.contains('act'))renderAV();
 }
 function uTk(i,f,v){S.setup.takken[i][f]=v;if(f==='ins'||f==='aa'||f==='vt'){syncTakAV(S.setup.takken[i]);}else{syncAVFromSetup(false);}rTk();if(document.getElementById('p-budget').classList.contains('act'))renderBudget();save();}
-function addTak(){S.setup.takken.push({id:uid(),nm:'Nieuwe tak',tot:0,ins:0,aa:S.setup.st,vt:S.setup.ei,kp:0});rTk();save();}
+function addTak(){if(suViewer())return;S.setup.takken.push({id:uid(),nm:'Nieuwe tak',tot:0,ins:0,aa:S.setup.st,vt:S.setup.ei,kp:0});rTk();save();tkEdit(S.setup.takken.length-1);}
 function dTk(i){if(!confirm('Tak verwijderen?'))return;S.setup.takken.splice(i,1);rTk();save();}
 function rVK(){
   const tb=document.getElementById('vk-body');tb.innerHTML='';let b=0,s=0;
@@ -1833,6 +2076,7 @@ function rKP(){
     tr.innerHTML=`<td><input type="text" value="${k.naam||''}" placeholder="Naam" style="width:112px" onchange="uKP(${i},'naam',this.value)"></td><td><input type="date" value="${k.aa||''}" style="width:116px" onchange="uKP(${i},'aa',this.value)"></td><td><input type="date" value="${k.vt||''}" style="width:116px" onchange="uKP(${i},'vt',this.value)"></td><td class="tr">${d}</td><td class="tr tw5">${fmt(b)}</td><td class="tr" style="white-space:nowrap"><input type="number" min="0" step="1" value="${k.dr==null?'':k.dr}" placeholder="0" style="width:54px;text-align:right" onchange="uKPn(${i},'dr',this.value)"> <span class="muted" style="font-size:11px">${dr?fmt(dr):''}</span></td><td class="tr tw5"><strong>${fmt(vs)}</strong></td><td class="tr"><input type="number" min="0" step="0.5" value="${k.bt==null?'':k.bt}" placeholder="0" style="width:68px;text-align:right" onchange="uKPn(${i},'bt',this.value)"></td><td class="tr tw5" style="color:${salKleur}">${fmt(sal)}</td><td style="white-space:nowrap;padding-left:2px;padding-right:2px;font-size:11px;"><button class="btn lockhide" style="padding:2px 5px" onclick="kpVereffen(${i})" title="Betaald = verschuldigd">✓</button> <button class="btn lockhide" style="padding:2px 5px" onclick="kpMove(${i},-1)" title="Omhoog"${i===0?' disabled':''}>&#x25B2;</button> <button class="btn lockhide" style="padding:2px 5px" onclick="kpMove(${i},1)" title="Omlaag"${i===len-1?' disabled':''}>&#x25BC;</button> <button class="btn btn-bad" style="padding:2px 5px" onclick="dKP(${i})">&#x2715;</button></td>`;
     tb.appendChild(tr);
   });
+  renderKpSummary();
   document.getElementById('kp-tot').textContent=fmt(tot);
   document.getElementById('kp-bet').textContent=fmt(totBet);
   const el=document.getElementById('kp-saldo');el.textContent=fmt(totBet-tot);
